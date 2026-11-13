@@ -40,6 +40,14 @@ Read in this order the first time. After that, each document stands on its own.
 | — | [References](references.md) | External sources, with the date each was checked |
 | — | [Decision records](decisions/README.md) | Why each significant choice was made |
 
+## Implementation plans
+
+| Version | Plan | Status |
+|---|---|---|
+| 0 | [Foundations](plans/2026-11-14-v0-foundations.md) | Written, awaiting review |
+
+One plan per roadmap version, written just before that version starts.
+
 ## How these documents are kept up to date
 
 - Every version in the roadmap ends with a documentation pass: anything the version
