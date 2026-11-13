@@ -49,7 +49,7 @@ The full index is in [docs/README.md](docs/README.md).
 ## Repository layout
 
 ```
-hexapod-robot/
+bemu/
 ├── README.md            this file
 └── docs/                design, roadmap, architecture, component plan
     └── decisions/       one short record per significant decision

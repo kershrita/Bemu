@@ -244,7 +244,7 @@ Each is **proposed** and can be changed at approval.
 | C9 | 3-cell lithium battery, single battery with a step-down converter for the Pi | Matches 12 V servos; one battery is simpler to charge and mount |
 | C10 | Top-deck mounting grid, M3 inserts at 20 mm pitch | A fixed standard lets modules be designed without touching the body |
 | C11 | Flat indoor floors only until version 5 | Keeps early versions achievable |
-| C12 | Repository name `hexapod-robot`; design document at `docs/02-design.md` | Plain and findable |
+| C12 | Repository name `bemu`; design document at `docs/02-design.md` | Plain and findable |
 | C13 | Ubuntu 26.04 under WSL 2 on the Windows PC; dual-boot Ubuntu as the fallback | Matches the Pi's operating system; no second machine needed |
 | C14 | Design for a 200 × 200 mm print bed until the print service's size is known | A size almost any service can print |
 

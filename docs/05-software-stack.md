@@ -25,7 +25,7 @@ Versions are pinned in the repository when version 0 is set up, and recorded in
 Created in version 0, after the design is approved.
 
 ```
-hexapod-robot/
+bemu/
 ├── README.md
 ├── docs/                         these documents
 ├── config/
