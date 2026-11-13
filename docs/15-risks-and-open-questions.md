@@ -88,3 +88,16 @@ Things taken as true without confirmation. If one is wrong, the design is revisi
 | First perception sensor | Start of version 6 |
 | Training framework and hardware | Start of version 7 |
 | Order of the version 8+ capabilities | After version 6 |
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [ROS 2 Lyrical vs Jazzy](https://openelab.io/cs/blogs/learn/ros-2-lyrical-vs-jazzy) | Lyrical maturity and the Jazzy fallback (risk R3) | 2026-11-13 |
+| [mujoco_ros2_control on ROS Index](https://index.ros.org/r/mujoco_ros2_control/) | The MuJoCo bridge (risk R4) | 2026-11-13 |
+| [Feetech STS3215, Servo Database](https://servodatabase.com/servo/feetech/sts3215) | Servo voltage variants (risk R7) | 2026-11-13 |
+| [Powering a Raspberry Pi 5, Pololu forum](https://forum.pololu.com/t/powering-a-raspberry-pi-5/26012) | Pi 5 supply under load (risk R8) | 2026-11-13 |
+| [WSL visualization, NVIDIA forum](https://forums.developer.nvidia.com/t/wsl-visualization/294703) | WSL graphics falling back to software rendering (risk R15) | 2026-11-14 |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

@@ -292,3 +292,12 @@ A learned walker replaces sections 3 to 5 with a trained network that maps senso
 readings and a velocity command directly to joint targets. Sections 1 and 2 are
 still used: for safety limits, for the stand-up sequence, and as the reference the
 learned walker is compared against. See [11 — Learning roadmap](11-learning-roadmap.md).
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [REP 103](https://www.ros.org/reps/rep-0103.html) | Axis directions used for the body and leg frames | — |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

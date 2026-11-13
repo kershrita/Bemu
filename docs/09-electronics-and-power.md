@@ -192,3 +192,17 @@ setting addresses and for the measurement work in step 2.6.
 
 A custom circuit board replacing the hub and distribution wiring is a possible
 later tidy-up, once the layout has stopped changing.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [Raspberry Pi documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html) | Pi 5 power requirements and supply configuration | — |
+| [Powering a Raspberry Pi 5, Pololu forum](https://forum.pololu.com/t/powering-a-raspberry-pi-5/26012) | Powering a Pi 5 from a step-down converter; converter current ratings | 2026-11-13 |
+| [Raspberry Pi 5 power FAQ, element14](https://community.element14.com/products/raspberry-pi/f/raspberry-pi-5-faq/53749/what-power-supply-do-i-need-for-the-raspberry-pi-5-can-i-use-a-previous-power-supply-and-does-it-support-usb-pd) | USB current limits with 3 A and 5 A supplies | 2026-11-13 |
+| [Feetech STS3215, Switch Science](https://www.switch-science.com/products/7489) | Servo bus signalling, speed and feedback values | 2026-11-13 |
+| [Feetech STS3215, Core Electronics](https://core-electronics.com.au/feetech-sts3215-smart-servo.html) | Servo stall current, used in the power budget | 2026-11-13 |
+| [Feetech STS3215, AIFITLAB](https://aifitlab.com/collections/servo-motor/products/feetech-sts3215-servo-motor) | 12 V version stall current (2.7 A) | 2026-11-13 |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

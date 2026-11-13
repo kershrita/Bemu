@@ -1,7 +1,8 @@
 # References
 
-External sources used while writing these documents, with the date each was
-checked. Facts from these sources can change; re-check before relying on them.
+Every external source used in these documents, with the date each was checked.
+Each document also ends with its own References section listing the sources it
+relies on. Facts from these sources can change; re-check before relying on them.
 
 ## ROS 2
 
@@ -12,6 +13,8 @@ checked. Facts from these sources can change; re-check before relying on them.
 | [ROS 2 Lyrical vs Jazzy](https://openelab.io/cs/blogs/learn/ros-2-lyrical-vs-jazzy) | Support end dates; Ubuntu pairing on the Pi 5 | 2026-11-13 |
 | [ROS 2 Lyrical installation](https://docs.ros.org/en/lyrical/Installation.html) | Supported platforms; Ubuntu packages versus the Windows binary archive | 2026-11-14 |
 | [ROS 2 Lyrical Luth released](https://discourse.openrobotics.org/t/ros-2-lyrical-luth-released/55021) | Platform support tiers | 2026-11-14 |
+| [ROS 2 Lyrical: Windows (binary)](https://docs.ros.org/en/lyrical/Installation/Windows-Install-Binary.html) | The Windows binary install does not include every package | 2026-11-14 |
+| [ROS 2 Lyrical: installing on Ubuntu](https://docs.ros.org/en/lyrical/Installation/Ubuntu-Install-Debs.html) | Package install on Ubuntu 26.04 | 2026-11-14 |
 | [REP 103](https://www.ros.org/reps/rep-0103.html) | Axis and unit conventions | — |
 | [ros2_control documentation](https://control.ros.org/) | Joint layer concepts | — |
 

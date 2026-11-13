@@ -191,3 +191,19 @@ If money or time is short, this is the order that protects the plan.
 - All 18 servos at once. Buy four, prove one leg, then buy the rest.
 - A camera, scanner or AI accelerator before the robot walks.
 - A servo driver board for PWM servos. Bus servos do not use one.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [Feetech STS3215, AIFITLAB](https://aifitlab.com/collections/servo-motor/products/feetech-sts3215-servo-motor) | STS3215 7.4 V and 12 V figures; unit price | 2026-11-13 |
+| [Feetech STS3215, Core Electronics](https://core-electronics.com.au/feetech-sts3215-smart-servo.html) | STS3215 specifications; unit price | 2026-11-13 |
+| [Feetech STS3215, Servo Database](https://servodatabase.com/servo/feetech/sts3215) | STS3215 sub-model codes and voltages | 2026-11-13 |
+| [Feetech STS3215, Switch Science](https://www.switch-science.com/products/7489) | STS3215 feedback values | 2026-11-13 |
+| [Dynamixel XL430-W250 manual](https://emanual.robotis.com/docs/en/dxl/x/xl430-w250/) | XL430-W250 torque by voltage; the XM430-W210 comparison | 2026-11-13 |
+| [XL430-W250-T distributor listing](https://ichome.com/product-detail/robotis/902-0135-000) | XL430-W250-T current unit price | 2026-11-13 |
+| [XL430 price notice, ROBOTIS](https://www.robotis.us/robotis-blog/xl430-price-change-xseries-accessories/) | XL430 list price history | 2026-11-13 |
+| [Powering a Raspberry Pi 5, Pololu forum](https://forum.pololu.com/t/powering-a-raspberry-pi-5/26012) | Step-down converter rating for the Pi 5 | 2026-11-13 |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

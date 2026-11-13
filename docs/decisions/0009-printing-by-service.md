@@ -34,3 +34,9 @@ written print specification.
 - Feet may use bought rubber tips if the service does not offer a flexible
   material.
 - Printing cost is not in the component budget until a quote exists.
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](../references.md).

@@ -31,3 +31,9 @@ the servo. Purchases are staged behind gates in the roadmap.
 - The simulation must later be matched to the real robot. That work is scheduled in
   version 2 and is the main technical risk (R1).
 - The first physical result arrives later than with a kit.
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](../references.md).

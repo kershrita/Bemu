@@ -202,3 +202,17 @@ Nothing that belongs in configuration is written into code.
 - Commit messages: a short summary line in the imperative, then the reason.
 - Work on a branch per roadmap step; merge when its tests pass.
 - Tag each finished version: `v0`, `v1`, `v1.5`, and so on.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [ROS 2 documentation](https://docs.ros.org/) | ROS 2 Lyrical Luth; standard message types | 2026-11-13 |
+| [ROS 2 Lyrical vs Jazzy](https://openelab.io/cs/blogs/learn/ros-2-lyrical-vs-jazzy) | Support dates; the Jazzy fallback | 2026-11-13 |
+| [ros2_control documentation](https://control.ros.org/) | ros2_control and ros2_controllers | — |
+| [mujoco_ros2_control on ROS Index](https://index.ros.org/r/mujoco_ros2_control/) | mujoco_ros2_control: source, supported distributions | 2026-11-13 |
+| [REP 103](https://www.ros.org/reps/rep-0103.html) | Axis directions and units for frames | — |
+| [build123d documentation](https://build123d.readthedocs.io/) | The CAD tool | — |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

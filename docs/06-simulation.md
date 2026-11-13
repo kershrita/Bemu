@@ -137,3 +137,16 @@ Version 7 reuses the MuJoCo model for learning. Training wants thousands of copi
 of the robot running at once, which uses a different MuJoCo runtime than the single
 robot connected to ROS. The model file is shared; only the way it is run changes.
 See [11 — Learning roadmap](11-learning-roadmap.md).
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [MuJoCo documentation](https://mujoco.readthedocs.io/) | Time step, actuators, contacts, sensors, running without a window | — |
+| [mujoco_ros2_control on ROS Index](https://index.ros.org/r/mujoco_ros2_control/) | The bridge and its URDF-to-MuJoCo conversion utilities | 2026-11-13 |
+| [Introducing mujoco_ros2_control](https://discourse.openrobotics.org/t/introducing-mujoco-ros2-control-high-fidelity-simulation-for-ros-2/52683) | What the bridge provides | 2026-11-13 |
+| [Feetech STS3215, AIFITLAB](https://aifitlab.com/collections/servo-motor/products/feetech-sts3215-servo-motor) | No-load speed of the 12 V STS3215, used for the simulated servo's speed limit | 2026-11-13 |
+| [mjlab technical report](https://arxiv.org/pdf/2601.22074v2) | Parallel MuJoCo runtimes for training (last section) | 2026-11-13 |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

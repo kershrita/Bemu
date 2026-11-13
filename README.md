@@ -3,8 +3,8 @@
 Bemu is a six-legged walking robot built on a Raspberry Pi 5, developed in small
 versions where each version adds one new capability.
 
-**Status:** planning. Nothing is built or bought yet. The documents in `docs/` are
-the design, waiting for approval.
+**Status:** design approved on 2026-11-14. Nothing is built or bought yet. Next:
+the implementation plan for version 0.
 
 ## The idea in five lines
 
@@ -24,7 +24,7 @@ the design, waiting for approval.
 | If you want to know... | Read |
 |---|---|
 | What this project is and is not | [docs/01-vision-and-scope.md](docs/01-vision-and-scope.md) |
-| The design to approve | [docs/02-design.md](docs/02-design.md) |
+| The approved design | [docs/02-design.md](docs/02-design.md) |
 | What gets built in which order | [docs/03-roadmap.md](docs/03-roadmap.md) |
 | What to buy, and when | [docs/10-components.md](docs/10-components.md) |
 | What is still undecided | [docs/15-risks-and-open-questions.md](docs/15-risks-and-open-questions.md) |
@@ -58,3 +58,13 @@ bemu/
 Code, CAD and simulation folders are added by version 0 of the roadmap, after the
 design is approved. The planned layout is in
 [docs/05-software-stack.md](docs/05-software-stack.md).
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [ROS 2 documentation](https://docs.ros.org/) | ROS 2 Lyrical Luth as the current long-term release | 2026-11-13 |
+| [mujoco_ros2_control on ROS Index](https://index.ros.org/r/mujoco_ros2_control/) | The bridge between MuJoCo and ros2_control | 2026-11-13 |
+
+The full list for the project is in [References](docs/references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

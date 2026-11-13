@@ -73,3 +73,9 @@ Outcomes that would make the project a failure even if the robot walks.
 One builder, working alone, with a software and AI engineering background. The
 documents assume comfort with Python, Linux and git, and explain robotics terms
 where they first appear. See the [glossary](glossary.md).
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](references.md).

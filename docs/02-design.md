@@ -1,15 +1,16 @@
 # 02 — Design
 
 **Date:** 2026-11-13
-**Status:** draft, awaiting the owner's approval
+**Status:** approved by the owner on 2026-11-14
 **Size:** a project (multi-version, hardware and software)
 
-This is the document to approve. The other documents expand its sections; if they
+This is the approved design. The other documents expand its sections; if they
 ever disagree with this one, this one wins until it is updated.
 
 Throughout, **Owner decision** marks something the owner said or chose.
-**Proposed** marks a call made while writing this design that the owner has not yet
-confirmed. Everything proposed is open to change.
+**Proposed** marks a call made while writing this design. All proposed calls were
+accepted when the owner approved the design on 2026-11-14; the label is kept to
+show where each choice came from.
 
 ---
 
@@ -280,6 +281,26 @@ Decided during implementation, within the limits above:
 
 ## 10. Approval
 
-When this design is approved, the next step is a written implementation plan for
-version 0, broken into small tasks. No code, CAD or scaffolding is created before
-that approval.
+Approved by the owner on 2026-11-14, after the answers in section 8 were written
+in. The next step is a written implementation plan for version 0, broken into
+small tasks.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [ROS 2 documentation](https://docs.ros.org/) | Lyrical Luth is the newest long-term release (call C1) | 2026-11-13 |
+| [ROS 2 Lyrical vs Jazzy](https://openelab.io/cs/blogs/learn/ros-2-lyrical-vs-jazzy) | Support end dates for Jazzy and Lyrical; Ubuntu pairing on the Pi 5 (call C1) | 2026-11-13 |
+| [ROS 2 Lyrical installation](https://docs.ros.org/en/lyrical/Installation.html) | Supported platforms; Ubuntu packages versus the Windows archive (call C13) | 2026-11-14 |
+| [mujoco_ros2_control on ROS Index](https://index.ros.org/r/mujoco_ros2_control/) | The MuJoCo bridge and the distributions it supports (section 4.1, call C5) | 2026-11-13 |
+| [Introducing mujoco_ros2_control](https://discourse.openrobotics.org/t/introducing-mujoco-ros2-control-high-fidelity-simulation-for-ros-2/52683) | The bridge's release in February 2026 (section 4.1) | 2026-11-13 |
+| [ros2_control documentation](https://control.ros.org/) | The joint layer shared by simulation and hardware (section 5.2) | — |
+| [Feetech STS3215, Core Electronics](https://core-electronics.com.au/feetech-sts3215-smart-servo.html) | STS3215 feedback values and torque (section 5.4) | 2026-11-13 |
+| [Feetech STS3215, AIFITLAB](https://aifitlab.com/collections/servo-motor/products/feetech-sts3215-servo-motor) | STS3215 12 V version: 30 kg·cm stall torque (section 5.4) | 2026-11-13 |
+| [Dynamixel XL430-W250 manual](https://emanual.robotis.com/docs/en/dxl/x/xl430-w250/) | Dynamixel X-series as the alternative (section 5.4) | 2026-11-13 |
+| [Powering a Raspberry Pi 5, Pololu forum](https://forum.pololu.com/t/powering-a-raspberry-pi-5/26012) | The Pi 5's 5 A supply requirement (section 5.5) | 2026-11-13 |
+| [build123d documentation](https://build123d.readthedocs.io/) | The CAD tool (section 5.6) | — |
+| [Installing Ubuntu 26.04 on WSL](https://www.how2shout.com/?p=89047) | Ubuntu 26.04 under WSL (question Q1) | 2026-11-14 |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

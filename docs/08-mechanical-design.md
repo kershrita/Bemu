@@ -316,3 +316,16 @@ robot is weighed in version 3 to check.
 | Body plates versus a printed shell | Version 1.5 |
 | Final joint limits | Version 1.5, from collision checks |
 | Whether feet need switches or load sensing is enough | Version 5 |
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [Feetech STS3215, Core Electronics](https://core-electronics.com.au/feetech-sts3215-smart-servo.html) | STS3215 dimensions (45.2 × 24.7 × 35 mm) and mass (55 g) | 2026-11-13 |
+| [Feetech STS3215, AIFITLAB](https://aifitlab.com/collections/servo-motor/products/feetech-sts3215-servo-motor) | STS3215 torque figures used in the sizing estimate | 2026-11-13 |
+| [Feetech STS3215, Servo Database](https://servodatabase.com/servo/feetech/sts3215) | STS3215 sub-models | 2026-11-13 |
+| [build123d documentation](https://build123d.readthedocs.io/) | The chosen CAD tool | — |
+| [FreeCAD](https://www.freecad.org/) | The visual CAD alternative | — |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

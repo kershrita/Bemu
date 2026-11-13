@@ -88,3 +88,9 @@ Designed in from the first hardware version so modules have somewhere to go.
 | I2C, serial, SPI | Header left accessible |
 | Camera connectors | Both of the Pi 5's left accessible |
 | Processor headroom | The walking stack should use well under half of the Pi's capacity |
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](references.md).

@@ -1,8 +1,8 @@
 # 0005 — One parameter file for CAD, model and maths
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-11-13
-**Decided by:** —
+**Decided by:** Owner, by approving the design on 2026-11-14
 
 ## Context
 
@@ -34,3 +34,9 @@ library all read it. No dimension is typed anywhere else.
 - The CAD must be able to read the file. This favours code-driven CAD
   ([decision 0007](0007-code-driven-cad.md)).
 - The file's structure becomes a contract; changing it touches three consumers.
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](../references.md).

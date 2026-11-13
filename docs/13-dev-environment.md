@@ -128,3 +128,19 @@ On every change pushed to GitHub:
 4. The simulated exit tests of every completed version, run without a screen.
 
 Set up in step 0.1. See [14 — Testing and validation](14-testing-and-validation.md).
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [ROS 2 Lyrical installation](https://docs.ros.org/en/lyrical/Installation.html) | Platforms ROS 2 Lyrical supports and how each installs | 2026-11-14 |
+| [ROS 2 Lyrical: Windows (binary)](https://docs.ros.org/en/lyrical/Installation/Windows-Install-Binary.html) | The Windows binary install does not include every package | 2026-11-14 |
+| [ROS 2 Lyrical: installing on Ubuntu](https://docs.ros.org/en/lyrical/Installation/Ubuntu-Install-Debs.html) | Installing ROS 2 Lyrical on Ubuntu 26.04 | 2026-11-14 |
+| [ROS 2 Lyrical Luth released](https://discourse.openrobotics.org/t/ros-2-lyrical-luth-released/55021) | Platform support tiers | 2026-11-14 |
+| [Installing Ubuntu 26.04 on WSL](https://www.how2shout.com/?p=89047) | Installing Ubuntu 26.04 under WSL | 2026-11-14 |
+| [WSL visualization, NVIDIA forum](https://forums.developer.nvidia.com/t/wsl-visualization/294703) | Reports of graphics problems under WSL with NVIDIA cards | 2026-11-14 |
+| [mujoco_ros2_control on ROS Index](https://index.ros.org/r/mujoco_ros2_control/) | The MuJoCo bridge package | 2026-11-13 |
+| [build123d documentation](https://build123d.readthedocs.io/) | The CAD library | — |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

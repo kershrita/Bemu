@@ -36,3 +36,12 @@ inputs and outputs, selected by a launch argument.
   servo behaviour.
 - The walker's interface must stay narrow and stable, so that replacing it is a
   one-module change.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [mjlab technical report](https://arxiv.org/pdf/2601.22074v2) | What a learned-walking setup involves | 2026-11-13 |
+
+The full list for the project is in [References](../references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

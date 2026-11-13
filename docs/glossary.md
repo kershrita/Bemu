@@ -102,3 +102,9 @@ Terms as they are used in these documents.
 | Contract | The agreed message types and topics between layers |
 | Decision record | A short note recording why a choice was made |
 | Parameter file | `config/robot_params.yaml`, the single source of dimensions |
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](references.md).

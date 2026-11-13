@@ -34,3 +34,15 @@ controllers drive MuJoCo in simulation and the servo driver on the real robot.
   and the bridge only loads it (risk R4).
 - Simulated sensors for later versions (camera, scanner) are less turnkey in MuJoCo
   than in Gazebo and may need some custom work.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [Introducing mujoco_ros2_control](https://discourse.openrobotics.org/t/introducing-mujoco-ros2-control-high-fidelity-simulation-for-ros-2/52683) | The bridge's purpose and release date | 2026-11-13 |
+| [mujoco_ros2_control on ROS Index](https://index.ros.org/r/mujoco_ros2_control/) | Supported distributions and maintenance status | 2026-11-13 |
+| [MuJoCo documentation](https://mujoco.readthedocs.io/) | The physics engine | — |
+| [ros2_control documentation](https://control.ros.org/) | The control layer the bridge plugs into | — |
+
+The full list for the project is in [References](../references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

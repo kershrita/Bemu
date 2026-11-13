@@ -153,3 +153,14 @@ bypass them.
 
 No version requires restructuring what came before. That is the test of the
 architecture.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [ros2_control documentation](https://control.ros.org/) | Hardware interfaces, controllers and the controller manager | — |
+| [mujoco_ros2_control on ROS Index](https://index.ros.org/r/mujoco_ros2_control/) | MuJoCo presented as a ros2_control hardware interface | 2026-11-13 |
+| [ROS 2 documentation](https://docs.ros.org/) | Nodes, topics, the ROS clock and network discovery | 2026-11-13 |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

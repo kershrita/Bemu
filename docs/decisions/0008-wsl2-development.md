@@ -1,8 +1,8 @@
 # 0008 — Develop under WSL 2 on the Windows PC
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-11-14
-**Decided by:** —
+**Decided by:** Owner, by approving the design on 2026-11-14
 
 ## Context
 
@@ -37,3 +37,16 @@ Ubuntu 26.04 on the same PC.
   across WSL's network (version 2), and that USB devices can be passed into WSL
   (version 2). These are risks R15 and R16.
 - The repository lives in the Linux file system for build speed.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [ROS 2 Lyrical installation](https://docs.ros.org/en/lyrical/Installation.html) | Ubuntu packages versus the Windows binary archive | 2026-11-14 |
+| [ROS 2 Lyrical: Windows (binary)](https://docs.ros.org/en/lyrical/Installation/Windows-Install-Binary.html) | The Windows binary does not include every package | 2026-11-14 |
+| [ROS 2 Lyrical Luth released](https://discourse.openrobotics.org/t/ros-2-lyrical-luth-released/55021) | Ubuntu 26.04 and Windows 11 as first-tier platforms | 2026-11-14 |
+| [Installing Ubuntu 26.04 on WSL](https://www.how2shout.com/?p=89047) | Ubuntu 26.04 as a WSL distribution | 2026-11-14 |
+| [WSL visualization, NVIDIA forum](https://forums.developer.nvidia.com/t/wsl-visualization/294703) | Graphics problems under WSL with NVIDIA cards | 2026-11-14 |
+
+The full list for the project is in [References](../references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

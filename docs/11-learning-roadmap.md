@@ -114,3 +114,13 @@ agree by then. Option 1 can be done at any time after version 1 as a warm-up.
 
 Once the training pipeline exists, the same method can learn rough-terrain walking,
 recovery from a fall, energy-efficient gaits, or walking with a damaged leg.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [mjlab technical report](https://arxiv.org/pdf/2601.22074v2) | mjlab and MuJoCo Playground as candidate training frameworks | 2026-11-13 |
+| [MuJoCo documentation](https://mujoco.readthedocs.io/) | The simulator the training reuses | — |
+
+The full list for the project is in [References](references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

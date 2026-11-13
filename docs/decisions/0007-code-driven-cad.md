@@ -36,3 +36,13 @@ inertias, and the documents that accompany a print order.
   that becomes a real obstacle, a mixed approach is used: code for parts that
   scale with parameters, FreeCAD for the exception (risk R13).
 - A 3D viewer for the scripts is part of the development setup.
+
+## References
+
+| Source | Used here for | Checked |
+|---|---|---|
+| [build123d documentation](https://build123d.readthedocs.io/) | The chosen tool | — |
+| [FreeCAD](https://www.freecad.org/) | The alternative | — |
+
+The full list for the project is in [References](../references.md). A dash means the source
+is listed for reference and was not re-read on a specific date.

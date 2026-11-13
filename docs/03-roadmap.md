@@ -280,3 +280,9 @@ Candidates, in no fixed order. Each becomes its own version when chosen.
 3. **A version does not edit lower layers** unless a decision record explains why.
 4. **Every version ends with a tag** (`v0`, `v1`, ...) and a documentation pass.
 5. **Purchases happen at gates**, never ahead of them.
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](references.md).

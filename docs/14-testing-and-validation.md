@@ -114,3 +114,9 @@ Large recordings are kept out of git; the scripts and the summary reports are in
 - [ ] Estimates replaced by measurements are marked as measured.
 - [ ] Decision records exist for the significant choices made.
 - [ ] The version is tagged.
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](references.md).

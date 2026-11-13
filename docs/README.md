@@ -7,7 +7,7 @@ Read in this order the first time. After that, each document stands on its own.
 | # | Document | What it answers |
 |---|---|---|
 | 01 | [Vision and scope](01-vision-and-scope.md) | Why this exists, what counts as success, what is out of scope |
-| 02 | [Design](02-design.md) | The design to approve: goals, constraints, approaches considered, decisions |
+| 02 | [Design](02-design.md) | The approved design: goals, constraints, approaches considered, decisions |
 | 03 | [Roadmap](03-roadmap.md) | Versions, what each adds, and the test each must pass |
 
 ## Software
@@ -48,3 +48,9 @@ Read in this order the first time. After that, each document stands on its own.
   rewritten; a changed decision gets a new record that supersedes the old one.
 - Numbers that came from an estimate are marked **(estimate)** until a measurement
   replaces them.
+
+## References
+
+No external sources. This document draws only on the owner's decisions and the
+other documents in this repository. The project's full list is in
+[References](references.md).
