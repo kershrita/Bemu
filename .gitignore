@@ -1,0 +1,22 @@
+# ROS 2 workspace build output
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Generated CAD exports and recordings
+cad/export/
+*.bag
+*.mcap
+rosbag2_*/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
