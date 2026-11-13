@@ -1,7 +1,7 @@
-# Hexapod Robot
+# Bemu — hexapod robot
 
-A six-legged walking robot built on a Raspberry Pi 5, developed in small versions
-where each version adds one new capability.
+Bemu is a six-legged walking robot built on a Raspberry Pi 5, developed in small
+versions where each version adds one new capability.
 
 **Status:** planning. Nothing is built or bought yet. The documents in `docs/` are
 the design, waiting for approval.
@@ -35,14 +35,16 @@ The full index is in [docs/README.md](docs/README.md).
 
 | Layer | Choice |
 |---|---|
-| Computer | Raspberry Pi 5 |
+| Robot's computer | Raspberry Pi 5 |
+| Development PC | Windows 11, with Ubuntu 26.04 under WSL 2 |
 | Operating system | Ubuntu 26.04 |
 | Robot framework | ROS 2 Lyrical Luth (fallback: Jazzy on Ubuntu 24.04) |
 | Simulator | MuJoCo, connected through `mujoco_ros2_control` |
 | Control layer | `ros2_control` |
 | First language | Python, with C++ only where ROS 2 requires it |
 | Actuators (planned) | 18 smart serial-bus servos with position and load feedback |
-| CAD | Parametric, code-driven (proposed: build123d), exported to STL/STEP |
+| CAD | Parametric, code-driven (build123d), exported to STL/STEP |
+| Printing | Parts are sent to a print service |
 
 ## Repository layout
 

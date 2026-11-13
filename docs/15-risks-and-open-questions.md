@@ -1,54 +1,30 @@
 # 15 — Risks and open questions
 
-## Open questions for the owner
+## Questions for the owner
 
-These change what gets built. Each has a default that applies if it is left
-unanswered.
+### Answered on 2026-11-14
 
-### Q1 — What is the development PC?
+| # | Question | Answer | Effect |
+|---|---|---|---|
+| Q1 | What is the development PC? | Windows 11, Intel Core i9 (14900 series), 32 GB memory, NVIDIA RTX 5060 Ti with 16 GB | Ubuntu 26.04 under WSL 2; the graphics card is used for training in version 7 |
+| Q2 | Is there a 3D printer? | No; designs can be sent to someone to print | Parts are designed for a print service |
+| Q3 | Code-driven or visual CAD? | The designer's choice | build123d |
+| Q4 | The robot's name? | Bemu | Package prefix `bemu_` |
 
-**Asking:** its operating system, and whether it has an NVIDIA graphics card.
+### Still open
 
-**Why it matters:** ROS 2 runs natively only on Ubuntu; on anything else it runs in
-a container or under WSL, which changes the setup steps. A graphics card decides
-how learned walking is trained in version 7.
+#### Q5 — Which print service, and what can it print?
 
-**Default:** Ubuntu 26.04, natively or in a container. Training approach decided at
-version 7.
+**Asking:** who will print the parts, the largest part they can print, and which
+materials they offer (in particular PETG, and a flexible material for feet).
 
-### Q2 — Is there access to a 3D printer?
+**Why it matters:** the largest part size decides whether the body plates are one
+piece or split. The materials decide the foot design.
 
-**Asking:** whether one is available, and its build size.
+**Needed by:** step 1.5.6 of the roadmap. It does not block approval or versions 0
+and 1.
 
-**Why it matters:** the build size sets the largest single part. Without a printer,
-parts are ordered from a print service, which changes cost and the pace of design
-iteration.
-
-**Default:** design for a 200 × 200 mm bed, splitting larger parts.
-
-### Q3 — Code-driven CAD or visual CAD?
-
-**Asking:** build123d (parts written as Python) or FreeCAD (parts drawn in a
-program).
-
-**Why it matters:** it decides how the "flexible parts" requirement is met and what
-the CAD folder contains.
-
-| | build123d | FreeCAD |
-|---|---|---|
-| Reads the parameter file | Directly | Through a script or by hand |
-| Version control | Text; changes are readable | Binary-like files; changes are not readable |
-| Shaping complex brackets | Slower, by code | Faster, by eye |
-| Learning curve for a programmer | Low | Moderate |
-
-**Default:** build123d.
-
-### Q4 — Does the robot have a name?
-
-**Why it matters:** package and topic names. Cheap to decide now, tedious to change
-later.
-
-**Default:** packages are named `hexapod_*`.
+**Default:** 200 × 200 mm bed; PETG or tough PLA; bought rubber foot tips.
 
 ---
 
@@ -72,6 +48,9 @@ Likelihood and impact are rated low, medium or high.
 | R12 | Lithium battery misuse | Low | High | Balance charger, charging bag, voltage cut-offs, never charged unattended |
 | R13 | Code-driven CAD turns out too slow for bracket design | Medium | Low | Mixed approach: code CAD for scaling parts, visual CAD for one-off shapes |
 | R14 | The project stalls after a long pause | Medium | Medium | These documents; a version tag and a written state at every stop |
+| R15 | 3D viewers under WSL fall back to slow software rendering instead of the NVIDIA card | Medium | Low | Checked in step 0.2; dual-boot Ubuntu as the fallback |
+| R16 | ROS 2 on the PC (inside WSL) and on the Pi cannot find each other across WSL's virtual network | Medium | Low | Change WSL's networking mode; tested in version 2; dual-boot Ubuntu as the fallback |
+| R17 | Ordering prints makes each design iteration slow, and a wrong part costs a re-order | High | Medium | Tolerance test piece first; fit checked in CAD; complete batches; spares of small loaded parts; a written print specification with every order |
 
 ## Assumptions
 
@@ -80,9 +59,9 @@ Things taken as true without confirmation. If one is wrong, the design is revisi
 | # | Assumption | Affects |
 |---|---|---|
 | A1 | The Pi 5 has at least 4 GB of memory | Running the full stack on the robot |
-| A2 | A PC is available that can run Ubuntu in some form | Versions 0 and 1 |
+| A2 | Ubuntu 26.04 under WSL 2 on the Windows PC is adequate for simulation and development | Versions 0 and 1 |
 | A3 | Indoor use on flat, hard floors until version 5 | Foot design, gait defaults |
-| A4 | Parts can be printed, by the owner or a service | Version 2 onward |
+| A4 | A print service is available with acceptable price and turnaround | Version 2 onward |
 | A5 | Wi-Fi is available where the robot is operated | Remote control and monitoring |
 | A6 | One builder, working part-time | Preference for existing tools; no fixed deadlines |
 
@@ -105,6 +84,7 @@ Things taken as true without confirmation. If one is wrong, the design is revisi
 | Final servo model | End of version 1.5 |
 | Final leg lengths and body size | Version 1.5 |
 | Which community servo driver, or a custom one | Version 2 |
+| Which print service; its build size and materials | Step 1.5.6 |
 | First perception sensor | Start of version 6 |
 | Training framework and hardware | Start of version 7 |
 | Order of the version 8+ capabilities | After version 6 |

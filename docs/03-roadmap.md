@@ -28,7 +28,7 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 | Step | Content |
 |---|---|
 | 0.1 | Repository structure, licence, coding conventions, automated checks |
-| 0.2 | Development environment: Ubuntu, ROS 2, MuJoCo, the MuJoCo bridge |
+| 0.2 | Development environment: Ubuntu under WSL 2, ROS 2, MuJoCo, the MuJoCo bridge |
 | 0.3 | `robot_params.yaml` with the starting dimensions |
 | 0.4 | Kinematics library: forward and inverse leg maths, with tests |
 | 0.5 | One-leg model in MuJoCo, driven through ros2_control |
@@ -85,7 +85,7 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 | 1.5.3 | Parametric CAD of the body: plates, electronics bay, battery bay, mounting grid |
 | 1.5.4 | Replace the block shapes in the simulation with masses and inertias from CAD |
 | 1.5.5 | Re-run the version 1 tests on the updated model |
-| 1.5.6 | Printability review: part sizes, overhangs, split lines, fastener access |
+| 1.5.6 | Printability review: part sizes, overhangs, split lines, fastener access. Choose the print service and confirm its build size and materials |
 | 1.5.7 | Final component list with current prices and suppliers |
 
 **Servo decision rule**
@@ -106,7 +106,8 @@ rather than buying a stronger servo first.
 - [ ] Changing one leg length in `robot_params.yaml` regenerates the parts, the
       model and the maths with no manual editing.
 - [ ] The simulation with CAD-derived masses still passes the version 1 exit test.
-- [ ] Every part fits the available print bed.
+- [ ] Every part fits the print service's build size.
+- [ ] The print order is written down: files, material, settings, quantities.
 - [ ] The component list is priced and the first purchase is approved.
 
 **Spending:** none. **Purchase gate 1** opens when this version passes.
@@ -122,7 +123,7 @@ rather than buying a stronger servo first.
 | 2.1 | Buy: 3 servos plus 1 spare, bus adapter, bench power supply, Pi accessories |
 | 2.2 | Set up the Pi 5: Ubuntu, ROS 2, remote access |
 | 2.3 | Servo driver as a ros2_control hardware plugin |
-| 2.4 | Print and assemble one leg on a bench stand |
+| 2.4 | Order a tolerance test piece, then the printed parts for one leg; assemble on a bench stand |
 | 2.5 | Run the version 0 foot-tracing test on the real leg |
 | 2.6 | Measure the servo: step response, speed under load, backlash, bus timing |
 | 2.7 | Update the simulated servo model from the measurements |
@@ -148,7 +149,7 @@ version passes.
 | Step | Content |
 |---|---|
 | 3.1 | Buy the remaining servos, battery, charger, power parts, fasteners |
-| 3.2 | Print and assemble the body and six legs |
+| 3.2 | Order the remaining printed parts; assemble the body and six legs |
 | 3.3 | Wiring, power distribution, fuse, switch |
 | 3.4 | Calibration procedure: set every joint's zero position |
 | 3.5 | Stand and sit on the bench power supply, robot on a stand |
@@ -252,7 +253,7 @@ version passes.
 - [ ] It walks on the real robot without modification after training.
 - [ ] A written comparison of the two walkers exists.
 
-**Spending:** none for parts. Training needs a PC, ideally with a graphics card.
+**Spending:** none. Training runs on the development PC's graphics card.
 See [11 — Learning roadmap](11-learning-roadmap.md).
 
 ---

@@ -10,6 +10,8 @@ checked. Facts from these sources can change; re-check before relying on them.
 | [ROS 2 documentation](https://docs.ros.org/) | Lyrical Luth is the current long-term release | 2026-11-13 |
 | [Lyrical Luth release page](https://docs.ros.org/en/lyrical/Releases/Release-Lyrical-Luth.html) | Release date, supported platforms | 2026-11-13 |
 | [ROS 2 Lyrical vs Jazzy](https://openelab.io/cs/blogs/learn/ros-2-lyrical-vs-jazzy) | Support end dates; Ubuntu pairing on the Pi 5 | 2026-11-13 |
+| [ROS 2 Lyrical installation](https://docs.ros.org/en/lyrical/Installation.html) | Supported platforms; Ubuntu packages versus the Windows binary archive | 2026-11-14 |
+| [ROS 2 Lyrical Luth released](https://discourse.openrobotics.org/t/ros-2-lyrical-luth-released/55021) | Platform support tiers | 2026-11-14 |
 | [REP 103](https://www.ros.org/reps/rep-0103.html) | Axis and unit conventions | — |
 | [ros2_control documentation](https://control.ros.org/) | Joint layer concepts | — |
 
@@ -46,6 +48,13 @@ checked. Facts from these sources can change; re-check before relying on them.
 | [Raspberry Pi documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html) | Power requirements and supply configuration | — |
 | [Powering a Raspberry Pi 5, Pololu forum](https://forum.pololu.com/t/powering-a-raspberry-pi-5/26012) | 5 V 5 A requirement and converter considerations | 2026-11-13 |
 | [Raspberry Pi 5 power FAQ, element14](https://community.element14.com/products/raspberry-pi/f/raspberry-pi-5-faq/53749/what-power-supply-do-i-need-for-the-raspberry-pi-5-can-i-use-a-previous-power-supply-and-does-it-support-usb-pd) | USB current limits with 3 A and 5 A supplies | 2026-11-13 |
+
+## Windows and WSL
+
+| Source | Used for | Checked |
+|---|---|---|
+| [Installing Ubuntu 26.04 on WSL](https://www.how2shout.com/?p=89047) | Ubuntu 26.04 is available as a WSL distribution | 2026-11-14 |
+| [WSL visualization, NVIDIA forum](https://forums.developer.nvidia.com/t/wsl-visualization/294703) | Reports of graphics problems under WSL with NVIDIA cards | 2026-11-14 |
 
 ## CAD
 

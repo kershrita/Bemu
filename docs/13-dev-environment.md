@@ -8,23 +8,41 @@ tested. Until then this page describes the target.
 
 | Machine | Role | Needs |
 |---|---|---|
-| Development PC | Simulation, visualisation, CAD, tests; later, training | Ubuntu 26.04 (native, container or virtual machine), a few GB of disk, any reasonably modern processor |
+| Development PC | Simulation, visualisation, CAD, tests; later, training | Windows 11, Intel Core i9 (14900 series), 32 GB memory, NVIDIA RTX 5060 Ti 16 GB. Ubuntu 26.04 runs under WSL 2 |
 | Raspberry Pi 5 | The robot's computer, from version 2 | Ubuntu Server 26.04 (64-bit), ROS 2 base install |
 
-The PC's operating system is open question Q1 in [02 — Design](02-design.md).
+## The PC: Windows 11 with WSL 2
 
-## The PC, by operating system
+The chosen setup is Ubuntu 26.04 running under WSL 2 (Windows Subsystem for
+Linux). The PC is far more powerful than the simulation needs.
 
-| PC runs | Recommended setup | Notes |
-|---|---|---|
-| Ubuntu 26.04 | Native install | Simplest and fastest |
-| Another Linux, or an older Ubuntu | A container based on Ubuntu 26.04 with ROS 2 Lyrical | Graphics windows need the display passed into the container |
-| Windows 11 | Ubuntu 26.04 under WSL 2 | Linux graphical programs open as normal windows; simulation speed is close to native |
-| macOS | A Linux virtual machine or container | Workable for code and tests; the 3D viewers are slower |
+**Why not ROS 2 directly on Windows?** ROS 2 Lyrical supports Windows 11, but its
+Windows install is a binary archive that does not include every package, while the
+Ubuntu packages are the recommended route. The Pi 5 runs Ubuntu as well, so using
+Ubuntu on the PC means one environment instead of two.
 
-If native Ubuntu 26.04 is not available, a container definition is added to the
-repository in step 0.2 so the environment is identical everywhere, including in the
-automated checks.
+| Point | Detail |
+|---|---|
+| Install | WSL 2, then the Ubuntu 26.04 distribution from the WSL command line or the Microsoft Store |
+| Graphical programs | RViz and the MuJoCo viewer open as ordinary windows on the Windows desktop |
+| Graphics card | Check in step 0.2 that 3D rendering inside WSL uses the NVIDIA card. A known failure is WSL silently falling back to slow software rendering |
+| Where the code lives | Inside the Linux file system, not on the Windows drive. Builds are much faster there |
+| Editor | An editor on Windows connected to WSL, or any editor inside Linux |
+| Memory | WSL's memory limit is raised in its settings file if the default proves too small |
+| USB devices | The servo adapter (version 2) is passed from Windows into WSL with a USB pass-through tool, or servo setup is done from a Windows tool directly |
+| Network to the Pi | WSL sits behind a virtual network by default. Its networking mode is changed so ROS 2 on the PC and on the Pi can find each other. Set up and tested in version 2 |
+| Training (version 7) | NVIDIA's computing libraries work inside WSL 2, so training can use the graphics card there |
+
+### Fallbacks
+
+| If | Then |
+|---|---|
+| 3D viewers are slow or unstable under WSL | Dual-boot Ubuntu 26.04 on the same PC |
+| ROS 2 networking between WSL and the Pi is unreliable | Dual-boot Ubuntu, or run the visualiser on the Pi's side through a web tool |
+| Training under WSL is troublesome | Dual-boot Ubuntu, or a rented cloud machine |
+
+A container definition is still added to the repository in step 0.2, so the
+automated checks on GitHub use the same environment.
 
 ## Software on the PC
 
@@ -48,7 +66,8 @@ anything specific to Lyrical. See
 
 Each line becomes a tested command in this document.
 
-- [ ] Install or start Ubuntu 26.04.
+- [ ] Install WSL 2 and Ubuntu 26.04 on the Windows PC.
+- [ ] Confirm that 3D rendering inside WSL uses the NVIDIA card.
 - [ ] Install ROS 2 Lyrical following the official installation guide.
 - [ ] Install ros2_control, ros2_controllers and the MuJoCo bridge.
 - [ ] Run one of the MuJoCo bridge's demo launches to confirm the simulator, the
@@ -63,6 +82,8 @@ Filled in during step 0.2.
 
 | Component | Version | Date recorded |
 |---|---|---|
+| Windows build and WSL version | | |
+| NVIDIA driver | | |
 | Ubuntu | | |
 | ROS 2 distribution | | |
 | ros2_control | | |
@@ -90,7 +111,7 @@ Filled in during step 0.2.
 |---|---|
 | Build | `colcon build --symlink-install` in `ros2_ws/` |
 | Test | `colcon test`, then `colcon test-result --verbose` |
-| Run the simulation | `ros2 launch hexapod_bringup robot.launch.py use_sim:=true` |
+| Run the simulation | `ros2 launch bemu_bringup robot.launch.py use_sim:=true` |
 | Run on the robot | The same, with `use_sim:=false` |
 | Watch the robot's state | RViz |
 | Record data | `ros2 bag record` |

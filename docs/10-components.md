@@ -13,21 +13,23 @@ roadmap. A stage is bought only after the gate before it has passed.
   verified**. Step 1.5.7 of the roadmap re-prices everything with real suppliers.
 - Shipping, import duty and local availability are not included and can change the
   totals substantially.
+- Printing is not priced. Parts are made by a print service, and the cost needs a
+  quote once the part files exist.
 
 ## Summary
 
 | Stage | Roadmap version | What it enables | Indicative cost |
 |---|---|---|---|
 | 0 | 0, 1, 1.5 | Simulation and CAD | $0 |
-| 1 | 2 | One real leg on the bench | $190–265 |
-| 2 | 3 | The full walking robot | $520–780 |
+| 1 | 2 | One real leg on the bench | $170–240 + printing |
+| 2 | 3 | The full walking robot | $500–730 + printing |
 | 3 | 4 | Balance sensing | $10–25 |
 | 4 | 5 | Foot contact | $0–10 |
 | 5 | 6 | Perception | $25–100 |
 | 6 | 8+ | Extras | Varies |
-| | | **Through a walking robot (stages 1–2)** | **about $710–1,050** |
+| | | **Through a walking robot (stages 1–2)** | **about $670–970, plus printing** |
 
-Stage totals count the "Must" items only.
+Stage totals count the "Must" items only and exclude printing.
 
 ---
 
@@ -36,7 +38,7 @@ Stage totals count the "Must" items only.
 | Priority | Item | Have it? |
 |---|---|---|
 | Required | Raspberry Pi 5 | Yes |
-| Required | A PC able to run Ubuntu, natively or in a container | To confirm (open question Q1) |
+| Required | Development PC: Windows 11, Core i9, 32 GB memory, RTX 5060 Ti 16 GB, running Ubuntu under WSL 2 | Yes |
 | Required | Software: ROS 2, MuJoCo, CAD | Free |
 
 ---
@@ -53,11 +55,12 @@ Stage totals count the "Must" items only.
 | Must | Pi 5 active cooler | 1 | $5–10 | |
 | Must | Official Pi 5 27 W power supply | 1 | $12–15 | If not already owned |
 | Must | microSD card, 64 GB or larger, fast class | 1 | $10–15 | If not already owned |
-| Must | Filament: PETG or tough PLA, 1 kg | 1 | $20–25 | Or print-service cost |
+| Must | Print order: tolerance test piece, then the parts for one leg | 2 orders | Quote needed | PETG or tough PLA |
 | Must | M3 screws, heat-set inserts, assortment | 1 | $10–15 | |
 | Should | Multimeter | 1 | $15–25 | If not already owned |
+| Should | Soldering iron | 1 | $15–25 | For threaded inserts and wiring, if not already owned |
 | Should | Spare servo cables, extension leads | few | $5–10 | |
-| Could | Flexible filament (TPU) for the foot | small | $15–20 | Can wait until stage 2 |
+| Could | Rubber foot tip, or a flexible printed foot if the service offers it | 1 | $1–5 | Can wait until stage 2 |
 
 ---
 
@@ -76,7 +79,8 @@ Stage totals count the "Must" items only.
 | Must | Servo bus hub or distribution board | 1 | $5–15 | Or hand-wired |
 | Must | Silicone wire (14, 16, 20 AWG), XT60 connectors | 1 set | $10–20 | |
 | Must | Bulk capacitor for the servo rail | 1 | $2–5 | |
-| Must | Filament, 1–2 kg more | 1–2 | $20–50 | |
+| Must | Print order: body, five more legs, trays, spares | 1 order | Quote needed | |
+| Must | Rubber foot tips, or flexible printed feet | 6 | $5–15 | |
 | Must | More M3 hardware; bearings or shoulder screws for rear pivots | 1 set | $15–25 | |
 | Should | Low-voltage cell alarm | 1 | $3–5 | Independent backup |
 | Should | Second step-down converter for the add-on 5 V rail | 1 | $5–10 | Reserves capacity for later modules |
@@ -173,7 +177,7 @@ If money or time is short, this is the order that protects the plan.
 | 1 | Servos with feedback | Everything depends on them; the wrong choice is the most expensive to undo |
 | 2 | Safe power: bench supply, fuse, switch, proper charger | Protects the servos, the Pi and the builder |
 | 3 | Pi 5 essentials: cooler, supply, storage | Reliable computing |
-| 4 | Print material and hardware | The body |
+| 4 | Printed parts and hardware | The body |
 | 5 | Battery | The robot can walk tethered without it |
 | 6 | Tilt sensor | First capability beyond walking; cheap |
 | 7 | Foot contact | Often free through servo load |

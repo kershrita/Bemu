@@ -166,7 +166,8 @@ mounting_grid:
 
 ### CAD tool
 
-**Proposed: build123d**, a Python library for parametric CAD.
+**Chosen: build123d**, a Python library for parametric CAD. The owner left the
+choice to the designer; see [decision 0007](decisions/0007-code-driven-cad.md).
 
 | Reason | Detail |
 |---|---|
@@ -181,9 +182,8 @@ brackets by eye, and it supports spreadsheets of parameters. The cost is that th
 link to the parameter file is manual or scripted, and design files do not diff
 well.
 
-This is open question Q3 in [02 — Design](02-design.md). A mixed approach is also
-workable: code CAD for the parts that scale with parameters, visual CAD for one-off
-shapes.
+A mixed approach stays available: code CAD for the parts that scale with
+parameters, visual CAD for a one-off shape if code proves too slow for it.
 
 ## Part families
 
@@ -239,10 +239,46 @@ Any add-on bolts to the robot without modifying the body.
 | Infill | 30–40% for structural parts |
 | Layer height | 0.2 mm |
 | Hole tolerance | Add 0.2 mm to nominal diameter; verify with a test print |
-| Print bed assumed | 200 × 200 mm. Body plates are split with a lap joint if the bed is too small for a single piece |
+| Print bed assumed | 200 × 200 mm until the print service's size is confirmed. Body plates are split with a lap joint if the bed is too small for a single piece |
 
 A tolerance test piece (holes, slots, a servo pocket) is printed and measured before
 any real part.
+
+## Printing through someone else
+
+There is no printer at hand, so every part is ordered. That changes how the parts
+are designed and released.
+
+| Consequence | What the design does about it |
+|---|---|
+| Each design iteration costs a delivery wait | Check fit in CAD and in the simulation model first; order in few, complete batches |
+| The printer's accuracy is unknown | The first order is the tolerance test piece. Its measurements set the hole and pocket allowances in the parameter file before real parts are ordered |
+| The printer's size is unknown | Assume 200 × 200 mm until confirmed; split larger parts |
+| The person printing chooses settings unless told | Every order includes a print specification: material, layer height, perimeters, infill, and the orientation of each part |
+| Flexible material may not be offered | Feet can use bought rubber tips instead of printed TPU |
+| A failed part means another order | Order one spare of each small, highly loaded part, such as the hip bracket |
+| Threaded inserts are fitted after printing | Done at home with a soldering iron; holes are sized for the inserts |
+
+### What is sent with each order
+
+| Item | Format |
+|---|---|
+| Part files | STL for printing; STEP as well, in case the service wants to re-slice or check dimensions |
+| Print specification | One page: material, colour, layer height, perimeters, infill, quantity per part |
+| Orientation sheet | A picture per part showing which face goes on the bed |
+| Critical dimensions | The few dimensions per part that must be right, so the service can check them |
+
+All of these are generated from the CAD scripts, so an order always matches the
+current parameter file.
+
+### Order sequence
+
+| Order | Contents | Roadmap step |
+|---|---|---|
+| 1 | Tolerance test piece | 2.4 |
+| 2 | One leg, a leg stand, the zero-position jig | 2.4 |
+| 3 | Body, five more legs, trays, spares | 3.2 |
+| Later | One adapter plate per new module | Each version |
 
 ## Fasteners
 
@@ -276,7 +312,7 @@ robot is weighed in version 3 to check.
 
 | Question | Resolved in |
 |---|---|
-| Print bed size, or use of a print service | Open question Q2 |
+| The print service's build size and materials | Step 1.5.6 (question Q5) |
 | Body plates versus a printed shell | Version 1.5 |
 | Final joint limits | Version 1.5, from collision checks |
 | Whether feet need switches or load sensing is enough | Version 5 |

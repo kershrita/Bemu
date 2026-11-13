@@ -6,7 +6,7 @@ Tools, packages, message contracts and conventions.
 
 | Purpose | Choice | Notes |
 |---|---|---|
-| Operating system | Ubuntu 26.04 | On the PC and on the Pi 5 |
+| Operating system | Ubuntu 26.04 | Under WSL 2 on the Windows PC; directly on the Pi 5 |
 | Robot framework | ROS 2 Lyrical Luth | Long-term release, supported to May 2031. Fallback: Jazzy on Ubuntu 24.04 |
 | Joint layer | `ros2_control`, `ros2_controllers` | Standard controller framework |
 | Simulator | MuJoCo | Physics engine |
@@ -14,7 +14,7 @@ Tools, packages, message contracts and conventions.
 | Visualisation | RViz, MuJoCo viewer, Foxglove or PlotJuggler | For robot state and plots |
 | Language | Python 3 | C++ only for the servo hardware plugin |
 | Tests | pytest, launch_testing | See [14 — Testing](14-testing-and-validation.md) |
-| CAD | build123d (proposed) | Python; see [08 — Mechanical design](08-mechanical-design.md) |
+| CAD | build123d | Python; see [08 — Mechanical design](08-mechanical-design.md) |
 | Build | colcon | Standard for ROS 2 |
 
 Versions are pinned in the repository when version 0 is set up, and recorded in
@@ -35,38 +35,38 @@ hexapod-robot/
 │   └── export/                   STL / STEP, generated
 ├── ros2_ws/
 │   └── src/
-│       ├── hexapod_description/  robot model, generated from the parameter file
-│       ├── hexapod_kinematics/   leg maths; pure Python, no ROS dependency
-│       ├── hexapod_gait/         gait timing and foot paths; pure Python
-│       ├── hexapod_locomotion/   the walker node (layer 2)
-│       ├── hexapod_control/      ros2_control configuration (layer 1)
-│       ├── hexapod_sim/          MuJoCo scene and bridge configuration
-│       ├── hexapod_hardware/     servo bus driver plugin (version 2)
-│       ├── hexapod_teleop/       keyboard and gamepad control
-│       ├── hexapod_msgs/         custom message definitions
-│       └── hexapod_bringup/      launch files and top-level configuration
+│       ├── bemu_description/  robot model, generated from the parameter file
+│       ├── bemu_kinematics/   leg maths; pure Python, no ROS dependency
+│       ├── bemu_gait/         gait timing and foot paths; pure Python
+│       ├── bemu_locomotion/   the walker node (layer 2)
+│       ├── bemu_control/      ros2_control configuration (layer 1)
+│       ├── bemu_sim/          MuJoCo scene and bridge configuration
+│       ├── bemu_hardware/     servo bus driver plugin (version 2)
+│       ├── bemu_teleop/       keyboard and gamepad control
+│       ├── bemu_msgs/         custom message definitions
+│       └── bemu_bringup/      launch files and top-level configuration
 ├── tools/                        scripts: generate model, torque report, calibration
 └── .github/workflows/            automated checks
 ```
 
 Packages added by later versions follow the same naming:
-`hexapod_imu`, `hexapod_contact`, `hexapod_perception`, `hexapod_navigation`,
-`hexapod_rl`, `hexapod_behaviors`.
+`bemu_imu`, `bemu_contact`, `bemu_perception`, `bemu_navigation`,
+`bemu_rl`, `bemu_behaviors`.
 
 ## Package responsibilities
 
 | Package | Layer | Responsibility | Depends on ROS? |
 |---|---|---|---|
-| `hexapod_kinematics` | 2 | Forward and inverse kinematics for one leg and for the body | No |
-| `hexapod_gait` | 2 | Gait phase timing, swing and stance foot paths | No |
-| `hexapod_locomotion` | 2 | Node that combines command, gait and kinematics into joint targets | Yes |
-| `hexapod_control` | 1 | Controller configuration and joint limits | Yes |
-| `hexapod_description` | 0–1 | URDF and MuJoCo model, generated from the parameter file | Yes |
-| `hexapod_sim` | 0 | Simulation world, simulated sensors | Yes |
-| `hexapod_hardware` | 0 | Real servo driver | Yes (C++) |
-| `hexapod_teleop` | 4 | Human control | Yes |
-| `hexapod_msgs` | all | Shared message types | Yes |
-| `hexapod_bringup` | all | Launch files | Yes |
+| `bemu_kinematics` | 2 | Forward and inverse kinematics for one leg and for the body | No |
+| `bemu_gait` | 2 | Gait phase timing, swing and stance foot paths | No |
+| `bemu_locomotion` | 2 | Node that combines command, gait and kinematics into joint targets | Yes |
+| `bemu_control` | 1 | Controller configuration and joint limits | Yes |
+| `bemu_description` | 0–1 | URDF and MuJoCo model, generated from the parameter file | Yes |
+| `bemu_sim` | 0 | Simulation world, simulated sensors | Yes |
+| `bemu_hardware` | 0 | Real servo driver | Yes (C++) |
+| `bemu_teleop` | 4 | Human control | Yes |
+| `bemu_msgs` | all | Shared message types | Yes |
+| `bemu_bringup` | all | Launch files | Yes |
 
 Keeping the maths in ROS-free libraries means it can be tested in milliseconds,
 reused inside the training environment in version 7, and understood without knowing
@@ -132,7 +132,7 @@ as it honours them.
 |---|---|---|---|
 | `/cmd_vel` | `geometry_msgs/TwistStamped` | Layers 3–4 → walker | Desired forward speed, sideways speed and turn rate |
 | `/body_pose_cmd` | `geometry_msgs/PoseStamped` | Layers 3–4 → walker | Desired body height, shift and tilt relative to neutral |
-| `/gait_cmd` | `hexapod_msgs/GaitCommand` | Layers 3–4 → walker | Gait type, step height, cycle time |
+| `/gait_cmd` | `bemu_msgs/GaitCommand` | Layers 3–4 → walker | Gait type, step height, cycle time |
 | `/leg_position_controller/commands` | `std_msgs/Float64MultiArray` | Walker → joint controller | 18 joint angle targets, in address order |
 
 ### State (upward)
@@ -140,8 +140,8 @@ as it honours them.
 | Topic | Type | From | Meaning |
 |---|---|---|---|
 | `/joint_states` | `sensor_msgs/JointState` | Joint controller | Angle, speed and effort of every joint |
-| `/gait_state` | `hexapod_msgs/GaitState` | Walker | Current gait, phase of each leg, which feet are planned to be down |
-| `/foot_contacts` | `hexapod_msgs/FootContacts` | Contact module (version 5) | Which feet are actually on the ground |
+| `/gait_state` | `bemu_msgs/GaitState` | Walker | Current gait, phase of each leg, which feet are planned to be down |
+| `/foot_contacts` | `bemu_msgs/FootContacts` | Contact module (version 5) | Which feet are actually on the ground |
 | `/imu/data` | `sensor_msgs/Imu` | Tilt sensor module (version 4) | Orientation, rotation rate, acceleration |
 | `/odom` | `nav_msgs/Odometry` | Walker or estimator | Estimated travel |
 | `/battery_state` | `sensor_msgs/BatteryState` | Hardware driver (version 3) | Voltage and charge estimate |
@@ -154,7 +154,7 @@ as it honours them.
 |---|---|---|
 | `/stand_up`, `/sit_down` | `std_srvs/Trigger` | Run the stand or sit sequence |
 | `/relax` | `std_srvs/Trigger` | Switch off joint torque |
-| `/set_gait` | `hexapod_msgs/SetGait` | Change gait |
+| `/set_gait` | `bemu_msgs/SetGait` | Change gait |
 
 ### Rules for contracts
 
@@ -185,10 +185,10 @@ includes when asked.
 | What | Where | Used by |
 |---|---|---|
 | Dimensions, masses, joint limits | `config/robot_params.yaml` | CAD, model generator, kinematics |
-| Gait defaults | `hexapod_locomotion/config/gait.yaml` | Walker |
-| Controller setup | `hexapod_control/config/controllers.yaml` | Joint layer |
-| Simulated servo model | `hexapod_sim/config/actuators.yaml` | Model generator |
-| Servo addresses, offsets, directions | `hexapod_hardware/config/servos.yaml` | Servo driver |
+| Gait defaults | `bemu_locomotion/config/gait.yaml` | Walker |
+| Controller setup | `bemu_control/config/controllers.yaml` | Joint layer |
+| Simulated servo model | `bemu_sim/config/actuators.yaml` | Model generator |
+| Servo addresses, offsets, directions | `bemu_hardware/config/servos.yaml` | Servo driver |
 
 Nothing that belongs in configuration is written into code.
 

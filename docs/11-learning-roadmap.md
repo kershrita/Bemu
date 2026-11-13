@@ -63,7 +63,7 @@ Run rate: 50 per second, the same as the programmed walker.
 | Simulator | MuJoCo, using a runtime that simulates thousands of robots in parallel |
 | Framework | A MuJoCo-based robot-learning framework. Candidates at the time of writing: mjlab, MuJoCo Playground. Re-evaluated when version 7 starts, because this field moves quickly |
 | Algorithm | PPO, the standard choice for legged robots |
-| Hardware | A PC with an NVIDIA graphics card is the fast path. Without one, train at smaller scale on the processor, or rent a cloud machine for a few hours |
+| Hardware | The development PC's NVIDIA RTX 5060 Ti (16 GB). Training tools use the card from inside WSL 2; if that proves troublesome, training runs under dual-boot Ubuntu or on a rented cloud machine |
 
 ### Reward: what counts as good walking
 

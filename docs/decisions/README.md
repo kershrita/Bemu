@@ -13,6 +13,9 @@ considered, and what follows from it.
 | [0004](0004-smart-bus-servos.md) | Smart bus servos with feedback | Proposed | — |
 | [0005](0005-single-parameter-file.md) | One parameter file for CAD, model and maths | Proposed | — |
 | [0006](0006-ros2-distribution.md) | ROS 2 Lyrical Luth, with Jazzy as fallback | Proposed | — |
+| [0007](0007-code-driven-cad.md) | Code-driven CAD with build123d | Accepted | Designer, delegated by the owner |
+| [0008](0008-wsl2-development.md) | Develop under WSL 2 on the Windows PC | Proposed | — |
+| [0009](0009-printing-by-service.md) | Parts are printed by a service | Accepted | Owner |
 
 ## Status values
 

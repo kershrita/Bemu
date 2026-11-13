@@ -74,6 +74,7 @@ Terms as they are used in these documents.
 | TF | The ROS 2 system that tracks every frame's position |
 | colcon | The ROS 2 build tool |
 | Distribution | A named release of ROS 2 (Jazzy, Lyrical) |
+| WSL 2 | Windows Subsystem for Linux: runs a real Linux system inside Windows |
 | LTS | Long-term support: a release maintained for several years |
 | Parametric CAD | Design in which dimensions are variables, so a part can be regenerated at a different size |
 | STL, STEP | File formats for 3D parts: STL for printing, STEP for exchange between CAD programs |

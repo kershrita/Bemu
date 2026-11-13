@@ -24,7 +24,7 @@ permitted edit is a single line in the top-level launch file to include it.
 
 | Step | What to do |
 |---|---|
-| 1. Package | Create `hexapod_<name>` in `ros2_ws/src/` |
+| 1. Package | Create `bemu_<name>` in `ros2_ws/src/` |
 | 2. Contract | Decide what it publishes and subscribes. Use standard message types where they exist. Add the topics to [05 — Software stack](05-software-stack.md) |
 | 3. Frame | Add the module's frame (for example `camera_link`) to the model via the parameter file |
 | 4. Simulated twin | Add the equivalent sensor to the MuJoCo model, publishing the same message on the same topic |
@@ -40,10 +40,10 @@ driver. The driver publishes data; the behaviour consumes it.
 
 | Example | Driver package | Behaviour package |
 |---|---|---|
-| Tilt sensor | `hexapod_imu` | Levelling lives in the walker as an optional input |
-| Distance scanner | `hexapod_lidar` | `hexapod_navigation` |
-| Camera | `hexapod_camera` | `hexapod_perception` |
-| Microphone and speaker | `hexapod_audio` | `hexapod_voice` |
+| Tilt sensor | `bemu_imu` | Levelling lives in the walker as an optional input |
+| Distance scanner | `bemu_lidar` | `bemu_navigation` |
+| Camera | `bemu_camera` | `bemu_perception` |
+| Microphone and speaker | `bemu_audio` | `bemu_voice` |
 
 This split means a sensor can be replaced by a different model without touching the
 behaviour.
@@ -65,7 +65,7 @@ behaviour.
 | Mass | About 5 g; negligible, but recorded |
 | Power | 3.3 V from the Pi's header |
 | Data | I2C on the Pi's header |
-| Package | `hexapod_imu`, publishing `sensor_msgs/Imu` on `/imu/data` |
+| Package | `bemu_imu`, publishing `sensor_msgs/Imu` on `/imu/data` |
 | Frame | `imu_link` added to the parameter file |
 | Simulated twin | MuJoCo orientation, gyro and accelerometer sensors at `imu_link`, published on `/imu/data` |
 | Launch | `imu:=true` argument |

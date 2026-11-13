@@ -32,5 +32,5 @@ library all read it. No dimension is typed anywhere else.
 - A model generator and a validation step for the file must be written in
   version 0.
 - The CAD must be able to read the file. This favours code-driven CAD
-  (open question Q3).
+  ([decision 0007](0007-code-driven-cad.md)).
 - The file's structure becomes a contract; changing it touches three consumers.

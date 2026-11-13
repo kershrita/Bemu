@@ -49,8 +49,9 @@ shape the design most:
 | Documentation in Markdown in a private GitHub repository | Owner decision | This `docs/` folder |
 | Plan and prioritize components before building | Owner decision | [10 — Components](10-components.md) with staged purchase gates |
 | One builder | Assumed | Prefer existing, maintained tools over custom ones |
-| 3D printer access | **Unknown** | See open question Q2 |
-| Development PC (operating system, graphics card) | **Unknown** | See open question Q1 |
+| No 3D printer; part designs are sent to someone else to print | Owner decision | Parts are designed for a print service: standard file formats, a tolerance test piece first, few and well-checked print orders |
+| Development PC: Windows 11, Intel Core i9 (14900 series), 32 GB memory, NVIDIA RTX 5060 Ti with 16 GB | Owner decision | Ubuntu 26.04 runs under WSL 2 on this PC; its graphics card is available for training in version 7 |
+| The robot is named Bemu | Owner decision | Packages and topics use the prefix `bemu_` |
 
 ## 4. Approaches considered
 
@@ -180,9 +181,13 @@ Details: [09 — Electronics and power](09-electronics-and-power.md).
 
 ### 5.6 Mechanical design
 
-- **Parametric, code-driven CAD.** Proposed tool: build123d (Python), so the CAD is
-  text in this repository, reads the parameter file directly, and can be reviewed
-  and versioned like code. **Proposed**; see open question Q3 for the alternative.
+- **Parametric, code-driven CAD.** Tool: build123d (Python), so the CAD is text in
+  this repository, reads the parameter file directly, and can be reviewed and
+  versioned like code. The owner left this choice to the designer; see
+  [decision 0007](decisions/0007-code-driven-cad.md).
+- **Designed to be printed by someone else.** Parts are exported in standard
+  formats with a written print specification, and a tolerance test piece is
+  ordered before any real part.
 - **A mounting standard** for add-ons: a grid of M3 threaded inserts on a 20 mm
   pitch on the top deck, plus a front sensor mount. Any future module bolts to the
   grid without changing the body.
@@ -217,6 +222,10 @@ Each version's content and exit test: [03 — Roadmap](03-roadmap.md).
 5. Plan first: components listed and prioritized before building.
 6. The system must scale to new functionality; the 3D parts must be flexible.
 7. Documentation lives in a private GitHub repository as structured Markdown.
+8. The robot is named Bemu.
+9. Development happens on a Windows 11 PC with an NVIDIA RTX 5060 Ti.
+10. Printed parts are made by someone else from the design files.
+11. The CAD tool is the designer's choice.
 
 ## 7. Calls made while writing this design
 
@@ -230,24 +239,32 @@ Each is **proposed** and can be changed at approval.
 | C4 | Smart bus servos, STS3215 12 V as first candidate | Feedback is needed for simulation matching and for learning later; lowest cost per unit of torque among feedback servos checked |
 | C5 | `ros2_control` as the joint layer | It is the standard seam between controllers and hardware, and the MuJoCo bridge plugs into it |
 | C6 | Single parameter file feeding CAD, model and maths | Keeps the three from drifting apart |
-| C7 | Code-driven CAD with build123d | Parametric by nature, lives in git, reads the parameter file directly |
+| C7 | Code-driven CAD with build123d (choice delegated by the owner) | Parametric by nature, lives in git, reads the parameter file directly |
 | C8 | Pi 5 drives the servo bus directly over USB; no microcontroller at first | Fewer parts; the bus servos have their own controllers inside |
 | C9 | 3-cell lithium battery, single battery with a step-down converter for the Pi | Matches 12 V servos; one battery is simpler to charge and mount |
 | C10 | Top-deck mounting grid, M3 inserts at 20 mm pitch | A fixed standard lets modules be designed without touching the body |
 | C11 | Flat indoor floors only until version 5 | Keeps early versions achievable |
 | C12 | Repository name `hexapod-robot`; design document at `docs/02-design.md` | Plain and findable |
+| C13 | Ubuntu 26.04 under WSL 2 on the Windows PC; dual-boot Ubuntu as the fallback | Matches the Pi's operating system; no second machine needed |
+| C14 | Design for a 200 × 200 mm print bed until the print service's size is known | A size almost any service can print |
 
-## 8. Open questions for the owner
+## 8. Questions and answers
 
-These change what gets built. Full context in
-[15 — Risks and open questions](15-risks-and-open-questions.md).
+The four questions raised by the first draft, as answered by the owner on
+2026-11-14.
 
-| # | Question | Why it matters | Default if unanswered |
+| # | Question | Answer | Effect |
 |---|---|---|---|
-| Q1 | What is the development PC: operating system, and does it have an NVIDIA graphics card? | Decides whether ROS 2 runs natively or in a container, and how learned walking is trained later | Ubuntu 26.04 natively or in a container; training approach decided at version 7 |
-| Q2 | Is there access to a 3D printer, and what is its build size? | Sets the maximum part size and whether parts must be split | Design for a 200 × 200 mm bed; use a print service if there is no printer |
-| Q3 | Code-driven CAD (build123d) or a visual CAD program (FreeCAD)? | Code CAD fits a software workflow and the parameter file; visual CAD is easier for shaping brackets by eye | build123d |
-| Q4 | Is the robot's name decided? | Used for package and topic names | Packages are named `hexapod_*` |
+| Q1 | What is the development PC? | Windows 11, Intel Core i9 (14900 series), 32 GB memory, NVIDIA RTX 5060 Ti with 16 GB | Ubuntu 26.04 under WSL 2. The graphics card makes learned walking in version 7 trainable at home. See [13 — Development environment](13-dev-environment.md) |
+| Q2 | Is there a 3D printer? | No. Designs can be sent to someone to print | Parts are designed for a print service. See [08 — Mechanical design](08-mechanical-design.md) |
+| Q3 | Code-driven or visual CAD? | The designer's choice | build123d. See [decision 0007](decisions/0007-code-driven-cad.md) |
+| Q4 | The robot's name? | Bemu | Package prefix `bemu_` |
+
+One smaller question remains, and it does not block approval:
+
+| # | Question | Needed by | Default until answered |
+|---|---|---|---|
+| Q5 | Which print service will be used, what is its largest part size, and which materials does it offer? | Step 1.5.6 of the roadmap | 200 × 200 mm bed; PETG or tough PLA |
 
 ## 9. What is left to the builder
 

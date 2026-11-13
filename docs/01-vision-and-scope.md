@@ -2,8 +2,8 @@
 
 ## What this is
 
-A six-legged walking robot with a Raspberry Pi 5 as its computer, built as a long
-project that grows one capability at a time. It starts as a robot that can stand and
+Bemu is a six-legged walking robot with a Raspberry Pi 5 as its computer, built as
+a long project that grows one capability at a time. It starts as a robot that can stand and
 walk, and each later version adds a sensor, a module or a behaviour.
 
 ## Why it is built this way
@@ -19,6 +19,8 @@ Stated by the owner:
 - **No hardware spending for now.** Start with the simulator and the design.
 - **Plan well first**: list and prioritize the components before building.
 - Version 1 walks with **programmed** motion. Learned walking comes later.
+- The robot is named **Bemu**.
+- There is no 3D printer at hand; part designs are **sent to someone else to print**.
 
 ## What success looks like
 
