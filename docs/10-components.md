@@ -22,12 +22,12 @@ roadmap. A stage is bought only after the gate before it has passed.
 |---|---|---|---|
 | 0 | 0, 1, 1.5 | Simulation and CAD | $0 |
 | 1 | 2 | One real leg on the bench | $170–240 + printing |
-| 2 | 3 | The full walking robot | $500–730 + printing |
+| 2 | 3 | The full walking robot | $505–745 + printing |
 | 3 | 4 | Balance sensing | $10–25 |
 | 4 | 5 | Foot contact | $0–10 |
 | 5 | 6 | Perception | $25–100 |
 | 6 | 8+ | Extras | Varies |
-| | | **Through a walking robot (stages 1–2)** | **about $670–970, plus printing** |
+| | | **Through a walking robot (stages 1–2)** | **about $675–985, plus printing** |
 
 Stage totals count the "Must" items only and exclude printing.
 
