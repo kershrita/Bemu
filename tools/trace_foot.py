@@ -4,6 +4,7 @@ Usage: python tools/trace_foot.py --shape square|circle [--viewer]
 """
 
 import argparse
+import os
 import sys
 import time
 from pathlib import Path
@@ -49,7 +50,7 @@ def _run() -> int:
     sim = LegSim(build_leg_mjcf(params, actuators))
 
     if args.viewer:
-        return _play_in_viewer(sim, params.leg, path)
+        return _play_in_viewer(sim, params.leg, path, args.shape)
 
     result = track_path(sim, params.leg, path)
     print(f"shape: {args.shape} ({len(result.target)} points)")
@@ -60,7 +61,7 @@ def _run() -> int:
     return 0
 
 
-def _play_in_viewer(sim: LegSim, leg, path) -> int:
+def _play_in_viewer(sim: LegSim, leg, path, shape: str) -> int:
     """Play the path at real time, one point per control period."""
     import mujoco.viewer
 
@@ -68,14 +69,21 @@ def _play_in_viewer(sim: LegSim, leg, path) -> int:
 
     angles = [inverse(leg, point) for point in path]
     with mujoco.viewer.launch_passive(sim.model, sim.data) as viewer:
+        played = 0
         for target in angles:
             started = time.perf_counter()
             sim.command(target)
             viewer.sync()
+            played += 1
             time.sleep(max(0.0, 1.0 / CONTROL_RATE - (time.perf_counter() - started)))
             if not viewer.is_running():
                 break
-    return 0
+        print(f"shape: {shape} (played {played} of {len(angles)} points in the viewer)")
+        sys.stdout.flush()
+        # Under WSL, closing the viewer window segfaults inside Mesa's EGL library
+        # (glfw.terminate). The trace is already finished and printed, so end the process
+        # here instead of running that teardown. Do not replace this with a normal return.
+        os._exit(0)
 
 
 if __name__ == "__main__":
