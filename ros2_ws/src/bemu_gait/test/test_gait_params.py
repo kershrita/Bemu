@@ -23,11 +23,11 @@ def edited(tmp_path, **changes):
 
 def test_loads_in_si(gait_params):
     assert gait_params.cycle_time == {"tripod": 1.0, "ripple": 1.0, "wave": 1.5}
-    assert gait_params.step_height == pytest.approx(0.030)
+    assert gait_params.step_height == pytest.approx(0.020)
     assert gait_params.max_stride == pytest.approx(0.060)
     assert gait_params.max_linear_accel == pytest.approx(0.05)
     assert gait_params.max_angular_accel == pytest.approx(1.0)
-    assert gait_params.lift_ramp_stride == pytest.approx(0.010)
+    assert gait_params.lift_ramp_stride == pytest.approx(0.030)
     assert gait_params.blend_cycles == pytest.approx(2.0)
     assert gait_params.stability_threshold == pytest.approx(0.015)
     assert gait_params.scale_fall_per_s == pytest.approx(4.0)

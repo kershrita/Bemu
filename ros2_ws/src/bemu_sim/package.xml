@@ -8,6 +8,7 @@
   <depend>bemu_params</depend>
   <depend>bemu_description</depend>
   <depend>bemu_kinematics</depend>
+  <depend>bemu_gait</depend>
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
   <!-- mujoco (headless.py and its tests) is a pip dependency: see requirements-dev.txt -->
