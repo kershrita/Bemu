@@ -16,6 +16,7 @@ considered, and what follows from it.
 | [0007](0007-code-driven-cad.md) | Code-driven CAD with build123d | Accepted | Designer, delegated by the owner |
 | [0008](0008-wsl2-development.md) | Develop under WSL 2 on the Windows PC | Accepted | Owner, with the design approval |
 | [0009](0009-printing-by-service.md) | Parts are printed by a service | Accepted | Owner |
+| [0010](0010-generate-mjcf-directly.md) | Generate the MuJoCo model directly from the parameter file | Accepted | Designer |
 
 ## Status values
 

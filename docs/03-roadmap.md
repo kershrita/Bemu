@@ -27,7 +27,7 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 
 | Step | Content |
 |---|---|
-| 0.1 | Repository structure, licence, coding conventions, automated checks |
+| 0.1 | Repository structure, no licence file while the repository is private, coding conventions, automated checks |
 | 0.2 | Development environment: Ubuntu under WSL 2, ROS 2, MuJoCo, the MuJoCo bridge |
 | 0.3 | `robot_params.yaml` with the starting dimensions |
 | 0.4 | Kinematics library: forward and inverse leg maths, with tests |

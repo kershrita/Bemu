@@ -35,6 +35,7 @@ bemu/
 │   └── export/                   STL / STEP, generated
 ├── ros2_ws/
 │   └── src/
+│       ├── bemu_params/       parameter file loader; pure Python, no ROS dependency
 │       ├── bemu_description/  robot model, generated from the parameter file
 │       ├── bemu_kinematics/   leg maths; pure Python, no ROS dependency
 │       ├── bemu_gait/         gait timing and foot paths; pure Python
@@ -49,6 +50,9 @@ bemu/
 └── .github/workflows/            automated checks
 ```
 
+There is no top-level `Dockerfile`: the GitHub check for the ROS packages uses the
+official ROS image.
+
 Packages added by later versions follow the same naming:
 `bemu_imu`, `bemu_contact`, `bemu_perception`, `bemu_navigation`,
 `bemu_rl`, `bemu_behaviors`.
@@ -57,6 +61,7 @@ Packages added by later versions follow the same naming:
 
 | Package | Layer | Responsibility | Depends on ROS? |
 |---|---|---|---|
+| `bemu_params` | all | Loads `robot_params.yaml` and converts it to SI units; used by the CAD scripts too | No |
 | `bemu_kinematics` | 2 | Forward and inverse kinematics for one leg and for the body | No |
 | `bemu_gait` | 2 | Gait phase timing, swing and stance foot paths | No |
 | `bemu_locomotion` | 2 | Node that combines command, gait and kinematics into joint targets | Yes |

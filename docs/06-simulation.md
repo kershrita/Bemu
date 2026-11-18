@@ -35,10 +35,10 @@ flowchart LR
 ```
 
 - **URDF** is the format ROS tools read. **MJCF** is MuJoCo's own format.
-- The MuJoCo bridge includes utilities that produce a MuJoCo model from a URDF.
-  Step 0.5 of the roadmap tries that path first. If it cannot express something the
-  model needs, the generator writes both formats directly from the parameter file.
-  Either way, the parameter file stays the only source.
+- The generator writes both formats directly from the parameter file. The bridge's
+  URDF-to-MuJoCo converter is documented as highly experimental and is not used
+  ([decision 0010](decisions/0010-generate-mjcf-directly.md)). The parameter file
+  stays the only source.
 - Until version 1.5 the links are simple boxes and cylinders with estimated masses.
   From version 1.5 the masses, inertias and shapes come from the CAD.
 

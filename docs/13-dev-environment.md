@@ -41,8 +41,8 @@ Ubuntu on the PC means one environment instead of two.
 | ROS 2 networking between WSL and the Pi is unreliable | Dual-boot Ubuntu, or run the visualiser on the Pi's side through a web tool |
 | Training under WSL is troublesome | Dual-boot Ubuntu, or a rented cloud machine |
 
-A container definition is still added to the repository in step 0.2, so the
-automated checks on GitHub use the same environment.
+The repository has no `Dockerfile`. The GitHub check for the ROS packages runs in the
+official ROS image (`ros:lyrical-ros-base`) instead.
 
 ## Software on the PC
 
