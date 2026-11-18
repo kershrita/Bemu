@@ -12,6 +12,7 @@ known-first-party = [
     "bemu_kinematics",
     "bemu_description",
     "bemu_sim",
+    "bemu_gait",
     "bemu_bringup",
 ]
 
@@ -23,6 +24,7 @@ pythonpath = [
     "ros2_ws/src/bemu_kinematics",
     "ros2_ws/src/bemu_description",
     "ros2_ws/src/bemu_sim",
+    "ros2_ws/src/bemu_gait",
     "ros2_ws/src/bemu_bringup",
 ]
 markers = [
