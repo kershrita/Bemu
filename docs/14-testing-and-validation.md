@@ -69,6 +69,14 @@ yaw ±15°, and one combined roll, pitch and yaw pose that separates the rotatio
 the feet planted and a positive stability margin; torque, taken on every physics step, under
 the limit.
 
+Version 1b-1's walking tests (`bemu_sim/test/test_walk_*.py`, `test_collisions.py`): walk 2 m
+straight with under 10% sideways drift; turn 360° in place and end within 50 mm; walk
+sideways and in a curve; hold body pose changes (height ±10 mm, roll and pitch ±5°) while
+walking with no foot slipping more than 5 mm; walk straight in the ripple and the wave;
+switch between every ordered pair of gaits, and tripod to ripple to wave and back, without
+stopping and with the stability margin above 15 mm; leg-to-leg contact; and torque, taken
+on every physics step, under the limit in all of them.
+
 Every simulation test also records the measurements listed under the torque report
 in [06 — Simulation](06-simulation.md), so trends are visible across changes.
 

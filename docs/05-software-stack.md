@@ -38,7 +38,7 @@ bemu/
 │       ├── bemu_params/       parameter file loader; pure Python, no ROS dependency
 │       ├── bemu_description/  robot model, generated from the parameter file
 │       ├── bemu_kinematics/   leg maths; pure Python, no ROS dependency
-│       ├── bemu_gait/         gait timing and foot paths; pure Python
+│       ├── bemu_gait/         gaits, foot paths, the walker core and gait.yaml; pure Python
 │       ├── bemu_locomotion/   the walker node (layer 2)
 │       ├── bemu_control/      ros2_control configuration (layer 1)
 │       ├── bemu_sim/          MuJoCo scene and bridge configuration
@@ -63,8 +63,8 @@ Packages added by later versions follow the same naming:
 |---|---|---|---|
 | `bemu_params` | all | Loads `robot_params.yaml` and converts it to SI units; used by the CAD scripts too | No |
 | `bemu_kinematics` | 2 | Forward and inverse kinematics for one leg and for the body | No |
-| `bemu_gait` | 2 | Gait phase timing, swing and stance foot paths | No |
-| `bemu_locomotion` | 2 | Node that combines command, gait and kinematics into joint targets | Yes |
+| `bemu_gait` | 2 | Gait phase timing, swing and stance foot paths, the phase-driven `Walker` (velocity command in, 18 joint angles out), gait defaults in `config/gait.yaml` | No |
+| `bemu_locomotion` | 2 | ROS node that wraps the `bemu_gait` walker: topics in, joint targets out (version 1b-2) | Yes |
 | `bemu_control` | 1 | Controller configuration and joint limits | Yes |
 | `bemu_description` | 0–1 | URDF and MuJoCo model, generated from the parameter file | Yes |
 | `bemu_sim` | 0 | Simulation world, simulated sensors | Yes |
@@ -190,7 +190,7 @@ includes when asked.
 | What | Where | Used by |
 |---|---|---|
 | Dimensions, masses, joint limits | `config/robot_params.yaml` | CAD, model generator, kinematics |
-| Gait defaults | `bemu_locomotion/config/gait.yaml` | Walker |
+| Gait defaults | `bemu_gait/config/gait.yaml` | Walker |
 | Controller setup | `bemu_control/config/controllers.yaml` | Joint layer |
 | Simulated servo model | `bemu_sim/config/actuators.yaml` | Model generator |
 | Servo addresses, offsets, directions | `bemu_hardware/config/servos.yaml` | Servo driver |

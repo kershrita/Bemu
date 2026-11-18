@@ -52,7 +52,7 @@ flowchart LR
 | Actuators | Position-controlled, with torque limits | Mirrors a servo: it is told an angle and pushes toward it |
 | Feet | Small spheres with rubber-like friction | Point contact is stable and close to a rounded rubber foot |
 | Floor | Flat plane first; ramps, steps and rough patches from version 5 | Matches the roadmap |
-| Self-collision | Enabled between legs and body, disabled between adjacent links, **from version 1b**. Version 1a (stand, sit, body pose) never crosses legs, so only the body box and the foot spheres collide, and only with the floor | Catches leg crossing without false contacts at the joints |
+| Self-collision | Enabled between legs and between legs and the body (from version 1b). A leg's own links (coxa–femur, femur–tibia, coxa–tibia) and its hip against the body are excluded. Only the body box and the foot spheres hit the floor | Catches leg crossing without false contacts at the joints |
 
 ## The full-robot model (version 1a)
 
@@ -74,6 +74,11 @@ commanded, because the position actuator sags about 1.5 mm under load; foot slip
 hand estimate in doc 08 was 0.61 N·m typical). The peak is taken on every 2 ms step, not
 once per control tick: a position actuator spikes on the first steps after a new target and
 settles within the 20 ms period.
+
+Collisions (1b): hips sit on the body's edge and legs point outward, so no valid joint
+angles fold a leg into the body; the leg-to-body contact is modelled and tested through the
+exclusion table, while leg-to-leg contact is tested by swinging two neighbours together
+(left front +45°, left middle −45°).
 
 ## The simulated servo
 

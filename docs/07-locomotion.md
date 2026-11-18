@@ -220,10 +220,44 @@ of touchdown.
 | Parameter | Starting value |
 |---|---|
 | Cycle time (tripod) | 1.0 s |
-| Step height | 30 mm |
+| Step height | 20 mm (30 mm in the first draft; see below) |
 | Maximum stride | 60 mm |
 | Body height | 90 mm |
 | Resulting top speed (tripod) | 60 mm ÷ 0.5 s = 0.12 m/s |
+| Cycle time, ripple / wave | 1.5 s / 3.0 s: every gait swings for 0.5 s |
+| Top speed, ripple / wave | 60 mm ÷ 1.0 s = 0.06 m/s / 60 mm ÷ 2.5 s = 0.024 m/s |
+
+These are the values in `bemu_gait/config/gait.yaml`, tuned against the simulator
+(version 1b-1). Two findings drove them. **Swing speed sets the torque:** the largest torque
+on any 2 ms physics step grows with how fast a foot is lifted and lowered. With a 30 mm step
+the tripod needed 1.24 to 1.45 N·m at 0.1 m/s (the limit is 1.47); with 20 mm, 0.88 to 0.98.
+A 0.6 s wave cycle swung a foot in 0.1 s and saturated the servo model, so every gait now
+swings for the tripod's 0.5 s, which also makes the wave the slowest, as it should be.
+**Foot slip grows with stance time:** loaded foot slip measured 3 to 4.4 mm for the tripod,
+2.6 to 4.8 mm for the ripple and 5.4 to 8.5 mm for the wave (a creep of roughly 4 to 7 mm/s
+in the compliant servo model), so the 5 mm bar holds for the tripod only.
+
+### Starting and stopping
+
+The commanded velocity is slewed (0.05 m/s², 1 rad/s²), because a foot's stance position
+is `stride × (0.5 − u)`: a stride that grows quickly drags a planted foot along. The step
+height is scaled by the stride (full at 30 mm of stride), so at zero command the feet stand
+at their neutral points and do not lift; there is no special "stopped" state.
+
+### Gait switching
+
+A gait change keeps every leg's phase and slides its phase offset (the short way round the
+circle), the duty factor and the cycle time linearly to the new gait's values over two cycles
+of the old gait. Foot position depends smoothly on phase and duty, so no foot jumps. Part-way
+through a blend the legs on the ground can form a triangle that does not contain the centre
+of mass, so the stability reaction below does the real work. A request during a blend
+replaces its target.
+
+### Body pose while walking
+
+A body pose command (height, shift, tilt) goes through the same joint-angle calculation as
+standing, and is applied gradually: 30 mm/s for height and shift, 0.3 rad/s for tilt. A
+one-tick 10 mm or 5° step saturated the torque limit in simulation.
 
 ### Limits
 
@@ -252,7 +286,11 @@ mass to the edge of that polygon.
 
 - The walker computes the margin every cycle and publishes it.
 - Target: above 15 mm at all times on flat ground **(estimate)**.
-- If the margin falls below a threshold, the walker slows down.
+- If the margin of the feet on the ground falls below a threshold (25 mm, above the 15 mm
+  target to leave room for a foot lagging its command by a tick), the walker lowers the
+  lift of the feet: lifted feet come down and join the support. The strides are not
+  touched, so the robot keeps moving. The lift scale falls at 6 per second and recovers
+  at 1 per second. The reach limit and the 60 mm stride cap are separate and immediate.
 
 ---
 

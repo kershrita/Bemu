@@ -1,7 +1,7 @@
 # Version 1b — Walking: gaits, velocity command, and the ROS walker
 
 **Date:** 2026-11-18
-**Status:** draft, awaiting the owner's approval
+**Status:** approved by the owner on 2026-11-18; 1b-1 (headless walking) implemented, 1b-2 (ROS) not started
 **Size:** a project, delivered as two plans (1b-1 headless, 1b-2 ROS), one design
 **Roadmap steps:** 1.4, 1.5, 1.6 in [03 — Roadmap](../../03-roadmap.md)
 **Builds on:** [version 1a](2026-11-18-v1a-full-body-design.md)
@@ -224,6 +224,25 @@ tools.
 | Gait switching is unstable at the moment of the switch | Stability margin and reach are tested through every ordered pair; slow the blend or the stride before changing the bar |
 | First ROS run needs fixes (as in version 0) | Expected; 1b-2 is written to be run and corrected on the owner's PC |
 | A `rosidl` message package adds a CI step | The `ros` job builds it in the ROS image; check at the first push |
+
+## Results of 1b-1
+
+Measured in simulation with the placeholder servo values:
+
+| Measure | Result | Bar |
+|---|---|---|
+| 2 m straight walk (tripod, 0.10 m/s) | 2.10 m, 6 mm sideways drift (0.3%), 0.3° heading error | under 10% drift |
+| 360° turn in place (0.4 rad/s) | 356.1°, ended 1.2 mm from the start | within 50 mm |
+| Stability margin while walking | 74 mm and above | 15 mm |
+| Gait switching, all six ordered pairs | minimum margin 88 mm, peak torque 1.16 N·m | margin 15 mm, torque 1.47 N·m |
+| Loaded foot slip: tripod / ripple / wave | 3.2 to 4.4 / 2.6 to 4.8 / 5.4 to 8.5 mm | 5 mm for the tripod |
+| Peak torque on any physics step, tripod | 0.88 N·m | 1.47 N·m |
+
+Deviations from this design, found by the tests and recorded in the plan's ledger: step
+height 20 mm (not 30), cycle times 1.0 / 1.5 / 3.0 s (every gait swings for 0.5 s; the wave's
+top speed is 0.024 m/s), a two-cycle blend, the stability reaction lowers lift only and
+falls at 6 per second, body pose changes are slewed, and slip is counted only while a foot
+touches the floor.
 
 ## References
 

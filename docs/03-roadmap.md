@@ -62,6 +62,7 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 | 1.8 | Measurement: joint torque, speed, power, stability margin, logged per run |
 
 Steps 1.1 to 1.3 are done (version 1a, `docs/superpowers/specs/2026-11-18-v1a-full-body-design.md`).
+Steps 1.4 to 1.6 are done headless (version 1b-1, `docs/superpowers/specs/2026-11-18-v1b-walking-design.md`); the ROS walker node and launch are 1b-2.
 
 **Exit test**
 
