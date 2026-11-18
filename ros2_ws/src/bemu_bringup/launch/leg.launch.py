@@ -40,7 +40,9 @@ def _setup(context):
         package="mujoco_ros2_control",
         executable="ros2_control_node",
         output="screen",
-        parameters=[{"use_sim_time": True, "robot_description": urdf}, controllers],
+        # No robot_description here: this ros2_control version reads it from the
+        # /robot_description topic, which robot_state_publisher below publishes.
+        parameters=[{"use_sim_time": True}, controllers],
     )
     state_publisher = Node(
         package="robot_state_publisher",

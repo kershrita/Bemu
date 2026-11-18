@@ -2,6 +2,7 @@ import pytest
 
 pytest.importorskip("launch_testing")
 
+import os  # noqa: E402
 import time  # noqa: E402
 import unittest  # noqa: E402
 
@@ -15,6 +16,11 @@ from sensor_msgs.msg import JointState  # noqa: E402
 from std_msgs.msg import Float64  # noqa: E402
 
 from bemu_description.names import joint_names  # noqa: E402
+
+# Run on a private ROS network so a simulator left running in another terminal cannot
+# collide with this test (shared /clock and controller_manager services). The launched
+# nodes inherit this environment.
+os.environ["ROS_DOMAIN_ID"] = "77"
 
 
 @pytest.mark.sim_launch
