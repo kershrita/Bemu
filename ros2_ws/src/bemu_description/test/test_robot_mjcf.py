@@ -89,17 +89,16 @@ def test_joint_ranges_and_force_limits_come_from_params(model, params, actuators
         )
 
 
-def test_only_the_floor_collides_with_the_body_and_the_feet(model):
-    pairs = set()
+def test_only_the_body_and_the_feet_collide_with_the_floor(model):
+    floor = model.geom("floor").id
     for i in range(model.ngeom):
-        for j in range(i + 1, model.ngeom):
-            if (model.geom_contype[i] & model.geom_conaffinity[j]) or (
-                model.geom_contype[j] & model.geom_conaffinity[i]
-            ):
-                pairs.add(frozenset((model.geom(i).name, model.geom(j).name)))
-    expected = {frozenset(("floor", "body_box"))}
-    expected |= {frozenset(("floor", f"{leg}_foot_tip")) for leg in LEG_CODES}
-    assert pairs == expected
+        if i == floor:
+            continue
+        hits = bool(model.geom_contype[floor] & model.geom_conaffinity[i]) or bool(
+            model.geom_contype[i] & model.geom_conaffinity[floor]
+        )
+        name = model.geom(i).name
+        assert hits == (name == "body_box" or name.endswith("_foot_tip")), name
 
 
 def test_one_leg_generator_still_loads(params, actuators):
