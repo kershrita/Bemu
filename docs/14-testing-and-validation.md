@@ -77,6 +77,12 @@ switch between every ordered pair of gaits, and tripod to ripple to wave and bac
 stopping and with the stability margin above 15 mm; leg-to-leg contact; and torque, taken
 on every physics step, under the limit in all of them.
 
+The torque report's tests (`bemu_sim/test/test_robot_stats.py`, `test_torque_report*.py`):
+per-step joint statistics (peak, RMS, speed, steps at the limit); the 48-scenario matrix, the
+mass and scenario validation, the power model and the pass/fail and stability verdict
+boundaries; real short stand and walking runs; the Markdown and JSON rendering with failing and
+unstable rows; and the tool's quick run and its one-line error on an unwritable output folder.
+
 Every simulation test also records the measurements listed under the torque report
 in [06 — Simulation](06-simulation.md), so trends are visible across changes.
 

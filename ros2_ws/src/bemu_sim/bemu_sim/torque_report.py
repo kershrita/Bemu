@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import dataclasses
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -188,3 +189,186 @@ def run_scenario(
         max_slip=slip,
         power=electrical_power(params.servo, steady.mean_abs_torque),
     )
+
+
+PLACEHOLDERS = ["stall_current_a", "idle_current_a", "supply_voltage_v"]
+
+
+def _label(scenario: Scenario) -> str:
+    if scenario.motion == "stand":
+        return "stand"
+    if scenario.motion == "forward":
+        return f"{scenario.gait} forward {scenario.fraction:.0%}"
+    return f"{scenario.gait} {scenario.motion}"
+
+
+def _speed(result: ScenarioResult) -> str:
+    vx, vy, omega = result.command
+    if result.scenario.motion == "turn":
+        return f"{omega:.2f} rad/s"
+    if result.scenario.motion == "stand":
+        return "0"
+    return f"{math.hypot(vx, vy) * 1000:.0f} mm/s"
+
+
+def _status(result: ScenarioResult, servo: ServoParams) -> str:
+    v = verdict(result, servo)
+    parts = [
+        "PASS" if v.peak_ok and v.rms_ok else "FAIL",
+    ]
+    if not v.stable:
+        parts.append("UNSTABLE")
+    return " ".join(parts)
+
+
+def _worst(joints: Sequence[str], values: np.ndarray) -> tuple[str, float]:
+    index = int(np.argmax(values))
+    return joints[index], float(values[index])
+
+
+def render_markdown(
+    results: Sequence[ScenarioResult],
+    params: RobotParams,
+    actuators: ActuatorModel,
+    *,
+    commit: str,
+    date: str,
+) -> str:
+    servo = params.servo
+    out = [
+        "# Version 1 torque report",
+        "",
+        f"Generated {date} at commit `{commit}` by `tools/torque_report.py`.",
+        "",
+        "## Method",
+        "",
+        "Each scenario runs the full MuJoCo robot with the walker, with the actuator torque clip "
+        f"raised to the servo's stall torque ({servo.stall_torque:.2f} N·m) instead of the "
+        f"{actuators.max_torque:.2f} N·m design limit, so the peaks show what the motion demands. "
+        "Torque and speed statistics are taken at every 2 ms physics step. Peak torque and speed "
+        "cover the whole run; RMS torque, power, stability margin and slip cover the steady part "
+        "after a warm-up walk. Speeds are fractions of each gait's top speed.",
+        "",
+        "Rule: a row passes when its worst peak is under 50% of stall "
+        f"({0.5 * servo.stall_torque:.2f} N·m) "
+        f"and its worst RMS is under the rated torque ({servo.rated_torque:.2f} N·m). "
+        "`UNSTABLE` marks a stability margin of 15 mm or less.",
+        "",
+        "Placeholder constants (not datasheet values, to be confirmed on the real servo): "
+        f"`stall_current_a` = {servo.stall_current} A, `idle_current_a` = {servo.idle_current} A, "
+        f"`supply_voltage_v` = {servo.supply_voltage} V. They only feed the power estimate; "
+        "torque, speed and the verdicts do not depend on them.",
+        "",
+    ]
+    passing = sum(1 for r in results if verdict(r, servo).peak_ok and verdict(r, servo).rms_ok)
+    out += [
+        "## Summary",
+        "",
+        f"{passing} of {len(results)} rows pass the peak and RMS rules.",
+    ]
+    at_limit = sum(verdict(r, servo).steps_at_limit > 0 for r in results)
+    peak_row = max(results, key=lambda r: float(r.peak_torque.max()))
+    rms_row = max(results, key=lambda r: float(r.rms_torque.max()))
+    out += [
+        f"- Largest peak: {peak_row.peak_torque.max():.2f} N·m "
+        f"({verdict(peak_row, servo).peak_vs_stall:.0%} of stall), "
+        f"{_label(peak_row.scenario)} at {peak_row.scenario.total_mass} kg.",
+        f"- Largest RMS: {rms_row.rms_torque.max():.2f} N·m "
+        f"({verdict(rms_row, servo).rms_vs_rated:.0%} of rated), "
+        f"{_label(rms_row.scenario)} at {rms_row.scenario.total_mass} kg.",
+        f"- Rows at the actuator limit: {at_limit}.",
+        f"- Unstable rows: {sum(not verdict(r, servo).stable for r in results)}.",
+        "",
+    ]
+    for mass in sorted({r.scenario.total_mass for r in results}):
+        out += [
+            f"## {mass} kg",
+            "",
+            "| Scenario | Speed | Peak (joint) | Peak % stall | RMS (joint) | RMS % rated "
+            "| Max speed % | Power W | Steps at limit | Min margin mm | Slip mm | Verdict |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|",
+        ]
+        for r in (x for x in results if x.scenario.total_mass == mass):
+            v = verdict(r, servo)
+            pj, pv = _worst(r.joints, r.peak_torque)
+            rj, rv = _worst(r.joints, r.rms_torque)
+            margin = "-" if r.min_margin is None else f"{r.min_margin * 1000:.0f}"
+            slip = "-" if r.max_slip is None else f"{r.max_slip * 1000:.1f}"
+            out.append(
+                f"| {_label(r.scenario)} | {_speed(r)} | {pv:.2f} N·m ({pj}) | "
+                f"{v.peak_vs_stall:.0%} | {rv:.2f} N·m ({rj}) | {v.rms_vs_rated:.0%} | "
+                f"{v.speed_vs_max:.0%} | {r.power:.0f} | {v.steps_at_limit} | {margin} | "
+                f"{slip} | {_status(r, servo)} |"
+            )
+        out.append("")
+    tops = [
+        r
+        for r in results
+        if r.scenario.total_mass == 2.5
+        and r.scenario.motion == "forward"
+        and r.scenario.fraction == 1.0
+    ]
+    for r in tops:
+        out += [
+            f"## Per-joint torque: {r.scenario.gait} forward at top speed, 2.5 kg",
+            "",
+            "| Joint | Peak N·m | RMS N·m |",
+            "|---|---|---|",
+        ]
+        out += [
+            f"| {name} | {r.peak_torque[i]:.3f} | {r.rms_torque[i]:.3f} |"
+            for i, name in enumerate(r.joints)
+        ]
+        out.append("")
+    return "\n".join(out)
+
+
+def to_json(
+    results: Sequence[ScenarioResult],
+    params: RobotParams,
+    actuators: ActuatorModel,
+    *,
+    commit: str,
+    date: str,
+) -> dict:
+    servo = params.servo
+
+    def per_joint(r: ScenarioResult, values: np.ndarray) -> dict[str, float]:
+        return {name: float(values[i]) for i, name in enumerate(r.joints)}
+
+    rows = []
+    for r in results:
+        rows.append(
+            {
+                "gait": r.scenario.gait,
+                "motion": r.scenario.motion,
+                "fraction": r.scenario.fraction,
+                "total_mass": r.scenario.total_mass,
+                "command": list(r.command),
+                "peak_torque": per_joint(r, r.peak_torque),
+                "rms_torque": per_joint(r, r.rms_torque),
+                "mean_abs_torque": per_joint(r, r.mean_abs_torque),
+                "peak_speed": per_joint(r, r.peak_speed),
+                "steps_at_limit": {n: int(r.steps_at_limit[i]) for i, n in enumerate(r.joints)},
+                "min_margin": r.min_margin,
+                "max_slip": r.max_slip,
+                "power": r.power,
+                "verdict": dataclasses.asdict(verdict(r, servo)),
+            }
+        )
+    return {
+        "commit": commit,
+        "date": date,
+        "servo": {
+            "model": servo.model,
+            "stall_torque": servo.stall_torque,
+            "rated_torque": servo.rated_torque,
+            "max_speed": servo.max_speed,
+            "stall_current_a": servo.stall_current,
+            "idle_current_a": servo.idle_current,
+            "supply_voltage_v": servo.supply_voltage,
+        },
+        "design_limit_torque": actuators.max_torque,
+        "placeholders": list(PLACEHOLDERS),
+        "results": rows,
+    }

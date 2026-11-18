@@ -1,7 +1,7 @@
 # Version 1 — The torque report
 
 **Date:** 2026-11-18
-**Status:** approved by the owner on 2026-11-18 (short design, placeholder servo currents accepted)
+**Status:** implemented 2026-11-18 (short design, placeholder servo currents accepted). Result: all 48 rows pass; worst peak 1.26 N·m (43% of stall, wave sideways), worst RMS 0.43 N·m (44% of rated), no step at the actuator limit, margin never under 70 mm. See `docs/reports/v1-torque-report.md`.
 **Size:** a small project
 **Roadmap step:** 1.8, and the exit-test box "a torque report exists" in [03 — Roadmap](../../03-roadmap.md)
 
@@ -33,7 +33,7 @@ the design limit), so a report measured under that clip can never show a peak ab
   design limit. The walking tests keep the 1.47 N·m limit.
 - **Matrix** (a call of mine): forward walking for each gait at 25%, 50% and 100% of its top
   speed; sideways and turning in place at each gait's top speed; standing; each at total robot
-  masses 2.0, 2.2 and 2.5 kg (the chassis mass changes; the six 185 g legs stay). 63 runs.
+  masses 2.0, 2.2 and 2.5 kg (the chassis mass changes; the six 185 g legs stay). 48 runs (a stand, then per gait forward at three speeds, sideways and turn, at each mass).
 - **Statistics:** per joint, from every physics step: peak |torque|, RMS torque, mean |torque|,
   peak joint speed; plus the count of steps at the limit. Peak is over the whole run including
   start-up; RMS, mean and power are over the steady part (after a 6 s warm-up), because they
