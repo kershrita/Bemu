@@ -61,6 +61,8 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 | 1.7 | Keyboard and gamepad control |
 | 1.8 | Measurement: joint torque, speed, power, stability margin, logged per run |
 
+Steps 1.1 to 1.3 are done (version 1a, `docs/superpowers/specs/2026-11-18-v1a-full-body-design.md`).
+
 **Exit test**
 
 - [ ] Walks 2 m in a straight line with less than 10% sideways drift.

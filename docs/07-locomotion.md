@@ -132,6 +132,12 @@ are in [08 — Mechanical design](08-mechanical-design.md).
 
 ### Body pose
 
+In the code (`bemu_kinematics.body`) the planted foot is the foot sphere's *centre*, 8 mm above
+the floor, and heights are the hip plane's height above the floor: **98 mm** standing (the
+stance's 90 mm above the foot centres, plus the 8 mm) and **28 mm** sitting (half the 56 mm
+body). The sit pose is the tight one: the femur needs 85.6° of its 90° limit, and the
+parameter loader rejects a body too thin (under 48 mm) to sit.
+
 To raise, shift or tilt the body while the feet stay planted: if the body should
 move by translation `t` and rotation `R` from neutral, each planted foot, seen from
 the body, moves the opposite way:
@@ -231,7 +237,7 @@ so the robot slows rather than distorting its gait.
 
 | Sequence | Steps |
 |---|---|
-| Stand up | 1. With the body resting on the ground, move each foot to its neutral horizontal position at ground level. 2. Raise the body height command smoothly, from the height at which the body rests on the ground up to the target, over 2 s. |
+| Stand up | 1. With the body resting on the ground, move each foot to its neutral horizontal position at ground level. 2. Raise the body height command smoothly, from the height at which the body rests on the ground up to the target, over 2 s. In simulation (version 1a) the robot starts in the `sit` keyframe, which is already step 1's end state, so only step 2 runs. |
 | Sit down | The reverse, then switch off joint torque. |
 
 Both are body pose movements, so they reuse the formula in section 2.

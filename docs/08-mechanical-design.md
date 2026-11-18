@@ -48,10 +48,10 @@ at rest (angle from straight ahead, counter-clockwise positive).
 
 | Measure | Value |
 |---|---|
-| Body, approximate outline | 240 × 160 mm |
+| Body, approximate outline | 240 × 160 mm, 56 mm thick (the sit pose needs at least 48 mm; see [07](07-locomotion.md)) |
 | Standing footprint (foot tip to foot tip) | about 370 mm long × 400 mm wide |
-| Standing body height (hip axes above ground) | 90 mm |
-| Ground clearance under the body | about 60 mm, depending on body thickness |
+| Standing body height (hip axes above the foot centres) | 90 mm; 98 mm above the floor, since the 8 mm foot sphere's centre is 8 mm up |
+| Ground clearance under the body | 70 mm with the 56 mm body |
 
 ### Joint ranges
 

@@ -168,6 +168,8 @@ Recorded on 2026-11-18, on the development PC.
 | Watch the robot's state | RViz |
 | Record data | `ros2 bag record` |
 | Regenerate the model after a parameter change | `python3 tools/generate_model.py` |
+| Stand, sit or pose the whole robot without ROS | `python3 tools/stand.py stand` (or `sit`, or `pose --roll 10 --shift 20 0`; add `--viewer` for a window) |
+| Write the full-robot model | `python3 tools/generate_model.py --robot` |
 | Trace a foot path without ROS | `python3 tools/trace_foot.py --shape square` (add `--viewer` for a window) |
 | Regenerate the printable parts | A script in `cad/` |
 

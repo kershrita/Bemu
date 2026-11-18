@@ -1,7 +1,7 @@
 # Version 1a — The full simulated body: model, stand and sit, body pose
 
 **Date:** 2026-11-18
-**Status:** approved by the owner on 2026-11-18; corrected the same day while writing the plan (see §5.2: foot radius)
+**Status:** implemented 2026-11-18 (approved by the owner; corrected the same day while writing the plan, see §5.2)
 **Size:** a project (the first of three plans that make up version 1)
 **Roadmap steps:** 1.1, 1.2, 1.3 in [03 — Roadmap](../../03-roadmap.md)
 
@@ -206,6 +206,21 @@ the number.
 | The robot cannot stand within the 1.47 N·m limit | Report it with the torque numbers; the roadmap's servo rule decides the response. Do not edit the limit to pass |
 | Standing or sit falls apart because of foot friction or contact settings | Diagnose from the sim; the contact parameters are a modelling choice and may be adjusted with a ledger note, unlike torque limits |
 | The sit pose is only 4.4° from the femur limit | Covered by the loader check and a test; a different body or foot in version 1.5 CAD must be re-checked |
+
+## Results
+
+Measured in simulation with the placeholder servo values:
+
+| Measure | Result | Bar |
+|---|---|---|
+| Standing hip height | 96.5 mm (the position actuator sags about 1.5 mm under load) | within 3 mm of 98 mm |
+| Sitting hip height | 27.9 mm | within 3 mm of 28 mm |
+| Tilt, standing | 0.00° | under 1° |
+| Foot slip | 1.4 to 1.9 mm | under 5 mm |
+| Peak joint torque | 0.27 to 0.30 N·m | under 1.47 N·m |
+| Stability margin | 170 to 186 mm | positive |
+
+All twelve body poses are reached with six feet planted. 187 tests pass.
 
 ## References
 
