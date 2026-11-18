@@ -5,8 +5,15 @@ from pathlib import Path
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction, RegisterEventHandler
+from launch.actions import (
+    DeclareLaunchArgument,
+    EmitEvent,
+    LogInfo,
+    OpaqueFunction,
+    RegisterEventHandler,
+)
 from launch.event_handlers import OnProcessExit
+from launch.events import Shutdown
 from launch.substitutions import EnvironmentVariable, LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -58,7 +65,15 @@ def _setup(context):
     leg_controller = Node(
         package="controller_manager",
         executable="spawner",
-        arguments=["leg_position_controller", "--controller-manager", "/controller_manager"],
+        # The controller reads its own parameters (joints, interface_name) from the file
+        # given to its spawner, not from the file given to the simulator node.
+        arguments=[
+            "leg_position_controller",
+            "--controller-manager",
+            "/controller_manager",
+            "--param-file",
+            controllers,
+        ],
         parameters=[{"use_sim_time": True}],
     )
     actions = [
@@ -77,8 +92,21 @@ def _setup(context):
                 {"use_sim_time": True, "shape": shape, "params_file": params_file},
             ],
         )
+
+        def start_trace_if_controller_loaded(event, context):
+            if event.returncode == 0:
+                return [trace]
+            return [
+                LogInfo(msg="leg_position_controller failed to start; not tracing"),
+                EmitEvent(event=Shutdown(reason="leg_position_controller failed to start")),
+            ]
+
         actions.append(
-            RegisterEventHandler(OnProcessExit(target_action=leg_controller, on_exit=[trace]))
+            RegisterEventHandler(
+                OnProcessExit(
+                    target_action=leg_controller, on_exit=start_trace_if_controller_loaded
+                )
+            )
         )
     return actions
 
