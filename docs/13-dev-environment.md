@@ -41,8 +41,8 @@ Ubuntu on the PC means one environment instead of two.
 | ROS 2 networking between WSL and the Pi is unreliable | Dual-boot Ubuntu, or run the visualiser on the Pi's side through a web tool |
 | Training under WSL is troublesome | Dual-boot Ubuntu, or a rented cloud machine |
 
-A container definition is still added to the repository in step 0.2, so the
-automated checks on GitHub use the same environment.
+The repository has no `Dockerfile`. The GitHub check for the ROS packages runs in the
+official ROS image (`ros:lyrical-ros-base`) instead.
 
 ## Software on the PC
 
@@ -62,35 +62,87 @@ project uses ROS 2 Jazzy on Ubuntu 24.04 instead. The code does not depend on
 anything specific to Lyrical. See
 [decision 0006](decisions/0006-ros2-distribution.md).
 
-## Setup checklist for step 0.2
+## Setup, as done on 2026-11-18
 
-Each line becomes a tested command in this document.
+These are the commands that were run and worked on the development PC (Ubuntu 26.04
+under WSL 2). Everything after step 1 runs inside Ubuntu.
 
-- [ ] Install WSL 2 and Ubuntu 26.04 on the Windows PC.
-- [ ] Confirm that 3D rendering inside WSL uses the NVIDIA card.
-- [ ] Install ROS 2 Lyrical following the official installation guide.
-- [ ] Install ros2_control, ros2_controllers and the MuJoCo bridge.
-- [ ] Run one of the MuJoCo bridge's demo launches to confirm the simulator, the
-      viewer and the controllers work together.
-- [ ] Clone this repository; build the workspace with `colcon build`.
-- [ ] Run the tests with `colcon test`.
-- [ ] Record every installed version in the table below.
+1. **WSL 2 and Ubuntu 26.04** (administrator PowerShell):
+   `wsl --install -d Ubuntu-26.04`, then check `wsl -l -v` shows `VERSION 2`.
+2. **3D rendering on the NVIDIA card.** By default Mesa falls back to software
+   rendering (`llvmpipe`) and, when asked for hardware, picks the Intel integrated
+   graphics. Select the NVIDIA card explicitly:
+
+   ```bash
+   sudo apt update && sudo apt install -y mesa-utils
+   echo 'export GALLIUM_DRIVER=d3d12
+   export MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA' >> ~/.bashrc && source ~/.bashrc
+   glxinfo -B | grep "OpenGL renderer"     # D3D12 (NVIDIA GeForce RTX 5060 Ti)
+   ```
+
+3. **ROS 2 Lyrical.** Enable the ROS apt source (`ros2-apt-source` package, as in the
+   official guide), then:
+
+   ```bash
+   sudo apt update && sudo apt install -y ros-dev-tools ros-lyrical-desktop
+   echo 'source /opt/ros/lyrical/setup.bash' >> ~/.bashrc && source ~/.bashrc
+   ros2 doctor        # all checks pass; "newer version" warnings are harmless
+   ```
+
+4. **Control stack and the MuJoCo bridge:**
+
+   ```bash
+   sudo apt install -y ros-lyrical-ros2-control ros-lyrical-ros2-controllers \
+     ros-lyrical-mujoco-ros2-control ros-lyrical-mujoco-ros2-control-demos
+   ```
+
+   If `ros2 launch mujoco_ros2_control_demos 01_basic_robot.launch.py` crashes
+   `robot_state_publisher` with `libsdformat.so.16: cannot open shared object file`,
+   the terminal was opened before the packages were installed and does not have the
+   vendor library on its path. Open a fresh terminal (or run
+   `source /opt/ros/lyrical/setup.bash`); that fixed it on the development PC.
+
+5. **Repository and tests:**
+
+   ```bash
+   git clone https://github.com/kershrita/Bemu.git ~/bemu && cd ~/bemu
+   sudo apt install -y python3-numpy python3-yaml python3-pytest python3-pip
+   pip install --user --break-system-packages mujoco "ruff==0.17.*"
+   echo 'export BEMU_PARAMS=~/bemu/config/robot_params.yaml' >> ~/.bashrc && source ~/.bashrc
+   python3 -m pytest -m "not sim_launch"
+   cd ros2_ws && colcon build --symlink-install && source install/setup.bash
+   colcon test && colcon test-result --verbose
+   ```
+
+### Things that went wrong, and how to recognise them
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `glxinfo` says `llvmpipe` | Mesa defaults to software rendering under WSL | Step 2 |
+| Window renders on the Intel chip | Mesa picked the first Direct3D adapter | `MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA` |
+| `libsdformat.so.16` not found | Terminal opened before the packages were installed | Open a fresh terminal |
+| Spawners fail with `Failed loading controller`, repeated `Moved backwards in time` | Two simulators running on one ROS network | Stop the old one: `pkill -f "ros2 launch"; pkill -f ros2_control_node; pkill -f robot_state_publisher` |
+| `colcon test` says `NO TESTS RAN` | The package does not declare pytest | `extras_require={"test": ["pytest"]}` in `setup.py` (setuptools no longer accepts `tests_require`) |
+| Closing the MuJoCo viewer window segfaults | Mesa EGL crash in `glfw.terminate` under WSL | `tools/trace_foot.py` ends the process without that teardown |
 
 ## Version record
 
-Filled in during step 0.2.
+Recorded on 2026-11-18, on the development PC.
 
 | Component | Version | Date recorded |
 |---|---|---|
-| Windows build and WSL version | | |
-| NVIDIA driver | | |
-| Ubuntu | | |
-| ROS 2 distribution | | |
-| ros2_control | | |
-| MuJoCo | | |
-| mujoco_ros2_control | | |
-| Python | | |
-| build123d | | |
+| Windows build | 10.0.26300.9711 | 2026-11-18 |
+| WSL | 3.0.5.0 (kernel 6.18.58.1-1, WSLg 1.0.79) | 2026-11-18 |
+| NVIDIA driver | 620.70.03 in WSL (Windows kernel-mode driver 621.14), RTX 5060 Ti | 2026-11-18 |
+| Ubuntu | 26.04.1 LTS | 2026-11-18 |
+| ROS 2 distribution | Lyrical (`ros-lyrical-desktop` 0.13.0) | 2026-11-18 |
+| ros2_control | 6.10.1 | 2026-11-18 |
+| MuJoCo (Python, used by the headless tests and the viewer) | 4.0.1 | 2026-11-18 |
+| MuJoCo (inside ROS, `mujoco_vendor`) | package 0.1.0; its MuJoCo version is not recorded and may differ from the pip one | 2026-11-18 |
+| mujoco_ros2_control | 0.1.2 | 2026-11-18 |
+| Python | 3.14.4 | 2026-11-18 |
+| ruff | 0.17.x (pinned) | 2026-11-18 |
+| build123d | Not used until version 1.5 | |
 
 ## The Raspberry Pi 5 (from version 2)
 
@@ -111,11 +163,12 @@ Filled in during step 0.2.
 |---|---|
 | Build | `colcon build --symlink-install` in `ros2_ws/` |
 | Test | `colcon test`, then `colcon test-result --verbose` |
-| Run the simulation | `ros2 launch bemu_bringup robot.launch.py use_sim:=true` |
-| Run on the robot | The same, with `use_sim:=false` |
+| Run the simulated leg (version 0) | `ros2 launch bemu_bringup leg.launch.py shape:=square` (or `circle`, `none`); add `headless:=true` for no window |
+| Run on the robot | Version 2 onward; `use_sim:=false` stops with a message in version 0 |
 | Watch the robot's state | RViz |
 | Record data | `ros2 bag record` |
-| Regenerate the model after a parameter change | A script in `tools/` |
+| Regenerate the model after a parameter change | `python3 tools/generate_model.py` |
+| Trace a foot path without ROS | `python3 tools/trace_foot.py --shape square` (add `--viewer` for a window) |
 | Regenerate the printable parts | A script in `cad/` |
 
 ## Automated checks

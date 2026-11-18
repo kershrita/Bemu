@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>bemu_params</name>
+  <version>0.1.0</version>
+  <description>Bemu parameter file loader (ROS-free, SI units).</description>
+  <maintainer email="noreply@example.com">Bemu</maintainer>
+  <license>Proprietary</license>
+  <exec_depend>python3-yaml</exec_depend>
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

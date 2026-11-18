@@ -48,7 +48,7 @@ Likelihood and impact are rated low, medium or high.
 | R12 | Lithium battery misuse | Low | High | Balance charger, charging bag, voltage cut-offs, never charged unattended |
 | R13 | Code-driven CAD turns out too slow for bracket design | Medium | Low | Mixed approach: code CAD for scaling parts, visual CAD for one-off shapes |
 | R14 | The project stalls after a long pause | Medium | Medium | These documents; a version tag and a written state at every stop |
-| R15 | 3D viewers under WSL fall back to slow software rendering instead of the NVIDIA card | Medium | Low | Checked in step 0.2; dual-boot Ubuntu as the fallback |
+| R15 | 3D viewers under WSL fall back to slow software rendering instead of the NVIDIA card | Medium | Low | Checked in step 0.2; dual-boot Ubuntu as the fallback. **Occurred and resolved 2026-11-18:** Mesa defaulted to `llvmpipe`, then to the Intel integrated graphics; fixed with `GALLIUM_DRIVER=d3d12` and `MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA` ([13](13-dev-environment.md)) |
 | R16 | ROS 2 on the PC (inside WSL) and on the Pi cannot find each other across WSL's virtual network | Medium | Low | Change WSL's networking mode; tested in version 2; dual-boot Ubuntu as the fallback |
 | R17 | Ordering prints makes each design iteration slow, and a wrong part costs a re-order | High | Medium | Tolerance test piece first; fit checked in CAD; complete batches; spares of small loaded parts; a written print specification with every order |
 

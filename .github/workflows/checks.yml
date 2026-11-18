@@ -1,0 +1,37 @@
+name: checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: pytest -m "not sim_launch"
+
+  ros:
+    runs-on: ubuntu-latest
+    container: ros:lyrical-ros-base
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get update && apt-get install -y python3-pip python3-pytest python3-numpy python3-yaml
+      - run: pip install --break-system-packages mujoco
+      - name: Install ROS dependencies
+        run: rosdep update && rosdep install --from-paths ros2_ws/src -y --ignore-src
+      - name: Build
+        working-directory: ros2_ws
+        run: . /opt/ros/lyrical/setup.sh && colcon build
+      - name: Test (the simulated launch test is run on the development PC only)
+        working-directory: ros2_ws
+        run: . /opt/ros/lyrical/setup.sh && . install/setup.sh && colcon test --pytest-args -m "not sim_launch"
+      - name: Results
+        working-directory: ros2_ws
+        run: . /opt/ros/lyrical/setup.sh && colcon test-result --verbose

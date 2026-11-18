@@ -1,0 +1,33 @@
+units: {length: mm, angle: deg, mass: g}
+
+leg:
+  coxa_length: 45
+  femur_length: 65
+  tibia_length: 110
+  joint_limits:
+    coxa:  [-45, 45]
+    femur: [-60, 90]
+    tibia: [-150, -20]
+  link_mass:            # estimates until the CAD exists (version 1.5)
+    coxa: 75            # bracket plus the femur servo
+    femur: 25
+    tibia: 85           # knee servo plus the lower leg and foot
+
+body:
+  mounts:
+    lf: {x: 100,  y: 60,  yaw: 45}
+    lm: {x: 0,    y: 80,  yaw: 90}
+    lr: {x: -100, y: 60,  yaw: 135}
+    rf: {x: 100,  y: -60, yaw: -45}
+    rm: {x: 0,    y: -80, yaw: -90}
+    rr: {x: -100, y: -60, yaw: -135}
+
+stance:
+  foot_radius: 120
+  body_height: 90
+
+servo:
+  model: STS3215-12V
+  mass: 55
+  stall_torque_nm: 2.94
+  max_speed_rad_s: 4.7

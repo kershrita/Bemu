@@ -1,0 +1,7 @@
+# Actuator model for the MuJoCo simulation (SI units).
+kp: 20.0                          # N·m/rad, position gain
+kv: 0.5                           # N·m·s/rad, velocity gain
+max_torque_fraction_of_stall: 0.5 # force limit = fraction x servo stall torque
+armature: 0.002                   # kg·m^2, reflected rotor inertia
+damping: 0.05                     # N·m·s/rad, joint damping
+frictionloss: 0.02                # N·m, joint dry friction

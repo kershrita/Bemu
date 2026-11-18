@@ -27,7 +27,7 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 
 | Step | Content |
 |---|---|
-| 0.1 | Repository structure, licence, coding conventions, automated checks |
+| 0.1 | Repository structure, no licence file while the repository is private, coding conventions, automated checks |
 | 0.2 | Development environment: Ubuntu under WSL 2, ROS 2, MuJoCo, the MuJoCo bridge |
 | 0.3 | `robot_params.yaml` with the starting dimensions |
 | 0.4 | Kinematics library: forward and inverse leg maths, with tests |
@@ -36,11 +36,11 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 
 **Exit test**
 
-- [ ] A fresh clone builds and all tests pass with one command.
-- [ ] Inverse then forward kinematics returns the starting point within 0.01 mm for
+- [x] A fresh clone builds and all tests pass with one command.
+- [x] Inverse then forward kinematics returns the starting point within 0.01 mm for
       10,000 random reachable points.
-- [ ] Unreachable targets are rejected with a clear error, never a wrong answer.
-- [ ] The simulated foot follows a 60 mm square with less than 5 mm error.
+- [x] Unreachable targets are rejected with a clear error, never a wrong answer.
+- [x] The simulated foot follows a 60 mm square with less than 5 mm error.
 
 **Spending:** none.
 

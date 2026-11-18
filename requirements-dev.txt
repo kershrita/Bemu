@@ -1,0 +1,5 @@
+numpy
+pyyaml
+pytest
+ruff==0.17.*
+mujoco>=3.4
