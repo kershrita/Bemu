@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>bemu_kinematics</name>
+  <version>0.1.0</version>
+  <description>Bemu leg and body kinematics (ROS-free, SI units).</description>
+  <maintainer email="noreply@example.com">Bemu</maintainer>
+  <license>Apache-2.0</license>
+  <depend>bemu_params</depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
