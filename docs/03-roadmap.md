@@ -36,7 +36,7 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 
 **Exit test**
 
-- [ ] A fresh clone builds and all tests pass with one command.
+- [x] A fresh clone builds and all tests pass with one command.
 - [x] Inverse then forward kinematics returns the starting point within 0.01 mm for
       10,000 random reachable points.
 - [x] Unreachable targets are rejected with a clear error, never a wrong answer.

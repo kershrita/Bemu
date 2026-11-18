@@ -3,7 +3,7 @@
 Bemu is a six-legged walking robot built on a Raspberry Pi 5, developed in small
 versions where each version adds one new capability.
 
-**Status:** version 0 built and passing on the development PC (2026-11-18); waiting for the GitHub checks to go green before it is closed. Nothing is bought yet. Next:
+**Status:** version 0 complete (2026-11-18): one simulated leg traces a square and a circle through ROS 2, and both GitHub checks pass. Nothing is bought yet. Next:
 the version 1 plan (walking in simulation).
 
 ## The idea in five lines
