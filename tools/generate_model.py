@@ -10,10 +10,19 @@ for package in ("bemu_params", "bemu_kinematics", "bemu_description", "bemu_sim"
 
 from bemu_description.actuators import load_actuator_model  # noqa: E402
 from bemu_description.generate import write_models  # noqa: E402
-from bemu_params import load_params  # noqa: E402
+from bemu_kinematics import KinematicsError  # noqa: E402
+from bemu_params import ParamsError, load_params  # noqa: E402
 
 
 def main() -> None:
+    try:
+        _run()
+    except (ParamsError, KinematicsError, OSError) as exc:
+        print(f"generate_model: {exc}", file=sys.stderr)
+        raise SystemExit(1) from exc
+
+
+def _run() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=REPO_ROOT / "build" / "model")
     parser.add_argument("--headless", action="store_true")

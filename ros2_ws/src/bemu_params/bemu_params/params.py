@@ -89,7 +89,9 @@ def _limits(node: Any, parent: str, key: str) -> tuple[float, float]:
     dotted = f"{parent}.{key}"
     value = _get(node, dotted, key)
     ok = isinstance(value, list) and len(value) == 2
-    ok = ok and all(isinstance(v, int | float) and not isinstance(v, bool) for v in value)
+    ok = ok and all(
+        isinstance(v, int | float) and not isinstance(v, bool) and math.isfinite(v) for v in value
+    )
     if not ok:
         raise ParamsError(f"{dotted}: expected [lower, upper] numbers, got {value!r}")
     lower, upper = float(value[0]), float(value[1])

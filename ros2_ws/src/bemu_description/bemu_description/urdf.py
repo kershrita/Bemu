@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from xml.sax.saxutils import quoteattr
+from xml.sax.saxutils import escape, quoteattr
 
 from bemu_description.mjcf import neutral_angles
 from bemu_description.names import joint_names
@@ -84,7 +84,7 @@ def build_leg_urdf(
         f'  <ros2_control name="BemuLeg" type="system">\n'
         f"    <hardware>\n"
         f"      <plugin>{PLUGIN}</plugin>\n"
-        f'      <param name="mujoco_model">{mujoco_model_path}</param>\n'
+        f'      <param name="mujoco_model">{escape(mujoco_model_path)}</param>\n'
         f'      <param name="headless">{headless_text}</param>\n'
         f'      <param name="initial_keyframe">{KEYFRAME}</param>\n'
         f"    </hardware>\n" + "\n".join(control_xml) + "\n  </ros2_control>\n</robot>\n"

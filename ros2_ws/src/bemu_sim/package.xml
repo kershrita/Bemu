@@ -4,10 +4,13 @@
   <version>0.1.0</version>
   <description>Bemu MuJoCo simulation: actuator model and configuration.</description>
   <maintainer email="noreply@example.com">Bemu</maintainer>
-  <license>Apache-2.0</license>
+  <license>Proprietary</license>
   <depend>bemu_params</depend>
   <depend>bemu_description</depend>
+  <depend>bemu_kinematics</depend>
+  <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python3-yaml</exec_depend>
+  <!-- mujoco (headless.py and its tests) is a pip dependency: see requirements-dev.txt -->
   <export>
     <build_type>ament_python</build_type>
   </export>

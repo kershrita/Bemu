@@ -24,9 +24,23 @@ def _embed(center: ArrayLike, plane: str, a: np.ndarray, b: np.ndarray) -> np.nd
     return points
 
 
+def _check(center: ArrayLike, size: float, n: int, minimum: int, name: str) -> None:
+    if n < minimum:
+        raise ValueError(f"n must be at least {minimum}, got {n}")
+    if not (isinstance(size, int | float) and np.isfinite(size) and size > 0):
+        raise ValueError(f"{name} must be finite and positive, got {size!r}")
+    try:
+        c = np.asarray(center, dtype=float)
+    except (TypeError, ValueError):
+        raise ValueError(f"center must be three numbers, got {center!r}") from None
+    if c.shape != (3,) or not np.all(np.isfinite(c)):
+        raise ValueError(f"center must be three finite numbers, got {center!r}")
+
+
 def square_path(center: ArrayLike, side: float, n: int, *, plane: str = "xz") -> np.ndarray:
     """(n, 3) points around a square of the given side centred on `center`, counter-clockwise."""
     _axes(plane)
+    _check(center, side, n, 4, "side")
     half = side / 2.0
     s = np.arange(n) * (4.0 * side / n)  # distance travelled along the perimeter
     edge = np.minimum((s // side).astype(int), 3)
@@ -39,5 +53,6 @@ def square_path(center: ArrayLike, side: float, n: int, *, plane: str = "xz") ->
 def circle_path(center: ArrayLike, radius: float, n: int, *, plane: str = "xy") -> np.ndarray:
     """(n, 3) points around a circle of the given radius centred on `center`."""
     _axes(plane)
+    _check(center, radius, n, 3, "radius")
     theta = np.arange(n) * (2.0 * np.pi / n)
     return _embed(center, plane, radius * np.cos(theta), radius * np.sin(theta))

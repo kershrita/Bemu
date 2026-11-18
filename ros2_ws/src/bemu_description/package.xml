@@ -4,10 +4,11 @@
   <version>0.1.0</version>
   <description>Bemu robot model generator: MJCF and URDF from the parameter file (ROS-free).</description>
   <maintainer email="noreply@example.com">Bemu</maintainer>
-  <license>Apache-2.0</license>
+  <license>Proprietary</license>
   <depend>bemu_params</depend>
   <depend>bemu_kinematics</depend>
   <exec_depend>python3-yaml</exec_depend>
+  <!-- the tests load the generated MJCF with the mujoco pip package: see requirements-dev.txt -->
   <export>
     <build_type>ament_python</build_type>
   </export>

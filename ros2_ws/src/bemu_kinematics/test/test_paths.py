@@ -38,3 +38,26 @@ def test_every_point_of_both_test_paths_is_reachable(params):
     for path in (square_path(CENTER, 0.060, 400), circle_path(CENTER, 0.030, 300)):
         for point in path:
             inverse(params.leg, point)  # raises if unreachable or outside the limits
+
+
+@pytest.mark.parametrize("make", [square_path, circle_path])
+@pytest.mark.parametrize("size", [0.0, -0.05, float("nan"), float("inf")])
+def test_size_must_be_finite_and_positive(make, size):
+    with pytest.raises(ValueError, match="size|side|radius"):
+        make(CENTER, size, 100)
+
+
+@pytest.mark.parametrize("make", [square_path, circle_path])
+@pytest.mark.parametrize(
+    "center", [(0.1, 0.0), (0.1, 0.0, -0.09, 0.0), (float("nan"), 0.0, -0.09), "abc"]
+)
+def test_center_must_be_three_finite_numbers(make, center):
+    with pytest.raises(ValueError, match="center"):
+        make(center, 0.03, 100)
+
+
+@pytest.mark.parametrize(("make", "minimum"), [(square_path, 4), (circle_path, 3)])
+def test_point_count_has_a_minimum(make, minimum):
+    with pytest.raises(ValueError, match="n"):
+        make(CENTER, 0.03, minimum - 1)
+    assert len(make(CENTER, 0.03, minimum)) == minimum

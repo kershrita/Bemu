@@ -4,7 +4,7 @@
   <version>0.1.0</version>
   <description>Bemu leg and body kinematics (ROS-free, SI units).</description>
   <maintainer email="noreply@example.com">Bemu</maintainer>
-  <license>Apache-2.0</license>
+  <license>Proprietary</license>
   <depend>bemu_params</depend>
   <exec_depend>python3-numpy</exec_depend>
   <export>

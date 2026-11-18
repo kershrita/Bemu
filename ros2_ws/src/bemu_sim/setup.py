@@ -9,6 +9,6 @@ setup(
         ("share/bemu_sim", ["package.xml"]),
         ("share/bemu_sim/config", ["config/actuators.yaml"]),
     ],
-    install_requires=["setuptools", "pyyaml"],
+    install_requires=["setuptools", "numpy", "pyyaml"],
     zip_safe=True,
 )

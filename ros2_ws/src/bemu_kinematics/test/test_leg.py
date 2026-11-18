@@ -107,6 +107,14 @@ def test_exception_constructors_take_message_then_attribute():
         (0.12, 0.0, -0.09, 1.0),
     ],
 )
-def test_malformed_targets_raise_value_error(params, foot):
-    with pytest.raises(ValueError):
-        inverse(params.leg, foot)
+@pytest.mark.parametrize("check_limits", [True, False])
+def test_malformed_targets_raise_plain_value_error(params, foot, check_limits):
+    # Plain ValueError from the input guard, not an UnreachableError/JointLimitError.
+    with pytest.raises(ValueError, match="finite|shape|three") as info:
+        inverse(params.leg, foot, check_limits=check_limits)
+    assert not isinstance(info.value, KinematicsError)
+
+
+def test_unreachable_target_still_raises_without_limit_checks(params):
+    with pytest.raises(UnreachableError):
+        inverse(params.leg, (0.5, 0.0, 0.0), check_limits=False)

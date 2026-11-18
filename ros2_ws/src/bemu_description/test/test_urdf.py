@@ -68,3 +68,10 @@ def test_write_models_creates_both_files(tmp_path, params, actuators):
     assert urdf.tag == "robot"
     mujoco_model = urdf.find("ros2_control/hardware/param[@name='mujoco_model']").text
     assert mujoco_model == str(paths["mjcf"].resolve())
+
+
+def test_mujoco_model_path_is_xml_escaped(params):
+    path = "/tmp/a&b/<leg>.xml"
+    root = ElementTree.fromstring(build_leg_urdf(params, mujoco_model_path=path))
+    values = {p.get("name"): p.text for p in root.iter("param")}
+    assert values["mujoco_model"] == path

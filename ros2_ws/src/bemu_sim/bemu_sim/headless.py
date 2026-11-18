@@ -5,6 +5,7 @@ Leg frame: origin on the coxa axis, x out, y left, z up. SI units throughout.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 import mujoco
@@ -89,6 +90,12 @@ def track_path(
     point raises (naming its index) and leaves the simulation untouched.
     """
     path = np.asarray(path, dtype=float)
+    if path.size == 0:
+        raise ValueError("path is empty")
+    if path.ndim != 2 or path.shape[1] != 3:
+        raise ValueError(f"path must have shape (n, 3), got {path.shape}")
+    if not math.isfinite(settle_time) or settle_time < 0:
+        raise ValueError(f"settle_time must be finite and not negative, got {settle_time!r}")
     targets = _solve_path(leg, path)
 
     start = np.array(sim.joint_angles())
