@@ -29,7 +29,7 @@ from bemu_params import LEG_CODES, RobotParams
 
 MAX_DT = 0.1  # s: a longer step means a stalled control loop, which must not move the feet
 BISECTION_STEPS = 12
-GROUND_EPS = 0.002  # m: a foot lifted less than this counts as on the ground
+GROUND_EPS = 0.0005  # m: a foot lifted less than this counts as on the ground (it lags a tick)
 
 
 @dataclass(frozen=True)
@@ -38,8 +38,9 @@ class WalkerOutput:
     feet: dict[str, np.ndarray]  # (3,) each, nominal frame, before the body pose
     phases: dict[str, float]  # each leg's phase in [0, 1)
     in_stance: dict[str, bool]
-    stability_margin: float  # m: the COM at (pose.x, pose.y) against the stance feet
-    scale: float  # stride scale applied, 0 to 1
+    stability_margin: float  # m: the COM at (pose.x, pose.y) against the feet on the ground
+    scale: float  # stride scale applied for reach and the stride cap, 0 to 1
+    lift_scale: float  # lift scale applied by the stability reaction, 0 to 1
     gait: str  # the gait being walked, or blended toward
     blending: bool
 
@@ -64,7 +65,8 @@ class Walker:
         self._params = params
         self._gp = gait_params
         self._neutral = neutral_feet(params)
-        self._pose = BodyPose(stand_height(params))
+        self._pose = BodyPose(stand_height(params))  # the commanded body pose
+        self._applied_pose = self._pose  # the pose in use: slews toward the commanded one
         self._command = Command()
         self._applied = np.zeros(3)  # vx, vy, omega after slewing
         self._master = 0.0
@@ -72,7 +74,7 @@ class Walker:
         self._start = (dict(target.offsets), target.duty, gait_params.cycle_time[target.name])
         self._progress = 1.0
         self._duration = 1.0
-        self._stability_scale = 1.0  # slewed; the reach limit is applied separately
+        self._lift_scale = 1.0  # the stability reaction's lift scale, slew-limited
 
     # -- inputs ---------------------------------------------------------------------------------
 
@@ -97,7 +99,7 @@ class Walker:
 
     def set_body_pose(self, pose: BodyPose) -> None:
         pose_angles(self._params, pose)  # raises if standing at this pose is not possible
-        self._pose = pose
+        self._pose = pose  # applied gradually: see _slew_pose
 
     # -- gait state -----------------------------------------------------------------------------
 
@@ -129,13 +131,34 @@ class Walker:
             target[2] if abs(angular) <= limit else self._applied[2] + math.copysign(limit, angular)
         )
 
+    def _slew_pose(self, dt: float) -> None:
+        a, b = self._applied_pose, self._pose
+        move = np.array([b.x - a.x, b.y - a.y, b.height - a.height])
+        norm = float(np.linalg.norm(move))
+        limit = self._gp.max_pose_shift_rate * dt
+        if norm > limit:
+            move *= limit / norm
+        turn = self._gp.max_pose_tilt_rate * dt
+
+        def toward(now: float, goal: float) -> float:
+            return now + max(-turn, min(turn, goal - now))
+
+        self._applied_pose = BodyPose(
+            height=a.height + move[2],
+            x=a.x + move[0],
+            y=a.y + move[1],
+            roll=toward(a.roll, b.roll),
+            pitch=toward(a.pitch, b.pitch),
+            yaw=toward(a.yaw, b.yaw),
+        )
+
     # -- planning -------------------------------------------------------------------------------
 
-    def _plan(self, scale, strides, largest, top, phases, duty):
-        # Lift follows the command (none at zero command) and falls linearly with the scale, so a
-        # stability reaction lowers feet gradually instead of dropping them off a cliff.
+    def _plan(self, scale, lift_scale, strides, largest, top, phases, duty):
+        # Strides scale for reach and the stride cap. Lift follows the command (none at zero
+        # command), falls linearly with both scales, and is what the stability reaction lowers.
         presence = ramp(top * largest / self._gp.lift_ramp_stride)
-        lift = self._gp.step_height * presence * (scale / top if top > 0 else 0.0)
+        lift = self._gp.step_height * presence * (scale / top if top > 0 else 0.0) * lift_scale
         feet = {}
         for leg in LEG_CODES:
             offset = foot_offset(phases[leg], duty, strides[leg] * scale, lift)
@@ -143,9 +166,10 @@ class Walker:
         down = [
             feet[leg][:2] for leg in LEG_CODES if feet[leg][2] - self._neutral[leg][2] < GROUND_EPS
         ]
-        margin = stability_margin((self._pose.x, self._pose.y), np.array(down).reshape(-1, 2))
+        pose = self._applied_pose
+        margin = stability_margin((pose.x, pose.y), np.array(down).reshape(-1, 2))
         try:
-            angles = pose_angles(self._params, self._pose, feet)
+            angles = pose_angles(self._params, pose, feet)
         except BodyPoseError:
             return None, feet, margin
         return angles, feet, margin
@@ -159,6 +183,7 @@ class Walker:
         offsets, duty, cycle = self._effective()
         self._master = (self._master + dt / cycle) % 1.0
         self._slew(dt)
+        self._slew_pose(dt)
 
         phases = {leg: (self._master + offsets[leg]) % 1.0 for leg in LEG_CODES}
         vx, vy, omega = self._applied
@@ -171,7 +196,7 @@ class Walker:
         top = 1.0 if largest == 0.0 else min(1.0, self._gp.max_stride / largest)
 
         def largest_scale(ok, limit):
-            """The largest scale in [0, limit] for which ok(scale) holds (0 if none does)."""
+            """The largest value in [0, limit] for which ok(value) holds (0 if none does)."""
             if ok(limit):
                 return limit
             low, high = 0.0, limit
@@ -180,27 +205,29 @@ class Walker:
                 low, high = (mid, high) if ok(mid) else (low, mid)
             return low
 
-        def reachable(scale):
-            return self._plan(scale, strides, largest, top, phases, duty)[0] is not None
+        def plan(scale, lift_scale):
+            return self._plan(scale, lift_scale, strides, largest, top, phases, duty)
 
-        def stable(scale):
-            angles, _, margin = self._plan(scale, strides, largest, top, phases, duty)
+        # Reach and the stride cap are hard limits, applied at once (checked at full lift).
+        scale = largest_scale(lambda sc: plan(sc, 1.0)[0] is not None, top)
+
+        # Stability is soft. If the feet on the ground would leave the margin too small, the
+        # lift is lowered so lifted feet come down and join the support; the strides are not
+        # touched, so the robot keeps moving. The lift scale falls fast and recovers slowly.
+        def stable(lift_scale):
+            angles, _, margin = plan(scale, lift_scale)
             return angles is not None and margin >= self._gp.stability_threshold
 
-        # Reach is a hard limit, applied at once. Stability is soft: its scale is slew-limited so
-        # a safety reaction never moves a foot by a jump.
-        hard = largest_scale(reachable, top)
-        wanted = largest_scale(stable, hard)
-        if wanted < self._stability_scale:
-            self._stability_scale = max(
-                wanted, self._stability_scale - self._gp.scale_fall_per_s * dt
-            )
+        wanted = largest_scale(stable, 1.0)
+        if wanted < self._lift_scale:
+            self._lift_scale = max(wanted, self._lift_scale - self._gp.scale_fall_per_s * dt)
         else:
-            self._stability_scale = min(
-                wanted, self._stability_scale + self._gp.scale_rise_per_s * dt
-            )
-        scale = min(hard, self._stability_scale)
-        angles, feet, margin = self._plan(scale, strides, largest, top, phases, duty)
+            self._lift_scale = min(wanted, self._lift_scale + self._gp.scale_rise_per_s * dt)
+        lift_scale = self._lift_scale
+        angles, feet, margin = plan(scale, lift_scale)
+        if angles is None:  # lowering feet cannot make a reachable step unreachable; be safe
+            lift_scale = self._lift_scale = 0.0
+            angles, feet, margin = plan(scale, 0.0)
         assert angles is not None
         return WalkerOutput(
             angles=angles,
@@ -209,6 +236,7 @@ class Walker:
             in_stance={leg: phases[leg] < duty for leg in LEG_CODES},
             stability_margin=margin,
             scale=scale,
+            lift_scale=lift_scale,
             gait=self._target.name,
             blending=self._progress < 1.0,
         )

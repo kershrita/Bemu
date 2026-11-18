@@ -31,8 +31,10 @@ class GaitParams:
     lift_ramp_stride: float  # m: the stride at which the full step height is reached
     blend_cycles: float  # a gait change takes this many cycles of the old gait
     stability_threshold: float  # m
-    scale_fall_per_s: float  # stability scale may fall this fast (full scale = 1.0)
+    scale_fall_per_s: float  # the stability (lift) scale may fall this fast (full = 1.0)
     scale_rise_per_s: float  # and recover this fast
+    max_pose_shift_rate: float  # m/s: how fast a body height or shift command is applied
+    max_pose_tilt_rate: float  # rad/s: and a roll, pitch or yaw command
 
 
 def _positive(node: Any, parent: str, key: str) -> float:
@@ -80,4 +82,6 @@ def load_gait_params(path: str | os.PathLike | None = None) -> GaitParams:
         stability_threshold=_positive(root, "", "stability_threshold_mm") * MM,
         scale_fall_per_s=_positive(root, "", "scale_fall_per_s"),
         scale_rise_per_s=_positive(root, "", "scale_rise_per_s"),
+        max_pose_shift_rate=_positive(root, "", "max_pose_shift_mm_s") * MM,
+        max_pose_tilt_rate=_positive(root, "", "max_pose_tilt_rad_s"),
     )
