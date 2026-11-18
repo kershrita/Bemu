@@ -98,11 +98,9 @@ under WSL 2). Everything after step 1 runs inside Ubuntu.
 
    If `ros2 launch mujoco_ros2_control_demos 01_basic_robot.launch.py` crashes
    `robot_state_publisher` with `libsdformat.so.16: cannot open shared object file`,
-   the vendor library is installed but not on the library path:
-
-   ```bash
-   echo 'export LD_LIBRARY_PATH=/opt/ros/lyrical/opt/sdformat_vendor/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
-   ```
+   the terminal was opened before the packages were installed and does not have the
+   vendor library on its path. Open a fresh terminal (or run
+   `source /opt/ros/lyrical/setup.bash`); that fixed it on the development PC.
 
 5. **Repository and tests:**
 
@@ -122,7 +120,7 @@ under WSL 2). Everything after step 1 runs inside Ubuntu.
 |---|---|---|
 | `glxinfo` says `llvmpipe` | Mesa defaults to software rendering under WSL | Step 2 |
 | Window renders on the Intel chip | Mesa picked the first Direct3D adapter | `MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA` |
-| `libsdformat.so.16` not found | Vendor library not on the loader path | Step 4 |
+| `libsdformat.so.16` not found | Terminal opened before the packages were installed | Open a fresh terminal |
 | Spawners fail with `Failed loading controller`, repeated `Moved backwards in time` | Two simulators running on one ROS network | Stop the old one: `pkill -f "ros2 launch"; pkill -f ros2_control_node; pkill -f robot_state_publisher` |
 | `colcon test` says `NO TESTS RAN` | The package does not declare pytest | `extras_require={"test": ["pytest"]}` in `setup.py` (setuptools no longer accepts `tests_require`) |
 | Closing the MuJoCo viewer window segfaults | Mesa EGL crash in `glfw.terminate` under WSL | `tools/trace_foot.py` ends the process without that teardown |
