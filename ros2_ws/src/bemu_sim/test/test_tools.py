@@ -31,3 +31,10 @@ def test_trace_foot_reports_bad_parameter_file_in_one_line(tmp_path, monkeypatch
     assert tool.main() == 1
     err = capsys.readouterr().err
     assert err.startswith("trace_foot: ") and len(err.strip().splitlines()) == 1
+
+
+def test_generate_model_robot_flag_writes_robot_xml(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr("sys.argv", ["generate_model", "--robot", "--out", str(tmp_path)])
+    load_tool("generate_model").main()
+    assert (tmp_path / "robot.xml").is_file()
+    assert str(tmp_path / "robot.xml") in capsys.readouterr().out
