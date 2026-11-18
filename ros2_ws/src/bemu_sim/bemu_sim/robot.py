@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Iterable, Mapping
+from dataclasses import dataclass
 
 import mujoco
 import numpy as np
@@ -14,6 +15,19 @@ from bemu_params import LEG_CODES
 from bemu_sim.headless import CONTROL_RATE
 
 CONTACT_TOLERANCE = 1e-4  # m: a foot this close to the floor counts as touching
+
+
+@dataclass(frozen=True)
+class JointStats:
+    """Per-joint statistics over every physics step since the last clear (arrays follow joints)."""
+
+    joints: tuple[str, ...]  # joint_order()
+    peak_torque: np.ndarray  # (18,) N·m, max |torque| on any physics step
+    rms_torque: np.ndarray  # (18,) N·m
+    mean_abs_torque: np.ndarray  # (18,) N·m
+    peak_speed: np.ndarray  # (18,) rad/s, max |joint velocity|
+    steps_at_limit: np.ndarray  # (18,) int: steps with |torque| >= 0.999 x the actuator's limit
+    steps: int  # physics steps counted
 
 
 class RobotSim:
@@ -30,7 +44,9 @@ class RobotSim:
         self._qpos = {
             leg: [self._model.joint(n).qposadr[0] for n in joint_names(leg)] for leg in LEG_CODES
         }
-        self._peak = 0.0
+        self._dofs = [self._model.joint(name).dofadr[0] for name in joint_order()]
+        self._limit = np.array(self._model.actuator_forcerange[:, 1])
+        self.clear_stats()
         self.reset("sit")
 
     @property
@@ -47,11 +63,33 @@ class RobotSim:
 
     @property
     def peak_torque(self) -> float:
-        """Largest absolute actuator torque (N·m) seen on any physics step since clear_peak()."""
-        return self._peak
+        """Largest absolute actuator torque (N·m) on any physics step since clear_stats()."""
+        return float(self._peak_torque.max())
+
+    def clear_stats(self) -> None:
+        n = len(joint_order())
+        self._steps = 0
+        self._peak_torque = np.zeros(n)
+        self._sum_abs = np.zeros(n)
+        self._sum_sq = np.zeros(n)
+        self._peak_speed = np.zeros(n)
+        self._at_limit = np.zeros(n, dtype=int)
 
     def clear_peak(self) -> None:
-        self._peak = 0.0
+        self.clear_stats()
+
+    def stats(self) -> JointStats:
+        """Statistics over every physics step since the last clear_stats()."""
+        steps = max(self._steps, 1)
+        return JointStats(
+            joints=joint_order(),
+            peak_torque=self._peak_torque.copy(),
+            rms_torque=np.sqrt(self._sum_sq / steps),
+            mean_abs_torque=self._sum_abs / steps,
+            peak_speed=self._peak_speed.copy(),
+            steps_at_limit=self._at_limit.copy(),
+            steps=self._steps,
+        )
 
     def reset(self, keyframe: str = "sit") -> None:
         key = mujoco.mj_name2id(self._model, mujoco.mjtObj.mjOBJ_KEY, keyframe)
@@ -80,7 +118,15 @@ class RobotSim:
             mujoco.mj_step(self._model, self._data)
             # A position actuator spikes on the first physics steps after a new target and has
             # settled by the end of the control period, so look at every step, not just the last.
-            self._peak = max(self._peak, float(np.max(np.abs(self._data.actuator_force))))
+            torque = np.abs(self._data.actuator_force)
+            self._steps += 1
+            self._peak_torque = np.maximum(self._peak_torque, torque)
+            self._sum_abs += torque
+            self._sum_sq += torque**2
+            self._peak_speed = np.maximum(
+                self._peak_speed, np.abs([self._data.qvel[d] for d in self._dofs])
+            )
+            self._at_limit += torque >= 0.999 * self._limit
 
     def _rotation(self) -> np.ndarray:
         return self._data.xmat[self._body].reshape(3, 3)
