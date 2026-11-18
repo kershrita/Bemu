@@ -39,6 +39,13 @@ def test_body_and_foot_load_in_si(params):
     assert params.body.mass == pytest.approx(1.39)
 
 
+def test_servo_report_constants_load(params):
+    assert params.servo.rated_torque == pytest.approx(0.98)
+    assert params.servo.supply_voltage == pytest.approx(12.0)
+    assert params.servo.stall_current == pytest.approx(2.7)
+    assert params.servo.idle_current == pytest.approx(0.1)
+
+
 def test_six_mounts_in_order(params):
     assert tuple(params.mounts) == LEG_CODES
     assert params.mounts["lf"].yaw == pytest.approx(math.radians(45))
@@ -71,6 +78,11 @@ def test_no_path_and_no_env_var_is_an_error(monkeypatch):
         ("units.length", "inch", "units"),
         ("body.size.z", 30, "body.size"),
         ("body.size.z", 250, "body.size"),
+        ("servo.rated_torque_nm", None, "servo.rated_torque_nm"),
+        ("servo.rated_torque_nm", 3.5, "servo.rated_torque_nm"),
+        ("servo.supply_voltage_v", -1, "servo.supply_voltage_v"),
+        ("servo.stall_current_a", 0, "servo.stall_current_a"),
+        ("servo.idle_current_a", 5, "servo.idle_current_a"),
         ("body.size", None, "body.size"),
         ("body.mass", -1, "body.mass"),
         ("leg.foot_radius", "x", "leg.foot_radius"),

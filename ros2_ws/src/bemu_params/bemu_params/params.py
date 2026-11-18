@@ -65,6 +65,10 @@ class ServoParams:
     mass: float  # kg
     stall_torque: float  # N·m
     max_speed: float  # rad/s
+    rated_torque: float  # N·m, continuous
+    supply_voltage: float  # V (placeholder until measured)
+    stall_current: float  # A (placeholder until measured)
+    idle_current: float  # A (placeholder until measured)
 
 
 @dataclass(frozen=True)
@@ -228,11 +232,27 @@ def _parse_servo(root: Any) -> ServoParams:
     model = _get(servo, "servo.model", "model")
     if not isinstance(model, str) or not model:
         raise ParamsError(f"servo.model: expected a non-empty string, got {model!r}")
+    stall_torque = _number(servo, "servo", "stall_torque_nm", positive=True)
+    rated_torque = _number(servo, "servo", "rated_torque_nm", positive=True)
+    if rated_torque > stall_torque:
+        raise ParamsError(
+            f"servo.rated_torque_nm: {rated_torque} is above the stall torque {stall_torque}"
+        )
+    stall_current = _number(servo, "servo", "stall_current_a", positive=True)
+    idle_current = _number(servo, "servo", "idle_current_a", positive=True)
+    if idle_current >= stall_current:
+        raise ParamsError(
+            f"servo.idle_current_a: {idle_current} must be below the stall current {stall_current}"
+        )
     return ServoParams(
         model=model,
         mass=_number(servo, "servo", "mass", positive=True) * GRAM,
-        stall_torque=_number(servo, "servo", "stall_torque_nm", positive=True),
+        stall_torque=stall_torque,
         max_speed=_number(servo, "servo", "max_speed_rad_s", positive=True),
+        rated_torque=rated_torque,
+        supply_voltage=_number(servo, "servo", "supply_voltage_v", positive=True),
+        stall_current=stall_current,
+        idle_current=idle_current,
     )
 
 
