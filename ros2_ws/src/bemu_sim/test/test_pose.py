@@ -38,6 +38,8 @@ def poses(h):
         "pitch-": BodyPose(h, pitch=-10 * DEG),
         "yaw+": BodyPose(h, yaw=15 * DEG),
         "yaw-": BodyPose(h, yaw=-15 * DEG),
+        # Big enough on all three axes that Rz·Ry·Rx and Rx·Ry·Rz differ by well over 1 degree.
+        "combined": BodyPose(h, roll=10 * DEG, pitch=-10 * DEG, yaw=15 * DEG),
     }
 
 

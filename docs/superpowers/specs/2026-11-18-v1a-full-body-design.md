@@ -217,10 +217,13 @@ Measured in simulation with the placeholder servo values:
 | Sitting hip height | 27.9 mm | within 3 mm of 28 mm |
 | Tilt, standing | 0.00° | under 1° |
 | Foot slip | 1.4 to 1.9 mm | under 5 mm |
-| Peak joint torque | 0.27 to 0.30 N·m | under 1.47 N·m |
+| Peak joint torque | 0.63 to 0.72 N·m, the largest on any 2 ms step | under 1.47 N·m |
 | Stability margin | 170 to 186 mm | positive |
 
-All twelve body poses are reached with six feet planted. 187 tests pass.
+All twelve body poses, and a combined roll, pitch and yaw pose, are reached with six feet
+planted. 196 tests pass. (The first version of this table said 0.27 to 0.30 N·m: torque was
+sampled once per control tick and missed the spike after each new target by about 2×. The
+whole-branch review caught it.)
 
 ## References
 

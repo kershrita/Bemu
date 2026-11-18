@@ -52,4 +52,4 @@ def test_standing_holds_still(sim, params):
     before = sim.body_position()
     play(sim, [stand_up_targets(params)[-1]] * 100)
     assert abs(sim.body_position() - before).max() < 0.0005
-    assert set(sim.foot_contacts()) == set(LEG_CODES)
+    assert sim.foot_contacts() == dict.fromkeys(LEG_CODES, True)

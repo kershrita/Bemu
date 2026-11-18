@@ -178,6 +178,12 @@ def _parse_body(root: Any, leg: LegParams, stance: StanceParams) -> BodyParams:
     size = _get(body, "body.size", "size")
     x, y, z = (_number(size, "body.size", axis, positive=True) * MM for axis in ("x", "y", "z"))
     mass = _number(body, "body", "mass", positive=True) * GRAM
+    stand_height = stance.body_height + leg.foot_radius
+    if z / 2.0 >= stand_height:
+        raise ParamsError(
+            f"body.size: z = {z * 1e3:g} mm is too thick to stand: its underside would be in "
+            f"the floor (the hip plane stands {stand_height * 1e3:g} mm up)"
+        )
     _check_sit_pose(leg, stance, thickness=z)
     return BodyParams(size=(x, y, z), mass=mass)
 

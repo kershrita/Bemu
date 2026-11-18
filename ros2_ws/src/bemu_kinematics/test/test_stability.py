@@ -60,3 +60,16 @@ def test_a_triangle():
 def test_too_few_or_collinear_feet_give_minus_infinity(feet):
     result = stability_margin((0.0, 0.0), np.array(feet).reshape(-1, 2))
     assert result == -math.inf
+
+
+@pytest.mark.parametrize(
+    ("com", "feet"),
+    [
+        ((float("nan"), 0.0), SQUARE),
+        ((0.0, float("inf")), SQUARE),
+        ((0.1, 0.1), [*SQUARE[:3], (float("nan"), 0.5)]),
+        ((0.0, 0.0), [*SQUARE[:3], (float("inf"), 0.0)]),
+    ],
+)
+def test_non_finite_inputs_give_minus_infinity(com, feet):
+    assert stability_margin(com, feet) == -math.inf

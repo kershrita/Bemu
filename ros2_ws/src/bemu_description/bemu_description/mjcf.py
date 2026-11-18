@@ -42,11 +42,19 @@ def joint_defaults_xml(actuators: ActuatorModel) -> str:
     )
 
 
-def leg_body_xml(params: RobotParams, leg_code: str, *, pos: str, euler: str | None = None) -> str:
+def leg_body_xml(
+    params: RobotParams,
+    leg_code: str,
+    *,
+    pos: str,
+    euler: str | None = None,
+    foot_contact: str = "",
+) -> str:
     """The nested coxa, femur and tibia bodies of one leg, with its hip and foot sites.
 
     `pos` (and `euler`) place the coxa body in its parent. The foot sphere's centre is the tibia
-    end; it collides explicitly so a model whose default geoms do not collide still has feet.
+    end; `foot_contact` adds contype/conaffinity attributes to the foot geom, for models whose
+    default geoms do not collide.
     """
     leg = params.leg
     coxa, femur, tibia = joint_names(leg_code)
@@ -74,7 +82,7 @@ size="{num(LINK_RADIUS)}" mass="{num(leg.femur_mass)}"/>
           <geom type="capsule" fromto="0 0 0 {vec(leg.tibia_length, 0, 0)}" \
 size="{num(LINK_RADIUS)}" mass="{num(leg.tibia_mass)}"/>
           <geom name="{leg_code}_foot_tip" type="sphere" pos="{vec(leg.tibia_length, 0, 0)}" \
-size="{num(leg.foot_radius)}" density="0" contype="1" conaffinity="1" \
+size="{num(leg.foot_radius)}" density="0" {foot_contact} \
 friction="{num(FOOT_FRICTION)} 0.005 0.0001"/>
           <site name={q(foot_site(leg_code))} pos="{vec(leg.tibia_length, 0, 0)}" size="0.004"/>
         </body>

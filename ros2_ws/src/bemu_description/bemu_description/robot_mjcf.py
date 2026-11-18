@@ -20,6 +20,12 @@ from bemu_description.names import BODY, ROOT_JOINT, joint_order
 from bemu_kinematics import BodyPose, pose_angles, sit_height, stand_height
 from bemu_params import LEG_CODES, RobotParams
 
+# Only the floor collides with the body and the feet. A pair collides when one geom's contype
+# shares a bit with the other's conaffinity: the floor has a contype and no conaffinity, the body
+# and the feet have a conaffinity and no contype, so feet never hit each other or the body.
+_FLOOR_CONTACT = 'contype="1" conaffinity="0"'
+_FEET_HIT_THE_FLOOR = 'contype="0" conaffinity="1"'
+
 
 def _keyframe(params: RobotParams, name: str, height: float) -> str:
     angles = pose_angles(params, BodyPose(height))
@@ -31,7 +37,13 @@ def _keyframe(params: RobotParams, name: str, height: float) -> str:
 def build_robot_mjcf(params: RobotParams, actuators: ActuatorModel) -> str:
     sx, sy, sz = params.body.size
     legs = "\n    ".join(
-        leg_body_xml(params, leg, pos=vec(m.x, m.y, 0.0), euler=vec(0.0, 0.0, m.yaw))
+        leg_body_xml(
+            params,
+            leg,
+            pos=vec(m.x, m.y, 0.0),
+            euler=vec(0.0, 0.0, m.yaw),
+            foot_contact=_FEET_HIT_THE_FLOOR,
+        )
         for leg, m in params.mounts.items()
     )
     actuator_xml = "\n".join(leg_actuators_xml(params, actuators, leg) for leg in LEG_CODES)
@@ -46,11 +58,11 @@ def build_robot_mjcf(params: RobotParams, actuators: ActuatorModel) -> str:
     <geom contype="0" conaffinity="0"/>
   </default>
   <worldbody>
-    <geom name="floor" type="plane" size="2 2 0.1" contype="1" conaffinity="1"/>
+    <geom name="floor" type="plane" size="2 2 0.1" {_FLOOR_CONTACT}/>
     <body name="{BODY}" pos="0 0 {num(stand_height(params))}">
       <freejoint name="{ROOT_JOINT}"/>
       <geom name="body_box" type="box" size="{vec(sx / 2, sy / 2, sz / 2)}" \
-mass="{num(params.body.mass)}" contype="1" conaffinity="1"/>
+mass="{num(params.body.mass)}" {_FEET_HIT_THE_FLOOR}/>
       {legs}
     </body>
   </worldbody>

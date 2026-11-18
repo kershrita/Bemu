@@ -70,6 +70,7 @@ def test_no_path_and_no_env_var_is_an_error(monkeypatch):
         ("leg.tibia_length", 20, "stance"),
         ("units.length", "inch", "units"),
         ("body.size.z", 30, "body.size"),
+        ("body.size.z", 250, "body.size"),
         ("body.size", None, "body.size"),
         ("body.mass", -1, "body.mass"),
         ("leg.foot_radius", "x", "leg.foot_radius"),

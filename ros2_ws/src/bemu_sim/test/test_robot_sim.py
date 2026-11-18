@@ -99,6 +99,32 @@ def test_command_with_a_nan_angle_is_rejected_and_changes_nothing(sim, params):
     assert snapshot(sim) == before
 
 
+def test_peak_torque_sees_the_spike_inside_a_control_period(sim, params):
+    sim.reset("stand")
+    sim.clear_peak()
+    sim.command(pose_angles(params, BodyPose(stand_height(params) + 0.02)))
+    sampled = max(float(np.max(np.abs(t))) for t in sim.joint_torques().values())
+    assert sim.peak_torque > 1.2 * sampled
+
+
+def test_clear_peak_resets_the_record(sim):
+    sim.command(sim.joint_angles())
+    assert sim.peak_torque > 0.0
+    sim.clear_peak()
+    assert sim.peak_torque == 0.0
+
+
+def test_a_lifted_foot_does_not_read_as_touching(sim, params):
+    sim.reset("stand")
+    targets = dict(pose_angles(params, BodyPose(stand_height(params))))
+    lm = targets["lm"]
+    targets["lm"] = JointAngles(lm.coxa, lm.femur + 0.5, lm.tibia)
+    play(sim, [targets] * 25)
+    contacts = sim.foot_contacts()
+    assert contacts["lm"] is False
+    assert sum(contacts.values()) >= 4
+
+
 def test_play_returns_the_peak_torque(sim, params):
     held = pose_angles(params, BodyPose(sit_height(params)))
     peak = play(sim, [held, held])

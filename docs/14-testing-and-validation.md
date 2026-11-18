@@ -65,7 +65,9 @@ Each roadmap exit test that can be simulated is a script. Examples from version 
 Version 1a's simulation tests (`bemu_sim/test/test_stand.py`, `test_pose.py`): stand up to
 within 3 mm of 98 mm with under 1° tilt, six feet down, foot slip under 5 mm; sit down to
 within 3 mm of 28 mm; hold twelve poses (height ±15 mm, shift ±20 mm, roll and pitch ±10°,
-yaw ±15°) with the feet planted and a positive stability margin; torque under the limit.
+yaw ±15°, and one combined roll, pitch and yaw pose that separates the rotation orders) with
+the feet planted and a positive stability margin; torque, taken on every physics step, under
+the limit.
 
 Every simulation test also records the measurements listed under the torque report
 in [06 — Simulation](06-simulation.md), so trends are visible across changes.

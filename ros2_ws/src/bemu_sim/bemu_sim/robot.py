@@ -30,6 +30,7 @@ class RobotSim:
         self._qpos = {
             leg: [self._model.joint(n).qposadr[0] for n in joint_names(leg)] for leg in LEG_CODES
         }
+        self._peak = 0.0
         self.reset("sit")
 
     @property
@@ -43,6 +44,14 @@ class RobotSim:
     @property
     def time(self) -> float:
         return float(self._data.time)
+
+    @property
+    def peak_torque(self) -> float:
+        """Largest absolute actuator torque (N·m) seen on any physics step since clear_peak()."""
+        return self._peak
+
+    def clear_peak(self) -> None:
+        self._peak = 0.0
 
     def reset(self, keyframe: str = "sit") -> None:
         key = mujoco.mj_name2id(self._model, mujoco.mjtObj.mjOBJ_KEY, keyframe)
@@ -69,6 +78,9 @@ class RobotSim:
             self._data.ctrl[self._actuator[leg]] = angles
         for _ in range(self._steps_per_control):
             mujoco.mj_step(self._model, self._data)
+            # A position actuator spikes on the first physics steps after a new target and has
+            # settled by the end of the control period, so look at every step, not just the last.
+            self._peak = max(self._peak, float(np.max(np.abs(self._data.actuator_force))))
 
     def _rotation(self) -> np.ndarray:
         return self._data.xmat[self._body].reshape(3, 3)
@@ -122,9 +134,8 @@ class RobotSim:
 
 
 def play(sim: RobotSim, targets: Iterable[Mapping[str, JointAngles]]) -> float:
-    """Send each target set in turn; return the largest absolute joint torque seen (N·m)."""
-    peak = 0.0
+    """Send each target set in turn; return the largest absolute joint torque (N·m) on any step."""
+    sim.clear_peak()
     for step in targets:
         sim.command(step)
-        peak = max(peak, max(float(np.max(np.abs(t))) for t in sim.joint_torques().values()))
-    return peak
+    return sim.peak_torque

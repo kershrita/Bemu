@@ -35,11 +35,14 @@ def stability_margin(com: ArrayLike, feet: ArrayLike) -> float:
 
     Positive inside, 0 on an edge, negative outside (minus the distance to the polygon).
     `com` is (2,) or (3,), `feet` is (n, 2) or (n, 3); only x and y are used. With fewer than
-    three distinct feet, or feet all on one line, there is no support polygon: -inf.
+    three distinct feet, or feet all on one line, there is no support polygon: -inf. Non-finite
+    inputs also give -inf: never report "stable" on garbage.
     """
     point = np.asarray(com, dtype=float).reshape(-1)[:2]
     array = np.asarray(feet, dtype=float)
     array = array.reshape(-1, array.shape[-1] if array.ndim > 1 else 2)[:, :2]
+    if not (np.all(np.isfinite(point)) and np.all(np.isfinite(array))):
+        return -math.inf  # no trustworthy support polygon: never report "stable" on garbage
     hull = _hull([(float(x), float(y)) for x, y in array])
     if len(hull) < 3:
         return -math.inf
