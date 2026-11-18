@@ -23,3 +23,10 @@ def actuators(params: RobotParams) -> ActuatorModel:
     return load_actuator_model(
         REPO_ROOT / "ros2_ws" / "src" / "bemu_sim" / "config" / "actuators.yaml", params.servo
     )
+
+
+@pytest.fixture
+def robot_mjcf(params: RobotParams, actuators: ActuatorModel) -> str:
+    from bemu_description.robot_mjcf import build_robot_mjcf
+
+    return build_robot_mjcf(params, actuators)
