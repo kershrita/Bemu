@@ -1,0 +1,17 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    leg_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
+leg_position_controller:
+  ros__parameters:
+    joints:
+      - lf_coxa_joint
+      - lf_femur_joint
+      - lf_tibia_joint
+    interface_name: position

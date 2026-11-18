@@ -7,7 +7,13 @@ extend-exclude = ["docs"]
 select = ["E", "F", "I", "UP", "B"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["bemu_params", "bemu_kinematics", "bemu_description", "bemu_sim"]
+known-first-party = [
+    "bemu_params",
+    "bemu_kinematics",
+    "bemu_description",
+    "bemu_sim",
+    "bemu_bringup",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["ros2_ws/src"]
@@ -17,6 +23,7 @@ pythonpath = [
     "ros2_ws/src/bemu_kinematics",
     "ros2_ws/src/bemu_description",
     "ros2_ws/src/bemu_sim",
+    "ros2_ws/src/bemu_bringup",
 ]
 markers = [
     "sim_launch: needs ROS 2 and the MuJoCo bridge",

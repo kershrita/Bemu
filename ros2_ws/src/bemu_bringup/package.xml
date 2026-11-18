@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>bemu_bringup</name>
+  <version>0.1.0</version>
+  <description>Bemu launch files and the foot-trace node for the simulated leg.</description>
+  <maintainer email="noreply@example.com">Bemu</maintainer>
+  <license>Proprietary</license>
+  <depend>bemu_params</depend>
+  <depend>bemu_kinematics</depend>
+  <depend>bemu_description</depend>
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <exec_depend>bemu_sim</exec_depend>
+  <exec_depend>bemu_control</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>forward_command_controller</exec_depend>
+  <exec_depend>mujoco_ros2_control</exec_depend>
+  <test_depend>launch_testing_ros</test_depend>
+  <test_depend>controller_manager_msgs</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
