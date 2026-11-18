@@ -234,15 +234,22 @@ Measured in simulation with the placeholder servo values:
 | 2 m straight walk (tripod, 0.10 m/s) | 2.10 m, 6 mm sideways drift (0.3%), 0.3° heading error | under 10% drift |
 | 360° turn in place (0.4 rad/s) | 356.1°, ended 1.2 mm from the start | within 50 mm |
 | Stability margin while walking | 74 mm and above | 15 mm |
-| Gait switching, all six ordered pairs | minimum margin 88 mm, peak torque 1.16 N·m | margin 15 mm, torque 1.47 N·m |
-| Loaded foot slip: tripod / ripple / wave | 3.2 to 4.4 / 2.6 to 4.8 / 5.4 to 8.5 mm | 5 mm for the tripod |
+| Gait switching, all six ordered pairs at 0.9× the pair's top speed | minimum margin 82 mm, peak torque 1.17 N·m, tilt under 1° | margin 15 mm, torque 1.47 N·m |
+| Loaded foot slip, forward and turning: tripod / ripple / wave | 3.7 to 4.4 mm in all three | 5 mm |
+| Loaded foot slip, tripod sideways | 5.0 mm at 0.08 m/s, 5.9 mm at 0.12 m/s | 5 mm (missed at top speed) |
+| Planted-foot slip during a gait change | 3.6 to 25 mm (4 mm or less after the blend) | 5 mm (not met; open design question) |
 | Peak torque on any physics step, tripod | 0.88 N·m | 1.47 N·m |
 
 Deviations from this design, found by the tests and recorded in the plan's ledger: step
 height 20 mm (not 30), cycle times 1.0 / 1.5 / 3.0 s (every gait swings for 0.5 s; the wave's
 top speed is 0.024 m/s), a two-cycle blend, the stability reaction lowers lift only and
-falls at 6 per second, body pose changes are slewed, and slip is counted only while a foot
-touches the floor.
+falls at 6 per second, body pose changes are slewed, slip is counted only while a foot
+touches the floor, and foot positions are integrated in stance instead of taken from the
+closed form (found by the whole-branch review: the closed form dragged planted feet whenever
+the speed or duty changed, and an earlier note here blamed it on servo creep, which was wrong).
+
+**Open:** planted feet slip up to 25 mm while a gait is changing. Stability-gated lift-off
+would fix it and changes the blend: see docs/07.
 
 ## References
 

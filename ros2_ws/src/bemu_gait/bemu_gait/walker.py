@@ -1,7 +1,11 @@
 """The phase-driven walker: a velocity command in, 18 joint angles out (docs/07-locomotion.md).
 
-Feet are planned in the nominal frame (the ground frame with the body at x = y = yaw = 0) and
-turned into joint angles by `bemu_kinematics.pose_angles`, which also applies the body pose.
+Phases decide *when* each leg is in stance or swing. Foot *positions* are state: in stance a foot
+moves at exactly the speed the ground moves under the body, whatever the command or the gait does,
+so a planted foot never slips when the speed or the gait changes; in swing it travels from where it
+lifted off to where the stance will begin. Feet are planned in the nominal frame (the ground frame
+with the body at x = y = yaw = 0) and turned into joint angles by `bemu_kinematics.pose_angles`,
+which also applies the body pose.
 """
 
 from __future__ import annotations
@@ -12,7 +16,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from bemu_gait.command import Command
-from bemu_gait.footpath import foot_offset, stride_vector
+from bemu_gait.footpath import stride_vector
 from bemu_gait.gaits import GAITS, Gait
 from bemu_gait.params import GaitParams
 from bemu_kinematics import (
@@ -39,7 +43,8 @@ class WalkerOutput:
     phases: dict[str, float]  # each leg's phase in [0, 1)
     in_stance: dict[str, bool]
     stability_margin: float  # m: the COM at (pose.x, pose.y) against the feet on the ground
-    scale: float  # stride scale applied for reach and the stride cap, 0 to 1
+    scale: float  # position scale applied only when a leg would run out of reach, 0 to 1
+    speed_scale: float  # how much of the commanded speed the stride cap allowed, 0 to 1
     lift_scale: float  # lift scale applied by the stability reaction, 0 to 1
     gait: str  # the gait being walked, or blended toward
     blending: bool
@@ -65,16 +70,21 @@ class Walker:
         self._params = params
         self._gp = gait_params
         self._neutral = neutral_feet(params)
+        self._neutral_xy = {leg: self._neutral[leg][:2] for leg in LEG_CODES}
         self._pose = BodyPose(stand_height(params))  # the commanded body pose
         self._applied_pose = self._pose  # the pose in use: slews toward the commanded one
         self._command = Command()
-        self._applied = np.zeros(3)  # vx, vy, omega after slewing
+        self._applied = np.zeros(3)  # vx, vy, omega after clamping and slewing
+        self._speed_scale = 1.0
         self._master = 0.0
         self._target = target
         self._start = (dict(target.offsets), target.duty, gait_params.cycle_time[target.name])
         self._progress = 1.0
         self._duration = 1.0
         self._lift_scale = 1.0  # the stability reaction's lift scale, slew-limited
+        self._xy = {leg: np.zeros(2) for leg in LEG_CODES}  # foot offset from neutral, body frame
+        self._swing_start = {leg: np.zeros(2) for leg in LEG_CODES}
+        self._was_stance = dict.fromkeys(LEG_CODES, True)
 
     # -- inputs ---------------------------------------------------------------------------------
 
@@ -90,7 +100,11 @@ class Walker:
         self._command = command
 
     def set_gait(self, name: str) -> None:
+        """Start blending to a gait. Asking again for the gait already being walked (or blended
+        toward) changes nothing, so a node may republish its request every tick."""
         target = _check_gait(name)
+        if target.name == self._target.name:
+            return
         offsets, duty, cycle = self._effective()
         self._start = (offsets, duty, cycle)
         self._target = target
@@ -117,8 +131,23 @@ class Walker:
         cycle = start_cycle + p * (target_cycle - start_cycle)
         return offsets, duty, cycle
 
-    def _slew(self, dt: float) -> None:
+    def _strides(self, velocity: np.ndarray, stance_time: float) -> dict[str, np.ndarray]:
+        vx, vy, omega = velocity
+        return {
+            leg: stride_vector(vx, vy, omega, self._neutral_xy[leg], stance_time)
+            for leg in LEG_CODES
+        }
+
+    def _slew(self, dt: float, stance_time: float) -> None:
+        """Clamp the commanded velocity to what the stride cap allows, then slew toward it.
+
+        Clamping first means a command above top speed cannot wind the applied velocity up, so
+        stopping always takes top speed / acceleration.
+        """
         target = np.array([self._command.vx, self._command.vy, self._command.omega], dtype=float)
+        largest = max(float(np.linalg.norm(s)) for s in self._strides(target, stance_time).values())
+        self._speed_scale = 1.0 if largest == 0.0 else min(1.0, self._gp.max_stride / largest)
+        target = target * self._speed_scale
         linear = target[:2] - self._applied[:2]
         limit = self._gp.max_linear_accel * dt
         norm = float(np.linalg.norm(linear))
@@ -132,6 +161,9 @@ class Walker:
         )
 
     def _slew_pose(self, dt: float) -> None:
+        """Move the applied body pose toward the commanded one, but never into a pose from which
+        standing is impossible: the line between two reachable poses can leave the reachable set,
+        and then the robot simply holds the last pose it could stand in."""
         a, b = self._applied_pose, self._pose
         move = np.array([b.x - a.x, b.y - a.y, b.height - a.height])
         norm = float(np.linalg.norm(move))
@@ -143,7 +175,7 @@ class Walker:
         def toward(now: float, goal: float) -> float:
             return now + max(-turn, min(turn, goal - now))
 
-        self._applied_pose = BodyPose(
+        candidate = BodyPose(
             height=a.height + move[2],
             x=a.x + move[0],
             y=a.y + move[1],
@@ -151,18 +183,45 @@ class Walker:
             pitch=toward(a.pitch, b.pitch),
             yaw=toward(a.yaw, b.yaw),
         )
+        try:
+            pose_angles(self._params, candidate)
+        except BodyPoseError:
+            return
+        self._applied_pose = candidate
 
-    # -- planning -------------------------------------------------------------------------------
+    # -- feet -----------------------------------------------------------------------------------
 
-    def _plan(self, scale, lift_scale, strides, largest, top, phases, duty):
-        # Strides scale for reach and the stride cap. Lift follows the command (none at zero
-        # command), falls linearly with both scales, and is what the stability reaction lowers.
-        presence = ramp(top * largest / self._gp.lift_ramp_stride)
-        lift = self._gp.step_height * presence * (scale / top if top > 0 else 0.0) * lift_scale
+    def _move_feet(self, dt: float, phases, duty: float, stance_time: float) -> dict[str, float]:
+        """Advance every foot's position state; return each swinging leg's progress u (0..1)."""
+        vx, vy, omega = self._applied
+        swing_u = {}
+        for leg in LEG_CODES:
+            stance = phases[leg] < duty
+            here = self._neutral_xy[leg] + self._xy[leg]
+            if stance:
+                # the ground moves under the body at -(v + ω × r): a rigid motion about the centre
+                ground = np.array([vx - omega * here[1], vy + omega * here[0]])
+                self._xy[leg] = self._xy[leg] - ground * dt
+            else:
+                if self._was_stance[leg]:
+                    self._swing_start[leg] = self._xy[leg].copy()
+                u = (phases[leg] - duty) / (1.0 - duty)
+                touchdown = stride_vector(vx, vy, omega, self._neutral_xy[leg], stance_time) / 2.0
+                start = self._swing_start[leg]
+                self._xy[leg] = start + ramp(u) * (touchdown - start)
+                swing_u[leg] = u
+            self._was_stance[leg] = stance
+        return swing_u
+
+    def _plan(self, scale, lift_scale, swing_u, largest):
+        # Lift follows the command (none at zero command), falls linearly with the scales, and is
+        # what the stability reaction lowers.
+        presence = ramp(largest / self._gp.lift_ramp_stride)
+        lift = self._gp.step_height * presence * scale * lift_scale
         feet = {}
         for leg in LEG_CODES:
-            offset = foot_offset(phases[leg], duty, strides[leg] * scale, lift)
-            feet[leg] = self._neutral[leg] + offset
+            z = lift * math.sin(math.pi * swing_u[leg]) if leg in swing_u else 0.0
+            feet[leg] = self._neutral[leg] + np.array([*(scale * self._xy[leg]), z])
         down = [
             feet[leg][:2] for leg in LEG_CODES if feet[leg][2] - self._neutral[leg][2] < GROUND_EPS
         ]
@@ -182,20 +241,17 @@ class Walker:
             self._progress = min(1.0, self._progress + dt / self._duration)
         offsets, duty, cycle = self._effective()
         self._master = (self._master + dt / cycle) % 1.0
-        self._slew(dt)
+        stance_time = duty * cycle
+        self._slew(dt, stance_time)
         self._slew_pose(dt)
 
         phases = {leg: (self._master + offsets[leg]) % 1.0 for leg in LEG_CODES}
-        vx, vy, omega = self._applied
-        stance_time = duty * cycle
-        strides = {
-            leg: stride_vector(vx, vy, omega, self._neutral[leg][:2], stance_time)
-            for leg in LEG_CODES
-        }
-        largest = max(float(np.linalg.norm(s)) for s in strides.values())
-        top = 1.0 if largest == 0.0 else min(1.0, self._gp.max_stride / largest)
+        swing_u = self._move_feet(dt, phases, duty, stance_time)
+        largest = max(
+            float(np.linalg.norm(s)) for s in self._strides(self._applied, stance_time).values()
+        )
 
-        def largest_scale(ok, limit):
+        def largest_value(ok, limit):
             """The largest value in [0, limit] for which ok(value) holds (0 if none does)."""
             if ok(limit):
                 return limit
@@ -206,29 +262,36 @@ class Walker:
             return low
 
         def plan(scale, lift_scale):
-            return self._plan(scale, lift_scale, strides, largest, top, phases, duty)
+            return self._plan(scale, lift_scale, swing_u, largest)
 
-        # Reach and the stride cap are hard limits, applied at once (checked at full lift).
-        scale = largest_scale(lambda sc: plan(sc, 1.0)[0] is not None, top)
+        # Reach is a hard limit, applied at once.
+        scale = largest_value(lambda sc: plan(sc, 1.0)[0] is not None, 1.0)
 
-        # Stability is soft. If the feet on the ground would leave the margin too small, the
-        # lift is lowered so lifted feet come down and join the support; the strides are not
-        # touched, so the robot keeps moving. The lift scale falls fast and recovers slowly.
+        # Stability is soft. If the feet on the ground would leave the margin too small, the lift
+        # is lowered so lifted feet come down and join the support. It falls fast and recovers
+        # slowly, so the reaction itself never moves a foot by a jump.
         def stable(lift_scale):
             angles, _, margin = plan(scale, lift_scale)
             return angles is not None and margin >= self._gp.stability_threshold
 
-        wanted = largest_scale(stable, 1.0)
+        wanted = largest_value(stable, 1.0)
         if wanted < self._lift_scale:
             self._lift_scale = max(wanted, self._lift_scale - self._gp.scale_fall_per_s * dt)
         else:
             self._lift_scale = min(wanted, self._lift_scale + self._gp.scale_rise_per_s * dt)
-        lift_scale = self._lift_scale
-        angles, feet, margin = plan(scale, lift_scale)
-        if angles is None:  # lowering feet cannot make a reachable step unreachable; be safe
-            lift_scale = self._lift_scale = 0.0
+
+        # The scales were found separately; the pair in use must itself be reachable. Lowering a
+        # foot can push it out of reach (it ends up farther from the hip), so check, and fall back.
+        angles, feet, margin = plan(scale, self._lift_scale)
+        if angles is None:
+            scale = largest_value(lambda sc: plan(sc, self._lift_scale)[0] is not None, scale)
+            angles, feet, margin = plan(scale, self._lift_scale)
+        if angles is None:
+            self._lift_scale = 0.0
+            scale = largest_value(lambda sc: plan(sc, 0.0)[0] is not None, 1.0)
             angles, feet, margin = plan(scale, 0.0)
-        assert angles is not None
+        if angles is None:  # not reachable even standing: the applied pose is always reachable
+            raise RuntimeError("walker invariant broken: the applied pose is not reachable")
         return WalkerOutput(
             angles=angles,
             feet=feet,
@@ -236,7 +299,8 @@ class Walker:
             in_stance={leg: phases[leg] < duty for leg in LEG_CODES},
             stability_margin=margin,
             scale=scale,
-            lift_scale=lift_scale,
+            speed_scale=self._speed_scale,
+            lift_scale=self._lift_scale,
             gait=self._target.name,
             blending=self._progress < 1.0,
         )

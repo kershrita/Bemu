@@ -228,21 +228,35 @@ of touchdown.
 | Top speed, ripple / wave | 60 mm ÷ 1.0 s = 0.06 m/s / 60 mm ÷ 2.5 s = 0.024 m/s |
 
 These are the values in `bemu_gait/config/gait.yaml`, tuned against the simulator
-(version 1b-1). Two findings drove them. **Swing speed sets the torque:** the largest torque
+(version 1b-1). **Swing speed sets the torque:** the largest torque
 on any 2 ms physics step grows with how fast a foot is lifted and lowered. With a 30 mm step
 the tripod needed 1.24 to 1.45 N·m at 0.1 m/s (the limit is 1.47); with 20 mm, 0.88 to 0.98.
 A 0.6 s wave cycle swung a foot in 0.1 s and saturated the servo model, so every gait now
 swings for the tripod's 0.5 s, which also makes the wave the slowest, as it should be.
-**Foot slip grows with stance time:** loaded foot slip measured 3 to 4.4 mm for the tripod,
-2.6 to 4.8 mm for the ripple and 5.4 to 8.5 mm for the wave (a creep of roughly 4 to 7 mm/s
-in the compliant servo model), so the 5 mm bar holds for the tripod only.
+**Planted-foot slip is the walker's job to keep small, and it is:** with foot positions
+integrated (see below), loaded slip is 3.7 to 4.4 mm for the tripod, ripple and wave at forward
+speeds up to their tops, and for turning in place. The one exception is the tripod walking
+sideways: 5.0 mm at 0.08 m/s and 5.9 mm at its 0.12 m/s top speed.
+
+### How the feet move
+
+Phases decide *when* a leg is in stance or swing. Foot *positions* are state. In stance a
+foot moves in the body frame at exactly the speed the ground moves under the body,
+`−(v + ω × r)`, a rigid motion about the body centre, so a planted foot does not slip
+whatever the command or the gait does. In swing the foot goes from where it lifted off to the
+point where the stance will begin (`+stride/2`), along the smooth blend. The closed form
+`stride × (0.5 − u)` in the section above is the steady-state path. As the walker's whole
+definition it dragged planted feet whenever the speed or the duty factor changed (20.9 mm for
+the wave at start-up), which is why positions are integrated.
 
 ### Starting and stopping
 
-The commanded velocity is slewed (0.05 m/s², 1 rad/s²), because a foot's stance position
-is `stride × (0.5 − u)`: a stride that grows quickly drags a planted foot along. The step
-height is scaled by the stride (full at 30 mm of stride), so at zero command the feet stand
-at their neutral points and do not lift; there is no special "stopped" state.
+The commanded velocity is clamped to what the 60 mm stride cap allows, then slewed
+(0.05 m/s², 1 rad/s²), so a command above top speed cannot wind up and stopping always takes
+top speed ÷ acceleration (2.4 s for the tripod). The step height is scaled by the stride (full
+at 30 mm of stride), so at zero command the feet stand at their neutral points and do not
+lift; there is no special "stopped" state. At the very start the tripod legs that begin in
+swing scrape the floor for about a second (up to 9 mm) while the lift is still rising.
 
 ### Gait switching
 
@@ -250,8 +264,15 @@ A gait change keeps every leg's phase and slides its phase offset (the short way
 circle), the duty factor and the cycle time linearly to the new gait's values over two cycles
 of the old gait. Foot position depends smoothly on phase and duty, so no foot jumps. Part-way
 through a blend the legs on the ground can form a triangle that does not contain the centre
-of mass, so the stability reaction below does the real work. A request during a blend
-replaces its target.
+of mass (a margin of −4 mm was seen about a second into tripod to ripple). The stability
+reaction below lowers the lifts, but cannot prevent that moment, the body is knocked, and
+**planted feet slip while a gait is changing**: 3.6 to 25 mm at 0.9× the pair's top speed
+(worst: ripple to tripod 25 mm, tripod to ripple 18 mm), and 4 mm or less once the blend is
+done. The exit criteria still hold (margin 82 to 92 mm, tilt under 1°, torque at most
+1.17 N·m, no stop). The proper fix is stability-gated lift-off: a leg that would leave an
+unstable support stays planted until it is safe. That changes the blend, so it is left as an
+open design question. Asking again for the gait already being walked changes nothing; a
+request for a different one during a blend replaces its target.
 
 ### Body pose while walking
 

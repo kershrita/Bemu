@@ -94,3 +94,32 @@ def test_a_curve(robot, gait_params):
     assert log.yaw[-1] - log.yaw[0] == pytest.approx(expected, rel=0.25)
     assert log.margin.min() > MARGIN
     assert math.isfinite(travelled(log)[0])
+
+
+def test_tripod_walks_sideways_without_slipping(robot, gait_params):
+    sim, walker = robot
+    log = walk(sim, walker, 15.0, schedule=constant(Command(vy=0.06)))
+    assert max_stance_slip(log) < 0.005
+    assert log.margin.min() > MARGIN
+
+
+@pytest.mark.parametrize(
+    ("gait", "command"),
+    [
+        ("ripple", Command(omega=0.3)),
+        ("wave", Command(omega=0.1)),
+        ("ripple", Command(vy=0.05)),
+    ],
+)
+def test_other_gaits_turn_and_sidestep_without_slipping(
+    robot_mjcf, params, gait_params, actuators, gait, command
+):
+    sim = RobotSim(robot_mjcf)
+    stand_robot(sim, params)
+    walker = Walker(params, gait_params, gait=gait)
+    log = walk(sim, walker, 20.0, schedule=constant(command))
+    assert max_stance_slip(log) < 0.005
+    assert log.margin.min() > MARGIN
+    assert log.peak_torque < actuators.max_torque
+    if command.omega:
+        assert abs(log.yaw[-1] - log.yaw[0]) == pytest.approx(command.omega * 19.0, rel=0.25)

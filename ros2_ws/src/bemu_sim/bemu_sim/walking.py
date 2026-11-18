@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import math
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -122,17 +123,31 @@ def heading_change(log: WalkLog) -> float:
     return float(log.yaw[-1] - log.yaw[0])
 
 
-def max_stance_slip(log: WalkLog) -> float:
-    """Largest ground-frame movement (m) of any foot within one contiguous loaded stance.
+def window(log: WalkLog, t0: float, t1: float) -> WalkLog:
+    """The rows with t0 <= t < t1, as a WalkLog (peak torque is the whole run's)."""
+    keep = (log.t >= t0) & (log.t < t1)
+    return dataclasses.replace(
+        log,
+        t=log.t[keep],
+        position=log.position[keep],
+        yaw=log.yaw[keep],
+        tilt=log.tilt[keep],
+        margin=log.margin[keep],
+        feet=log.feet[keep],
+        in_stance=log.in_stance[keep],
+        contact=log.contact[keep],
+        scale=log.scale[keep],
+        gait=[g for g, k in zip(log.gait, keep, strict=True) if k],
+    )
 
-    Loaded: the walker has the leg in stance and the foot touches the floor. A foot still settling
-    onto the floor at touchdown is not loaded, so its drift is not slip.
-    """
+
+def _drift_while(log: WalkLog, mask: np.ndarray) -> float:
+    """Largest ground-frame xy movement (m) of any foot within one run of rows where mask holds."""
     worst = 0.0
     for leg in range(log.feet.shape[1]):
         start = None
-        for i, down in enumerate(log.in_stance[:, leg] & log.contact[:, leg]):
-            if not down:
+        for i, on in enumerate(mask[:, leg]):
+            if not on:
                 start = None
                 continue
             if start is None:
@@ -140,3 +155,18 @@ def max_stance_slip(log: WalkLog) -> float:
             moved = float(np.linalg.norm(log.feet[i, leg, :2] - log.feet[start, leg, :2]))
             worst = max(worst, moved)
     return worst
+
+
+def max_stance_slip(log: WalkLog) -> float:
+    """Largest ground-frame movement (m) of any planted foot within one loaded stance.
+
+    Loaded: the walker has the leg in stance and the foot touches the floor. A foot still settling
+    onto the floor at touchdown is not loaded, so its drift is not slip.
+    """
+    return _drift_while(log, log.in_stance & log.contact)
+
+
+def max_swing_drag(log: WalkLog) -> float:
+    """Largest ground-frame movement (m) of a foot that the walker has in swing but that is
+    touching the floor: scraping along it. Zero when swinging feet are in the air."""
+    return _drift_while(log, ~log.in_stance & log.contact)

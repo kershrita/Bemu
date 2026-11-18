@@ -4,7 +4,14 @@ import numpy as np
 import pytest
 
 from bemu_params import LEG_CODES
-from bemu_sim.walking import WalkLog, heading_change, max_stance_slip, travelled
+from bemu_sim.walking import (
+    WalkLog,
+    heading_change,
+    max_stance_slip,
+    max_swing_drag,
+    travelled,
+    window,
+)
 
 
 def log_from(position, yaw=None, feet=None, in_stance=None, contact=None):
@@ -70,3 +77,34 @@ def test_a_foot_not_yet_touching_the_floor_is_not_slipping():
 
 def test_log_fields_cover_every_leg():
     assert LEG_CODES == ("lf", "lm", "lr", "rf", "rm", "rr")
+
+
+def test_swing_drag_is_a_foot_scraping_along_the_floor_while_it_should_be_swinging():
+    feet = np.zeros((6, 6, 3))
+    feet[:, 3, 0] = [0.0, 0.004, 0.009, 0.009, 0.009, 0.009]
+    stance = np.ones((6, 6), dtype=bool)
+    stance[:3, 3] = False  # leg rf is flagged swing for the first three rows, touching all along
+    log = log_from([(0, 0, 0)] * 6, feet=feet, in_stance=stance)
+    assert max_swing_drag(log) == pytest.approx(0.009)
+    assert max_stance_slip(log) == pytest.approx(0.0)  # ... and that is not planted-foot slip
+
+
+def test_swing_drag_ignores_a_foot_that_is_in_the_air():
+    feet = np.zeros((6, 6, 3))
+    feet[:, 3, 0] = [0.0, 0.05, 0.1, 0.1, 0.1, 0.1]
+    stance = np.ones((6, 6), dtype=bool)
+    stance[:3, 3] = False
+    contact = np.ones((6, 6), dtype=bool)
+    contact[:3, 3] = False  # swinging in the air, as it should
+    assert (
+        max_swing_drag(log_from([(0, 0, 0)] * 6, feet=feet, in_stance=stance, contact=contact))
+        == 0.0
+    )
+
+
+def test_window_keeps_the_rows_in_the_time_range():
+    log = log_from([(i, 0, 0) for i in range(10)])
+    part = window(log, 0.04, 0.12)  # rows at t = 0, 0.02, ... 0.18
+    assert list(part.t) == pytest.approx([0.04, 0.06, 0.08, 0.10])
+    assert part.position.shape == (4, 3) and part.feet.shape == (4, 6, 3)
+    assert len(part.gait) == 4 and part.peak_torque == log.peak_torque

@@ -55,14 +55,13 @@ def test_turning_gives_tangential_strides(params, gait_params):
     walker = make(params, gait_params)
     walker.set_command(Command(omega=omega))
     outputs = run(walker, 150)
-    neutral = neutral_feet(params)
     for leg in LEG_CODES:
-        rx, ry = neutral[leg][:2]
-        expected = np.array([omega * ry, -omega * rx])  # minus omega x r
         for a, b in zip(outputs[100:], outputs[101:], strict=False):
             if a.in_stance[leg] and b.in_stance[leg]:
+                rx, ry = a.feet[leg][:2]  # a planted foot moves on a circle about the body centre
+                expected = np.array([omega * ry, -omega * rx])  # minus omega x r
                 velocity = (b.feet[leg] - a.feet[leg])[:2] / DT
-                assert velocity == pytest.approx(expected, rel=0.05, abs=1e-4), leg
+                assert velocity == pytest.approx(expected, rel=0.03, abs=1e-4), leg
 
 
 def test_command_is_slewed_not_jumped(params, gait_params):
@@ -144,7 +143,7 @@ def test_unreachable_command_scales_all_strides_together(params, gait_params):
     walker = make(params, gait_params)
     walker.set_command(Command(vx=1.0, omega=3.0))
     outputs = run(walker, 200)  # no exception means every step was reachable
-    assert min(o.scale for o in outputs) < 1.0
+    assert max(o.speed_scale for o in outputs) < 0.5  # one factor cuts every leg's stride
     assert per_tick_displacement(outputs) < 0.012
     limit = gait_params.max_stride / (0.5 * gait_params.cycle_time["tripod"])
     for a, b in zip(outputs[150:], outputs[151:], strict=False):
@@ -273,3 +272,91 @@ def test_stability_reaction_lowers_lifts_but_keeps_striding(params, gait_params)
         if a.in_stance[leg] and b.in_stance[leg]
     ]
     assert min(stance_speeds) > 0.0
+
+
+# --- robustness found by the whole-branch review ------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("pose_args", "command"),
+    [
+        (dict(x=0.03, y=0.05), Command(vx=0.1)),
+        (dict(x=0.05, y=0.05, height_offset=-0.020), Command(vx=0.1)),
+        (dict(x=0.05, y=0.05, height_offset=-0.020), Command(vx=-0.1)),
+        (dict(roll=0.15, pitch=-0.15), Command(vx=0.1, omega=0.4)),
+    ],
+)
+def test_a_valid_pose_and_command_never_crash_the_step(params, gait_params, pose_args, command):
+    pose_args = dict(pose_args)
+    height = stand_height(params) + pose_args.pop("height_offset", 0.0)
+    walker = make(params, gait_params)
+    walker.set_body_pose(BodyPose(height, **pose_args))  # accepted: standing there is possible
+    walker.set_command(command)
+    outputs = run(walker, 500)  # no exception, however long the pose slews and the robot walks
+    assert all(len(o.angles) == 6 for o in outputs)
+
+
+def test_random_valid_poses_and_commands_never_crash_the_step(params, gait_params):
+    rng = np.random.default_rng(0)
+    h = stand_height(params)
+    ran = 0
+    for _ in range(30):
+        pose = BodyPose(
+            h + rng.uniform(-0.025, 0.02),
+            x=rng.uniform(-0.06, 0.06),
+            y=rng.uniform(-0.06, 0.06),
+            roll=rng.uniform(-0.15, 0.15),
+            pitch=rng.uniform(-0.15, 0.15),
+            yaw=rng.uniform(-0.2, 0.2),
+        )
+        walker = make(params, gait_params, str(rng.choice(list(GAITS))))
+        try:
+            walker.set_body_pose(pose)
+        except BodyPoseError:
+            continue  # standing there is impossible: rejected at once, which is right
+        walker.set_command(Command(*rng.uniform([-0.15, -0.15, -0.5], [0.15, 0.15, 0.5])))
+        run(walker, 300)
+        ran += 1
+    assert ran >= 10
+
+
+def test_a_command_above_top_speed_does_not_wind_up(params, gait_params):
+    walker = make(params, gait_params)
+    walker.set_command(Command(vx=1.0))
+    run(walker, 1000)  # twenty seconds of asking for far more than the robot can do
+    walker.set_command(Command())
+    outputs = run(walker, 175)  # top speed / acceleration = 0.12 / 0.05 = 2.4 s, plus a margin
+    for a, b in zip(outputs[-5:], outputs[-4:], strict=False):
+        for leg in LEG_CODES:
+            if a.in_stance[leg] and b.in_stance[leg]:
+                assert np.linalg.norm(b.feet[leg][:2] - a.feet[leg][:2]) / DT < 0.005
+
+
+def test_reversing_from_an_overspeed_command_takes_no_longer_than_from_top_speed(
+    params, gait_params
+):
+    walker = make(params, gait_params)
+    walker.set_command(Command(vx=1.0))
+    run(walker, 1000)
+    walker.set_command(Command(vx=-0.05))
+    outputs = run(walker, 200)  # (0.12 + 0.05) / 0.05 = 3.4 s
+    moving = [
+        (b.feet[leg][0] - a.feet[leg][0]) / DT
+        for a, b in zip(outputs[-10:], outputs[-9:], strict=False)
+        for leg in LEG_CODES
+        if a.in_stance[leg] and b.in_stance[leg]
+    ]
+    assert moving and all(v > 0.04 for v in moving)  # stance feet move forward: walking backwards
+
+
+def test_asking_for_the_gait_already_being_walked_changes_nothing(params, gait_params):
+    walker = make(params, gait_params)
+    walker.set_command(Command(vx=0.05))
+    assert not any(o.blending for o in (walker.set_gait("tripod") or run(walker, 5)))
+    walker.set_gait("wave")
+    outputs = []
+    for _ in range(150):  # a node republishing /gait_cmd on every tick
+        walker.set_gait("wave")
+        outputs.append(walker.step(DT))
+    assert not outputs[-1].blending  # the blend finishes: 2 cycles of 1.0 s is 100 ticks
+    assert outputs[-1].gait == "wave"

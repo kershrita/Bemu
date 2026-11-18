@@ -29,6 +29,7 @@ from bemu_sim.walking import (  # noqa: E402
     WalkLog,
     heading_change,
     max_stance_slip,
+    max_swing_drag,
     stand_robot,
     travelled,
     walk,
@@ -84,6 +85,7 @@ def _print(log: WalkLog, args) -> int:
     print(f"heading change: {math.degrees(heading_change(log)):.1f} deg")
     print(f"min stability margin: {log.margin.min() * 1000:.1f} mm")
     print(f"max stance slip: {max_stance_slip(log) * 1000:.1f} mm")
+    print(f"max swing drag: {max_swing_drag(log) * 1000:.1f} mm")
     print(f"peak torque: {log.peak_torque:.3f} N·m")
     print(f"min stride scale: {log.scale.min():.2f}")
     return 0
