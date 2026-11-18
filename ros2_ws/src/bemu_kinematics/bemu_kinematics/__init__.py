@@ -21,8 +21,10 @@ from bemu_kinematics.sequences import (
     sit_height,
     stand_up_targets,
 )
+from bemu_kinematics.stability import stability_margin
 
 __all__ = [
+    "stability_margin",
     "pose_transition",
     "ramp",
     "sit_down_targets",
