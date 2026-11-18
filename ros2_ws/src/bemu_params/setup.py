@@ -9,5 +9,6 @@ setup(
         ("share/bemu_params", ["package.xml"]),
     ],
     install_requires=["setuptools", "pyyaml"],
+    tests_require=["pytest"],
     zip_safe=True,
 )

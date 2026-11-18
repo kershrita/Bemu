@@ -10,5 +10,6 @@ setup(
         ("share/bemu_control/config", ["config/leg_controllers.yaml"]),
     ],
     install_requires=["setuptools"],
+    tests_require=["pytest"],
     zip_safe=True,
 )
