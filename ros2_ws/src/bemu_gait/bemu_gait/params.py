@@ -31,6 +31,8 @@ class GaitParams:
     lift_ramp_stride: float  # m: the stride at which the full step height is reached
     blend_cycles: float  # a gait change takes this many cycles of the old gait
     stability_threshold: float  # m
+    scale_fall_per_s: float  # stability scale may fall this fast (full scale = 1.0)
+    scale_rise_per_s: float  # and recover this fast
 
 
 def _positive(node: Any, parent: str, key: str) -> float:
@@ -76,4 +78,6 @@ def load_gait_params(path: str | os.PathLike | None = None) -> GaitParams:
         lift_ramp_stride=_positive(root, "", "lift_ramp_stride_mm") * MM,
         blend_cycles=_positive(root, "", "blend_cycles"),
         stability_threshold=_positive(root, "", "stability_threshold_mm") * MM,
+        scale_fall_per_s=_positive(root, "", "scale_fall_per_s"),
+        scale_rise_per_s=_positive(root, "", "scale_rise_per_s"),
     )

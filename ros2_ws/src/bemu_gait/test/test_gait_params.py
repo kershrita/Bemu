@@ -22,14 +22,16 @@ def edited(tmp_path, **changes):
 
 
 def test_loads_in_si(gait_params):
-    assert gait_params.cycle_time == {"tripod": 1.0, "ripple": 0.75, "wave": 0.6}
+    assert gait_params.cycle_time == {"tripod": 1.0, "ripple": 1.0, "wave": 1.5}
     assert gait_params.step_height == pytest.approx(0.030)
     assert gait_params.max_stride == pytest.approx(0.060)
-    assert gait_params.max_linear_accel == pytest.approx(0.2)
+    assert gait_params.max_linear_accel == pytest.approx(0.05)
     assert gait_params.max_angular_accel == pytest.approx(1.0)
     assert gait_params.lift_ramp_stride == pytest.approx(0.010)
-    assert gait_params.blend_cycles == pytest.approx(1.0)
+    assert gait_params.blend_cycles == pytest.approx(2.0)
     assert gait_params.stability_threshold == pytest.approx(0.015)
+    assert gait_params.scale_fall_per_s == pytest.approx(4.0)
+    assert gait_params.scale_rise_per_s == pytest.approx(1.0)
 
 
 @pytest.mark.parametrize(
@@ -40,6 +42,8 @@ def test_loads_in_si(gait_params):
         ("step_height_mm", "tall"),
         ("max_stride_mm", 0),
         ("blend_cycles", float("nan")),
+        ("scale_fall_per_s", None),
+        ("scale_rise_per_s", 0),
         ("cycle_time_s.wave", None),
         ("cycle_time_s.wave", 0),
         ("cycle_time_s.gallop", 1.0),
