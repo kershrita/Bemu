@@ -9,6 +9,6 @@ setup(
         ("share/bemu_kinematics", ["package.xml"]),
     ],
     install_requires=["setuptools", "numpy"],
-    tests_require=["pytest"],
+    extras_require={"test": ["pytest"]},
     zip_safe=True,
 )

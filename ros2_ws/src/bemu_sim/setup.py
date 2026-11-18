@@ -10,6 +10,6 @@ setup(
         ("share/bemu_sim/config", ["config/actuators.yaml"]),
     ],
     install_requires=["setuptools", "numpy", "pyyaml"],
-    tests_require=["pytest"],
+    extras_require={"test": ["pytest"]},
     zip_safe=True,
 )

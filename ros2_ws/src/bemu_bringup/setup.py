@@ -10,7 +10,7 @@ setup(
         ("share/bemu_bringup/launch", ["launch/leg.launch.py"]),
     ],
     install_requires=["setuptools"],
-    tests_require=["pytest"],
+    extras_require={"test": ["pytest"]},
     entry_points={"console_scripts": ["foot_trace_node = bemu_bringup.foot_trace_node:main"]},
     zip_safe=True,
 )
