@@ -1,0 +1,23 @@
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["docs"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["bemu_params", "bemu_kinematics", "bemu_description", "bemu_sim"]
+
+[tool.pytest.ini_options]
+testpaths = ["ros2_ws/src"]
+addopts = "--import-mode=importlib"
+pythonpath = [
+    "ros2_ws/src/bemu_params",
+    "ros2_ws/src/bemu_kinematics",
+    "ros2_ws/src/bemu_description",
+    "ros2_ws/src/bemu_sim",
+]
+markers = [
+    "sim_launch: needs ROS 2 and the MuJoCo bridge",
+]

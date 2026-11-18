@@ -20,3 +20,6 @@ rosbag2_*/
 .vscode/
 .idea/
 .DS_Store
+
+# Task build output
+build/
