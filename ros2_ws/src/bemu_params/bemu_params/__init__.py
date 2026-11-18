@@ -1,5 +1,6 @@
 from bemu_params.params import (
     LEG_CODES,
+    BodyParams,
     LegParams,
     MountParams,
     ParamsError,
@@ -11,6 +12,7 @@ from bemu_params.params import (
 
 __all__ = [
     "LEG_CODES",
+    "BodyParams",
     "LegParams",
     "MountParams",
     "ParamsError",

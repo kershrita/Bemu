@@ -33,6 +33,12 @@ def test_loads_and_converts_to_si(params):
     assert params.servo.stall_torque == pytest.approx(2.94)
 
 
+def test_body_and_foot_load_in_si(params):
+    assert params.leg.foot_radius == pytest.approx(0.008)
+    assert params.body.size == pytest.approx((0.240, 0.160, 0.056))
+    assert params.body.mass == pytest.approx(1.39)
+
+
 def test_six_mounts_in_order(params):
     assert tuple(params.mounts) == LEG_CODES
     assert params.mounts["lf"].yaw == pytest.approx(math.radians(45))
@@ -63,6 +69,11 @@ def test_no_path_and_no_env_var_is_an_error(monkeypatch):
         ("body.mounts.rr", None, "body.mounts"),
         ("leg.tibia_length", 20, "stance"),
         ("units.length", "inch", "units"),
+        ("body.size.z", 30, "body.size"),
+        ("body.size", None, "body.size"),
+        ("body.mass", -1, "body.mass"),
+        ("leg.foot_radius", "x", "leg.foot_radius"),
+        ("leg.foot_radius", 0, "leg.foot_radius"),
     ],
 )
 def test_bad_file_raises_params_error_naming_the_key(

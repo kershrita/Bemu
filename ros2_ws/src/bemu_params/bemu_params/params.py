@@ -37,6 +37,13 @@ class LegParams:
     coxa_mass: float  # kg
     femur_mass: float
     tibia_mass: float
+    foot_radius: float  # m, the foot sphere
+
+
+@dataclass(frozen=True)
+class BodyParams:
+    size: tuple[float, float, float]  # m (x, y, z); z is the thickness
+    mass: float  # kg, the chassis: everything except the six legs
 
 
 @dataclass(frozen=True)
@@ -66,6 +73,7 @@ class RobotParams:
     mounts: dict[str, MountParams]  # keys: lf lm lr rf rm rr
     stance: StanceParams
     servo: ServoParams
+    body: BodyParams
 
 
 def _get(node: Any, dotted: str, key: str) -> Any:
@@ -125,6 +133,7 @@ def _parse_leg(root: Any) -> LegParams:
         coxa_mass=mass["coxa"],
         femur_mass=mass["femur"],
         tibia_mass=mass["tibia"],
+        foot_radius=_number(leg, "leg", "foot_radius", positive=True) * MM,
     )
 
 
@@ -164,6 +173,50 @@ def _parse_stance(root: Any, leg: LegParams) -> StanceParams:
     return StanceParams(foot_radius=foot_radius, body_height=body_height)
 
 
+def _parse_body(root: Any, leg: LegParams, stance: StanceParams) -> BodyParams:
+    body = _get(root, "body", "body")
+    size = _get(body, "body.size", "size")
+    x, y, z = (_number(size, "body.size", axis, positive=True) * MM for axis in ("x", "y", "z"))
+    mass = _number(body, "body", "mass", positive=True) * GRAM
+    _check_sit_pose(leg, stance, thickness=z)
+    return BodyParams(size=(x, y, z), mass=mass)
+
+
+def _check_sit_pose(leg: LegParams, stance: StanceParams, *, thickness: float) -> None:
+    """The body resting on the floor must leave every leg able to reach its neutral foot point.
+
+    Sitting, the hip plane is thickness/2 above the floor and the foot sphere's centre is
+    leg.foot_radius above it. This is the knee-up solution in closed form; it lives here because
+    bemu_kinematics imports this package. A test pins it to bemu_kinematics.inverse.
+    """
+    r = stance.foot_radius - leg.coxa_length
+    z = leg.foot_radius - thickness / 2.0
+    d = math.hypot(r, z)
+    lf, lt = leg.femur_length, leg.tibia_length
+    if r <= 0 or not abs(lf - lt) - 1e-12 <= d <= lf + lt + 1e-12:
+        raise ParamsError(
+            f"body.size: the sit pose is out of reach (thickness {thickness * 1e3:g} mm)"
+        )
+
+    def acos(v: float) -> float:
+        return math.acos(max(-1.0, min(1.0, v)))
+
+    femur = math.atan2(z, r) + acos((lf**2 + d**2 - lt**2) / (2 * lf * d))
+    tibia = acos((lf**2 + lt**2 - d**2) / (2 * lf * lt)) - math.pi
+    tol = 1e-9
+    for name, angle, (lo, hi) in (
+        ("femur", femur, leg.femur_limits),
+        ("tibia", tibia, leg.tibia_limits),
+        ("coxa", 0.0, leg.coxa_limits),
+    ):
+        if not lo - tol <= angle <= hi + tol:
+            raise ParamsError(
+                f"body.size: the sit pose needs the {name} at {math.degrees(angle):.1f} deg, "
+                f"outside its limits {math.degrees(lo):.1f} to {math.degrees(hi):.1f} deg "
+                f"(body thickness {thickness * 1e3:g} mm is too thin to sit)"
+            )
+
+
 def _parse_servo(root: Any) -> ServoParams:
     servo = _get(root, "servo", "servo")
     model = _get(servo, "servo.model", "model")
@@ -195,9 +248,11 @@ def load_params(path: str | os.PathLike | None = None) -> RobotParams:
 
     _check_units(root)
     leg = _parse_leg(root)
+    stance = _parse_stance(root, leg)
     return RobotParams(
         leg=leg,
         mounts=_parse_mounts(root),
-        stance=_parse_stance(root, leg),
+        stance=stance,
         servo=_parse_servo(root),
+        body=_parse_body(root, leg, stance),
     )
