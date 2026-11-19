@@ -28,7 +28,7 @@ def test_loads_and_converts_to_si(params):
     assert params.leg.femur_length == pytest.approx(0.065)
     assert params.leg.tibia_length == pytest.approx(0.110)
     assert params.leg.tibia_limits == pytest.approx((-2.617994, -0.349066), abs=1e-6)
-    assert params.leg.coxa_mass == pytest.approx(0.075)
+    assert params.leg.coxa_mass == pytest.approx(0.0739)  # from the CAD (version 1.5b)
     assert params.stance.foot_radius == pytest.approx(0.120)
     assert params.servo.stall_torque == pytest.approx(2.94)
 
@@ -36,7 +36,7 @@ def test_loads_and_converts_to_si(params):
 def test_body_and_foot_load_in_si(params):
     assert params.leg.foot_radius == pytest.approx(0.008)
     assert params.body.size == pytest.approx((0.240, 0.160, 0.056))
-    assert params.body.mass == pytest.approx(1.39)
+    assert params.body.mass == pytest.approx(1.2544)  # the chassis budget from the CAD legs
 
 
 def test_servo_report_constants_load(params):

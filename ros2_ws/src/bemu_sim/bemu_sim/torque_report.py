@@ -237,10 +237,11 @@ def render_markdown(
     commit: str,
     date: str,
     quick: bool = False,
+    label: str = "Version 1",
 ) -> str:
     servo = params.servo
     out = [
-        "# Version 1 torque report" + (" (quick smoke run, not the report)" if quick else ""),
+        f"# {label} torque report" + (" (quick smoke run, not the report)" if quick else ""),
         "",
         f"Generated {date} at commit `{commit}` by `tools/torque_report.py`.",
         "",

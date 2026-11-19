@@ -49,7 +49,7 @@ def test_mass_properties_round_trip_and_make_sense(exported):
         assert len(entry["center_m"]) == 3 and len(entry["inertia_kg_m2"]) == 3
     leg = data["leg"]
     assert leg["servo_mass_kg"] == pytest.approx(3 * 0.055)
-    assert 0.18 < leg["total_kg"] < 0.40  # the V1 estimate was 0.185 kg per leg
+    assert 0.18 < leg["total_kg"] < 0.40  # the V1 estimate was 0.185 kg without the coxa servo
     assert leg["total_kg"] == pytest.approx(
         leg["printed_kg"] + leg["servo_mass_kg"] + leg["fasteners_kg"]
     )

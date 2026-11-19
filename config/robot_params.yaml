@@ -9,14 +9,14 @@ leg:
     coxa:  [-45, 45]
     femur: [-60, 90]
     tibia: [-150, -20]
-  link_mass:            # estimates until the CAD exists (version 1.5)
-    coxa: 75            # bracket plus the femur servo
-    femur: 25
-    tibia: 85           # knee servo plus the lower leg and foot
+  link_mass:            # from the CAD (tools/generate_cad.py --sync-masses; printed parts estimated)
+    coxa: 73.9            # bracket, femur servo, clevis screws
+    femur: 88.8           # femur plates, spacers, knee servo, screws
+    tibia: 44.9           # tibia plates, foot bridge, foot, screws
 
 body:
   size: {x: 240, y: 160, z: 56}   # the box the legs hang from; z is the thickness
-  mass: 1390                        # chassis: everything except the six legs
+  mass: 1254.4                      # chassis budget: design mass 2.5 kg minus six CAD legs (--sync-masses)
   mounts:
     lf: {x: 100,  y: 60,  yaw: 45}
     lm: {x: 0,    y: 80,  yaw: 90}

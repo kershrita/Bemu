@@ -233,9 +233,15 @@ checked against the manufacturer's own STEP models of the servo, which caught a 
 hid. The bracket-hole thread is assumed M2; the print order lists screw lengths for each joint and says it is not
 ready to order until the fit-critical values are measured. Hard stops and cable slots come with the body (1.5b).
 
-**First finding for the mass budget:** with real servos and estimated printed masses the leg weighs
-about 241 g (printed 64 g, servos 165 g, fasteners 12 g) against the 185 g assumed in version 1;
-six legs are 0.34 kg heavier. Version 1.5b reconciles the 2.5 kg design mass.
+**Masses from the CAD (version 1.5b).** `python3 tools/generate_cad.py --sync-masses` writes the link
+masses into `config/robot_params.yaml`: coxa link 73.9 g (bracket, femur servo, screws), femur link
+88.8 g (plates, spacers, knee servo, screws), tibia link 44.9 g (plates, bridge, foot, screws); 207.6 g per
+leg without the coxa servo, which belongs to the body. Version 1 assumed 75 / 25 / 85 g (185 g): the knee
+servo is in the femur link, so the femur is much heavier and the tibia lighter, and the legs are 22.6 g each
+heavier overall (screws and the printed bridge). Six legs weigh 1.246 kg, so the chassis budget for the
+2.5 kg design mass is **1.254 kg** (it was 1.39 kg). Printed masses are estimates (PETG, 60% fill) until
+the parts are weighed. (An earlier note here said the leg was 0.34 kg heavier: that wrongly counted the
+coxa servo, which the chassis mass already included.)
 
 ## Part families
 

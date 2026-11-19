@@ -28,7 +28,8 @@ RELEASE_FIELDS = (
 LEGS = 6
 DENSITY_G_PER_MM3 = {"PETG": 1.27e-3, "TPU": 1.21e-3}
 FILL_FACTOR = 0.6  # perimeters plus 35% infill: an estimate until the printed parts are weighed
-FASTENERS_PER_LEG_KG = 0.012  # about twenty small screws and inserts: an estimate
+# screw mass model, grams (steel): M2 0.2 g + 0.025 g/mm, M3 0.5 g + 0.055 g/mm (head plus shank)
+SCREW_G = {"M2": (0.2, 0.025), "M3": (0.5, 0.055)}
 SPARES = {"coxa_bracket": 1, "foot": 2}  # the most loaded part, and the part that wears
 SETTINGS = "0.2 mm layers, 4 perimeters, 35% infill (docs/08)"
 ORIENTATION = {
@@ -53,17 +54,25 @@ def part_mass_properties(part: Part) -> dict:
     }
 
 
+def screw_mass_kg(thread: str, length: float) -> float:
+    head, per_mm = SCREW_G[thread]
+    return (head + per_mm * length) / 1000.0
+
+
 def _mass_json(leg: LegParts, components: Components) -> dict:
     parts = {p.name: part_mass_properties(p) for p in leg.parts}
     printed = sum(entry["mass_kg"] for entry in parts.values())  # one of each part per leg
     servos = 3 * components.servo.mass
+    fasteners = sum(
+        count * screw_mass_kg(thread, length) for _, thread, count, length in leg.screws
+    )
     return {
         "parts": parts,
         "leg": {
             "printed_kg": printed,
             "servo_mass_kg": servos,
-            "fasteners_kg": FASTENERS_PER_LEG_KG,
-            "total_kg": printed + servos + FASTENERS_PER_LEG_KG,
+            "fasteners_kg": fasteners,
+            "total_kg": printed + servos + fasteners,
         },
         "assumptions": {
             "status": "estimate",

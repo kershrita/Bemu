@@ -1,10 +1,11 @@
 """Generate the printed parts, the tolerance coupon, mass properties and the print order.
 
-Usage: python tools/generate_cad.py [--out DIR] [--coupon-only] [--allowance MM]
+Usage: python tools/generate_cad.py [--out DIR] [--coupon-only] [--allowance MM] [--sync-masses]
 
 Reads config/robot_params.yaml and config/components.yaml and writes STEP and STL files, a
 mass_properties.json and a print_order.md into DIR (default cad/export/). --coupon-only writes just
-the tolerance coupon, the first thing to print.
+the tolerance coupon, the first thing to print. --sync-masses rewrites the three link_mass numbers
+in config/robot_params.yaml from the CAD (the simulation model then uses them).
 """
 
 import argparse
@@ -17,6 +18,8 @@ for package in ("bemu_params", "bemu_cad"):
 
 from bemu_cad.components import ComponentsError, load_components  # noqa: E402
 from bemu_cad.export import export_all, export_coupon  # noqa: E402
+from bemu_cad.leg import build_leg  # noqa: E402
+from bemu_cad.masses import link_masses, sync_robot_params  # noqa: E402
 from bemu_params import ParamsError, load_params  # noqa: E402
 
 PARAMS_FILE = REPO_ROOT / "config" / "robot_params.yaml"
@@ -43,9 +46,22 @@ def _run() -> int:
         default=None,
         help="servo pocket allowance in mm (default: printing.pocket_allowance in components.yaml)",
     )
+    parser.add_argument(
+        "--sync-masses",
+        action="store_true",
+        help="write the CAD link masses into config/robot_params.yaml and stop",
+    )
     args = parser.parse_args()
 
     components = load_components()
+    if args.sync_masses:
+        masses = link_masses(build_leg(load_params(PARAMS_FILE), components), components)
+        sync_robot_params(PARAMS_FILE, masses)
+        print(
+            f"link masses (g): coxa {masses.coxa * 1000:.1f}, femur {masses.femur * 1000:.1f}, "
+            f"tibia {masses.tibia * 1000:.1f} written to {PARAMS_FILE}"
+        )
+        return 0
     args.out.mkdir(parents=True, exist_ok=True)  # fails early, before any CAD work
     if args.coupon_only:
         written = export_coupon(components, args.out)

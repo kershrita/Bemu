@@ -51,8 +51,8 @@ def test_matrix_has_48_scenarios_in_order(params, gait_params):
 
 
 def test_params_for_mass(params):
-    assert params_for_mass(params, 2.5).body.mass == pytest.approx(1.39, abs=1e-9)
-    assert params_for_mass(params, 2.0).body.mass == pytest.approx(0.89, abs=1e-9)
+    assert params_for_mass(params, 2.5).body.mass == pytest.approx(1.2544, abs=1e-4)
+    assert params_for_mass(params, 2.0).body.mass == pytest.approx(0.7544, abs=1e-4)
     assert params_for_mass(params, 2.5).leg == params.leg
 
 
