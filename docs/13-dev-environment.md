@@ -168,6 +168,8 @@ Recorded on 2026-11-18, on the development PC.
 | Walk it by hand | `ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/TwistStamped "{twist: {linear: {x: 0.06}}}"` (stop publishing and it stops after 0.5 s) |
 | Sit it down or stand it up | `ros2 service call /sit std_srvs/srv/Trigger` (or `/stand`) |
 | Change gait | `ros2 topic pub --once /gait_cmd bemu_msgs/msg/GaitCommand "{gait: ripple}"` |
+| Drive it from the keyboard | In a second terminal (after `source install/setup.bash`): `ros2 run bemu_teleop keyboard`. `w`/`s` forward and back, `a`/`d` left and right, `q`/`e` turn, space stop (each press steps the speed 20% of the gait's top speed), `1`/`2`/`3` tripod, ripple, wave, `r`/`f` body up and down 5 mm, `h` stand, `j` sit, `x` quit |
+| Drive it with a gamepad | `ros2 launch bemu_bringup robot.launch.py teleop:=gamepad` (starts `joy_node` and the gamepad node). Left stick walks and strafes, right stick turns, hold LB for 30% speed; A stands, B sits, X tripod, Y ripple, RB wave. Xbox layout on Linux; other pads: set the axis and button parameters of the `gamepad` node. Releasing the sticks stops it |
 | Run on the robot | Version 2 onward; `use_sim:=false` stops with a message in version 0 |
 | Watch the robot's state | RViz |
 | Record data | `ros2 bag record` |

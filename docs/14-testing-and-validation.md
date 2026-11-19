@@ -84,6 +84,10 @@ test`, run in the CI `ros` job), the node's topics, services and bad-input handl
 description; and on the development PC only (`sim_launch`), `robot.launch.py` bringing up every
 controller, standing the robot and walking it on a `/cmd_vel`.
 
+Version 1c's tests: headless, the key and stick mapping (speed steps and limits, gait clamping,
+height limits, deadzone, bad axis values, once-per-press buttons) and the keyboard's refusal
+without a terminal; with ROS, the gamepad node and the `teleop` launch choices.
+
 The torque report's tests (`bemu_sim/test/test_robot_stats.py`, `test_torque_report*.py`):
 per-step joint statistics (peak, RMS, speed, steps at the limit); the 48-scenario matrix, the
 mass and scenario validation, the power model and the pass/fail and stability verdict

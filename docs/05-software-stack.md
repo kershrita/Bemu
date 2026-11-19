@@ -69,7 +69,7 @@ Packages added by later versions follow the same naming:
 | `bemu_description` | 0–1 | URDF and MuJoCo model, generated from the parameter file | Yes |
 | `bemu_sim` | 0 | Simulation world, simulated sensors | Yes |
 | `bemu_hardware` | 0 | Real servo driver | Yes (C++) |
-| `bemu_teleop` | 4 | Human control | Yes |
+| `bemu_teleop` | 4 | Keyboard (latched speed, own terminal) and gamepad (`Joy`, stateless) control; the key and stick mapping is ROS-free | Yes |
 | `bemu_msgs` | all | Shared message types | Yes |
 | `bemu_bringup` | all | Launch files | Yes |
 

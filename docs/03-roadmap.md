@@ -58,7 +58,7 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 | 1.4 | Tripod gait driven by a velocity command |
 | 1.5 | Turning in place and walking sideways |
 | 1.6 | Ripple and wave gaits; switching gait while moving |
-| 1.7 | Keyboard and gamepad control |
+| 1.7 | Keyboard and gamepad control (`bemu_teleop`; first run on the development PC outstanding) |
 | 1.8 | Measurement: joint torque, speed, power, stability margin, logged per run |
 
 Steps 1.1 to 1.3 are done (version 1a, `docs/superpowers/specs/2026-11-18-v1a-full-body-design.md`).
