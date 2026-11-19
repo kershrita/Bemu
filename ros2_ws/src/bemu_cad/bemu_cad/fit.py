@@ -104,6 +104,14 @@ def edge_distance_problems(leg: LegParts) -> list[str]:
                         f"{part.name}: hole at ({hole.a:.2f}, {hole.b:.2f}) leaves {gap:.2f} mm "
                         f"to the window, needs {MIN_LIGAMENT} mm"
                     )
+        for window in part.windows:
+            a0, a1, b0, b1 = part.face_outlines.get(window.face, part.outline)
+            rim = (
+                min(window.a - a0, a1 - window.a, window.b - b0, b1 - window.b)
+                - window.diameter / 2
+            )
+            if rim < MIN_WALL - 1e-9:
+                problems.append(f"{part.name}: window leaves a {rim:.2f} mm rim, needs {MIN_WALL}")
         for h1, h2 in itertools.combinations(part.holes, 2):
             if h1.face != h2.face:
                 continue

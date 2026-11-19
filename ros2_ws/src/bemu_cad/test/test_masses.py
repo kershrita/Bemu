@@ -89,3 +89,51 @@ def test_the_body_thickness_in_the_parameter_file_matches_the_cad(parts):
     params, components, leg, _ = parts
     body = build_body(params, components, leg)
     assert params.body.size[2] == pytest.approx(2 * body.layout_mm["half_height"] * 1e-3, abs=1e-4)
+
+
+def test_every_screw_group_is_assigned_to_the_link_it_clamps():
+    from bemu_cad.masses import SCREW_LINK
+
+    assert SCREW_LINK == {
+        "coxa horn": "coxa",  # base plate onto the coxa horn: moves with the coxa bracket
+        "clevis walls": "coxa",
+        "femur horn side": "femur",  # femur plates onto the femur servo's horns
+        "femur back side": "femur",
+        "knee servo": "femur",  # knee servo onto the femur plates
+        "knee horn side": "tibia",  # tibia plates onto the knee servo's horns
+        "knee back side": "tibia",
+        "foot bridge": "tibia",
+    }
+
+
+def test_sync_also_writes_the_body_thickness_and_only_in_the_body_size_line(tmp_path):
+    copy = tmp_path / "robot_params.yaml"
+    shutil.copy(PARAMS, copy)
+    sync_robot_params(copy, LinkMasses(coxa=0.0742, femur=0.0888, tibia=0.0449), 59.5)
+    params = load_params(copy)
+    assert params.body.size[2] == pytest.approx(0.0595)
+    assert params.body.size[0] == pytest.approx(0.24) and params.body.size[1] == pytest.approx(0.16)
+
+
+def test_the_parameter_file_inertia_matches_the_cad(parts):
+    from bemu_cad.masses import link_inertias
+
+    params, components, leg, _ = parts
+    cad = link_inertias(leg, components)
+    for name in ("coxa", "femur", "tibia"):
+        file = params.leg.link_inertia[name]
+        assert file.com[0] * 1e3 == pytest.approx(cad[name].com_mm[0], abs=0.02)
+        assert file.com[2] * 1e3 == pytest.approx(cad[name].com_mm[2], abs=0.02)
+        for got, want in zip(file.inertia[:3], cad[name].inertia_g_mm2[:3], strict=True):
+            assert got * 1e9 == pytest.approx(want, rel=1e-3)
+        assert all(v > 0 for v in file.inertia[:3])
+
+
+def test_the_femur_link_com_is_far_out_because_it_carries_the_knee_servo(parts):
+    from bemu_cad.masses import link_inertias
+
+    _, components, leg, _ = parts
+    cad = link_inertias(leg, components)
+    assert 65.0 < cad["femur"].com_mm[0] < 76.0  # the knee servo sits at 65 mm and weighs 55 g
+    assert 50.0 < cad["coxa"].com_mm[0] < 60.0
+    assert 65.0 < cad["tibia"].com_mm[0] < 80.0

@@ -95,7 +95,12 @@ def release_blockers(components: Components) -> list[str]:
     return blockers
 
 
-def _print_order(leg: LegParts, components: Components, body_rows: list[str] | None = None) -> str:
+def _print_order(
+    leg: LegParts,
+    components: Components,
+    body_rows: list[str] | None = None,
+    body_hardware: list[str] | None = None,
+) -> str:
     unverified = unverified_fields(components)
     blockers = release_blockers(components)
     if blockers:
@@ -152,6 +157,7 @@ def _print_order(leg: LegParts, components: Components, body_rows: list[str] | N
     lines += [
         "",
         "Plus per servo: the centre screw that comes with the horn (M3 x 6), and 3 servos per leg.",
+        *(body_hardware or []),
     ]
     return "\n".join(lines) + "\n"
 
@@ -173,7 +179,13 @@ def export_all(
     )
     coupon = build_coupon(components)
     from bemu_cad.body import build_body  # imported here: the body module imports this one
-    from bemu_cad.export_body import canonical_solid, families, mass_json, order_rows
+    from bemu_cad.export_body import (
+        canonical_solid,
+        families,
+        hardware_rows,
+        mass_json,
+        order_rows,
+    )
 
     body = build_body(params, components, leg)
     written = {}
@@ -191,7 +203,7 @@ def export_all(
     data["body"] = mass_json(body, leg, components)
     mass.write_text(json.dumps(data, indent=2) + "\n")
     order = out_dir / "print_order.md"
-    order.write_text(_print_order(leg, components, order_rows(body)))
+    order.write_text(_print_order(leg, components, order_rows(body), hardware_rows(body)))
     written["mass_properties.json"], written["print_order.md"] = mass, order
     return written
 

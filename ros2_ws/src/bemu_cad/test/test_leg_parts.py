@@ -210,3 +210,18 @@ def test_the_coxa_shelves_are_32_mm_apart_and_the_support_plate_clears_the_base_
     assert layout["coxa_support_bottom_z"] - layout["base_plate_top_z"] >= 0.5
     # the stock horn screw head fits in the boss relief; the boss reaches the horn tip
     assert layout["coxa_horn_tip_z"] - layout["base_plate_top_z"] >= 2.0
+
+
+def test_horn_screws_cross_their_stack_and_engage_the_horn(leg):
+    """C1 of the 1.5b review: the coxa horn screws were left at 6 mm after the boss was added."""
+    layout = leg.layout_mm
+    screws = {joint: length for joint, _, _, length in leg.screws}
+    stack = {
+        "coxa horn": 3.0 + (layout["coxa_horn_tip_z"] - layout["base_plate_top_z"]),
+        "femur horn side": 3.0 + (layout["femur_plate_inner_y"] - layout["horn_tip_y"]),
+        "femur back side": 3.0 + (layout["femur_plate_inner_y"] + layout["rear_idler_y"]),
+        "knee horn side": 3.0 + (layout["tibia_plate_inner_y"] - layout["horn_tip_y"]),
+        "knee back side": 3.0 + (layout["tibia_plate_inner_y"] + layout["rear_idler_y"]),
+    }
+    for joint, thickness in stack.items():
+        assert screws[joint] >= thickness + 3.0 - 1e-9, (joint, screws[joint], thickness)

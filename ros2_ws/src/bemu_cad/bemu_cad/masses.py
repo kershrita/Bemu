@@ -49,6 +49,71 @@ class LinkMasses:
         return design_mass - 6 * self.leg
 
 
+@dataclass(frozen=True)
+class LinkInertia:
+    """A link's centre of mass from its joint (mm) and inertia about it (g mm^2), in leg axes."""
+
+    com_mm: tuple[float, float, float]
+    inertia_g_mm2: tuple[float, float, float, float, float, float]  # xx yy zz xy xz yz
+
+
+def _matrix_add(a, b):
+    return [[a[i][j] + b[i][j] for j in range(3)] for i in range(3)]
+
+
+def link_inertias(leg: LegParts, components: Components) -> dict[str, LinkInertia]:
+    """Centre of mass and inertia of each link from the CAD: printed parts and servos as solids
+    (uniform density), screws as point masses at the centre of mass of the rest."""
+    members = {"coxa": [], "femur": [], "tibia": []}
+    for part in leg.parts:
+        props = part_mass_properties(part)
+        link = PART_LINK[part.group]
+        members[link].append((props["mass_kg"], props["center_m"], props["inertia_kg_m2"]))
+    for name, link in SERVO_LINK.items():
+        solid = leg.servo_solids[name]
+        scale = components.servo.mass / solid.volume
+        matrix = solid.matrix_of_inertia
+        centre = solid.center()
+        members[link].append(
+            (
+                components.servo.mass,
+                [centre.X * 1e-3, centre.Y * 1e-3, centre.Z * 1e-3],
+                [[float(matrix[i][j]) * scale * 1e-6 for j in range(3)] for i in range(3)],
+            )
+        )
+    origin = {
+        "coxa": leg.axes_mm["coxa"],
+        "femur": leg.axes_mm["femur"],
+        "tibia": leg.axes_mm["knee"],
+    }
+    result = {}
+    for link, items in members.items():
+        total = sum(m for m, _, _ in items)
+        com = [sum(m * c[k] for m, c, _ in items) / total for k in range(3)]
+        tensor = [[0.0] * 3 for _ in range(3)]
+        for mass, centre, inertia in items:
+            d = [centre[k] - com[k] for k in range(3)]
+            d2 = sum(v * v for v in d)
+            shifted = [
+                [inertia[i][j] + mass * ((d2 if i == j else 0.0) - d[i] * d[j]) for j in range(3)]
+                for i in range(3)
+            ]
+            tensor = _matrix_add(tensor, shifted)
+        to_g_mm2 = 1e9  # kg m^2 -> g mm^2
+        result[link] = LinkInertia(
+            com_mm=tuple(com[k] * 1e3 - origin[link][k] for k in range(3)),
+            inertia_g_mm2=(
+                tensor[0][0] * to_g_mm2,
+                tensor[1][1] * to_g_mm2,
+                tensor[2][2] * to_g_mm2,
+                tensor[0][1] * to_g_mm2,
+                tensor[0][2] * to_g_mm2,
+                tensor[1][2] * to_g_mm2,
+            ),
+        )
+    return result
+
+
 def link_masses(leg: LegParts, components: Components) -> LinkMasses:
     total = {"coxa": 0.0, "femur": 0.0, "tibia": 0.0}
     for part in leg.parts:
@@ -61,7 +126,12 @@ def link_masses(leg: LegParts, components: Components) -> LinkMasses:
     return LinkMasses(**total)
 
 
-def sync_robot_params(path: Path, masses: LinkMasses, body_thickness: float | None = None) -> None:
+def sync_robot_params(
+    path: Path,
+    masses: LinkMasses,
+    body_thickness: float | None = None,
+    inertias: dict[str, LinkInertia] | None = None,
+) -> None:
     """Rewrite the three `link_mass` numbers and the chassis budget (grams) in the parameter file,
     keeping its comments."""
     path = Path(path)
@@ -70,12 +140,17 @@ def sync_robot_params(path: Path, masses: LinkMasses, body_thickness: float | No
     masses = LinkMasses(
         *(round(v * 1000, 1) / 1000 for v in (masses.coxa, masses.femur, masses.tibia))
     )
+    start = text.find("link_mass:")
+    if start < 0:
+        raise ValueError(f"{path}: could not find link_mass")
+    head, block = text[:start], text[start:]
     for name, value in (("coxa", masses.coxa), ("femur", masses.femur), ("tibia", masses.tibia)):
         pattern = re.compile(rf"^(\s+{name}:\s*)[0-9.]+(\s*(?:#.*)?)$", re.MULTILINE)
         grams = f"{value * 1000:.1f}".rstrip("0").rstrip(".")
-        text, count = pattern.subn(rf"\g<1>{grams}\g<2>", text, count=1)
+        block, count = pattern.subn(rf"\g<1>{grams}\g<2>", block, count=1)
         if count != 1:
             raise ValueError(f"{path}: could not find the link_mass line for {name}")
+    text = head + block
     chassis = re.compile(r"^(\s+mass:\s*)[0-9.]+(\s*#\s*chassis.*)$", re.MULTILINE)
     grams = f"{masses.chassis_budget() * 1000:.1f}".rstrip("0").rstrip(".")
     text, count = chassis.subn(rf"\g<1>{grams}\g<2>", text, count=1)
@@ -88,4 +163,38 @@ def sync_robot_params(path: Path, masses: LinkMasses, body_thickness: float | No
         text, count = size.subn(rf"\g<1>{body_thickness:.2f}\g<2>", text, count=1)
         if count != 1:
             raise ValueError(f"{path}: could not find the body size line")
+    if inertias is not None:
+        text = _write_inertia_block(text, inertias)
     path.write_text(text, encoding="utf-8")
+
+
+def _write_inertia_block(text: str, inertias: dict[str, LinkInertia]) -> str:
+    """Replace (or add, after the link_mass block) the generated link_inertia block."""
+    lines = text.split("\n")
+    start = next((i for i, ln in enumerate(lines) if ln.strip().startswith("link_inertia:")), None)
+    if start is not None:
+        end = start + 1
+        while end < len(lines) and (lines[end].startswith("    ") or lines[end].startswith("   #")):
+            end += 1
+        del lines[start:end]
+        insert_at = start
+    else:
+        mass_at = next(i for i, ln in enumerate(lines) if ln.strip().startswith("link_mass:"))
+        tibia = next(
+            i for i, ln in enumerate(lines) if i > mass_at and ln.lstrip().startswith("tibia:")
+        )
+        insert_at = tibia + 1
+    block = [
+        "  link_inertia:         # from the CAD (--sync-masses): COM from the joint in mm, inertia",
+        "    # about the COM in g mm^2 (xx yy zz xy xz yz), leg axes at zero joint angle",
+    ]
+    for name in ("coxa", "femur", "tibia"):
+        item = inertias[name]
+        com = ", ".join(f"{v:.2f}" for v in item.com_mm)
+        inertia = ", ".join(
+            f"{v + 0.0:.0f}".replace("-0", "0") if abs(v) < 0.5 else f"{v:.0f}"
+            for v in item.inertia_g_mm2
+        )
+        block.append(f"    {name}: {{com_mm: [{com}], inertia_g_mm2: [{inertia}]}}")
+    lines[insert_at:insert_at] = block
+    return "\n".join(lines)

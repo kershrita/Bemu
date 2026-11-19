@@ -20,11 +20,11 @@ from build123d import Box, Cylinder, Polygon, Pos, Rot, Solid, extrude
 
 from bemu_cad.components import Components
 from bemu_cad.export import part_mass_properties
-from bemu_cad.leg import PLATE, HoleSpec, LegParts, Part, Window
+from bemu_cad.leg import PLATE, Hardware, HoleSpec, LegParts, Part, Window
 from bemu_cad.servo import M_TO_MM, servo_pocket
 from bemu_params import LEG_CODES, RobotParams
 
-TOP_THICKNESS = 4.0  # mm: the idler recess is 2.1 mm deep, so the plate keeps 1.9 mm of floor
+TOP_THICKNESS = 4.0  # mm: the idler recess leaves 1.75 mm of floor; the hub goes through a hole
 BOTTOM_THICKNESS = 4.0
 JOINT_X = (-40.0, 40.0)  # where the plates are split
 SPLICE = {"length": 30.0, "width": 12.0, "y": (-30.0, 30.0), "pitch": 8.0}
@@ -37,11 +37,11 @@ MAIN_POSTS = [(-70.0, -15.0), (-70.0, 15.0), (70.0, -15.0), (70.0, 15.0)] + [
     (15.0, 18.0),
 ]
 HIP_POSTS_LEG = [(-42.0, -8.0), (-42.0, 8.0)]  # in each leg frame
-HIP_PLATE = (-48.0, 12.0, -14.0, 14.0)  # x0, x1, y0, y1 in the leg frame
+HIP_PLATE = (-48.0, 14.0, -14.0, 14.0)  # x0, x1, y0, y1 in the leg frame
 FOOTPRINT_PAD = 5.0  # mm beyond the coxa servo's outline
 GRID_PITCH = 20.0
-GRID_X = tuple(-70.0 + 20.0 * i for i in range(8))
-GRID_Y = (-40.0, -20.0, 0.0, 20.0, 40.0)
+GRID_X = tuple(-90.0 + 20.0 * i for i in range(10))
+GRID_Y = (-60.0, -40.0, -20.0, 0.0, 20.0, 40.0, 60.0)
 INSERT_HOLE = 4.1  # mm, from the unverified insert entry; the coupon decides
 ELECTRONICS_KG = 0.075 + 0.350 + 0.120  # Pi 5, battery, regulator and wiring: placeholders
 FASTENERS_KG = 0.030  # body screws and inserts: an estimate
@@ -66,11 +66,14 @@ class BodyParts:
     layout_mm: dict
     printed_mass_kg: float
     electronics_mass_kg: float
+    coxa_servo_kg: float = 0.055
+    hardware: tuple = ()  # screw heads that sit near moving parts, for the sweep checks
+    screws: tuple = ()  # (where, thread, count, length mm, nut)
 
     @property
     def mass_kg(self) -> float:
         """Printed parts, the six coxa servos and the electronics placeholders."""
-        return self.printed_mass_kg + 6 * 0.055 + self.electronics_mass_kg
+        return self.printed_mass_kg + 6 * self.coxa_servo_kg + self.electronics_mass_kg
 
 
 def _prism(points, z0: float, z1: float) -> Solid:
@@ -129,8 +132,11 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
     top_holes: list[HoleSpec] = []
     bottom_holes: list[HoleSpec] = []
     seat_holes = []
+    hub_hole = servo.rear_hub_diameter * M_TO_MM + 2 * allowance + 1.0
     for t in hip_t.values():
         top -= t * (t_servo * pocket)  # the shelf, strip, boss, idler and hub relief
+        hub = (t * Pos(0, 0, 0)).position
+        top -= _cyl(hub.X, hub.Y, hub_hole, z_top[0] - 1, z_top[1] + 1)  # the hub passes through
         for h in servo.case_holes:
             if h.side == "back":
                 p = (t * t_servo * Pos(h.x * M_TO_MM, h.y * M_TO_MM, 0)).position
@@ -211,6 +217,9 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
         return pieces
 
     parts: list[Part] = []
+    hardware: list[Hardware] = []
+    head_d = components.fields["screw_m2"]["head_diameter"].value
+    head_h = components.fields["screw_m2"]["head_height"].value
     parts += split(top, top_holes, "top", z_top, "top_plate")
     parts += split(bottom, bottom_holes, "bottom", z_bot, "bottom_plate")
 
@@ -232,6 +241,14 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
         for x, y in HIP_POSTS_LEG:
             plate_leg -= _cyl(x, y, m3, z_hip[0] - 1, z_hip[1] + 1)
             holes.append(HoleSpec(x, y, m3))
+        for k, (x, y) in enumerate(horn_holes_leg):  # M2 heads hang under the plate
+            hardware.append(
+                Hardware(
+                    f"screw_hip_{code}_{k}",
+                    "body",
+                    t * _cyl(x, y, head_d, z_hip[0] - head_h, z_hip[0]),
+                )
+            )
         parts.append(
             Part(
                 f"hip_plate_{code}",
@@ -296,6 +313,22 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
                 index += 1
 
     printed = sum(part_mass_properties(p)["mass_kg"] for p in parts)
+    seat = len(seat_holes)
+    posts = len(MAIN_POSTS) + 2 * 6
+    grid = sum(
+        1
+        for p in parts
+        if p.family.startswith("top_plate")
+        for h in p.holes
+        if h.diameter == INSERT_HOLE
+    )
+    screws = (
+        ("top plate to coxa servo (M2)", "M2", seat, 8.0, False),
+        ("hip plate to coxa servo (M2)", "M2", 4 * 6, 6.0, False),
+        ("post ends into the plates and hip plates (M3)", "M3", 2 * posts, 10.0, False),
+        ("splice plates (M3, with nuts)", "M3", 4 * 2 * 4, 12.0, True),
+        ("insert grid: heat-set inserts M3 (not screws)", "insert", grid, 0.0, False),
+    )
     return BodyParts(
         parts=tuple(parts),
         hip_transforms=hip_t,
@@ -308,4 +341,7 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
         },
         printed_mass_kg=printed,
         electronics_mass_kg=ELECTRONICS_KG + FASTENERS_KG,
+        coxa_servo_kg=servo.mass,
+        hardware=tuple(hardware),
+        screws=screws,
     )

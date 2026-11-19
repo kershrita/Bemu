@@ -1,4 +1,5 @@
 import dataclasses
+import math
 from pathlib import Path
 
 import pytest
@@ -45,9 +46,14 @@ def test_the_plates_cover_every_hip_and_every_coxa_servo_footprint(world):
     z = body.layout_mm["top_plate_z"][1] - 0.5  # above the hub recess floor
     for code in LEG_CODES:
         t = body.hip_transforms[code]
-        for x_leg, y_leg in ((0.0, 0.0), (-35.0, 11.0), (-35.0, -11.0), (9.0, 11.0), (9.0, -11.0)):
+        for x_leg, y_leg in ((6.0, 0.0), (-35.0, 11.0), (-35.0, -11.0), (9.0, 11.0), (9.0, -11.0)):
             point = (t * Pos(x_leg, y_leg, 0)).position
             assert any(p.solid.is_inside(Vector(point.X, point.Y, z)) for p in top), (code, x_leg)
+    bottom = parts_named(body, "bottom_plate")
+    zb = sum(body.layout_mm["bottom_plate_z"]) / 2
+    for code in LEG_CODES:
+        point = (body.hip_transforms[code] * Pos(-20.0, 0, 0)).position
+        assert any(p.solid.is_inside(Vector(point.X, point.Y, zb)) for p in bottom), code
     sizes = [p.solid.bounding_box() for p in top]
     xs = (min(b.min.X for b in sizes), max(b.max.X for b in sizes))
     # the 240 mm decagon plus the padded coxa-servo footprints at the front and rear hips
@@ -62,32 +68,27 @@ def test_every_piece_fits_the_bed_and_a_small_bed_is_reported(world):
 
 
 def test_the_coxa_servo_is_seated_at_both_faces_on_the_real_pilot_holes(world):
+    """Probe the solids: each real pilot position is an empty 2.4 mm hole in the plate."""
     _, _, leg, body = world
     features = servo_features(FEETECH)
-    tolerance = 0.06
+    t_servo = leg.servo_transforms["coxa_servo"]
+    top = parts_named(body, "top_plate")
+    z_top = sum(body.layout_mm["top_plate_z"]) / 2
+    z_hip = sum(body.layout_mm["hip_plate_z"]) / 2
     for code in LEG_CODES:
         t_hip = body.hip_transforms[code]
-        t_servo = leg.servo_transforms["coxa_servo"]
-        for plate_prefix, side in (("top_plate", "back"), ("hip_plate_" + code, "horn")):
-            holes = []
-            for part in parts_named(body, plate_prefix):
-                holes += [h for h in part.holes if abs(h.diameter - 2.4) < 1e-6]
-            assert holes, (code, plate_prefix)
-            for pilot in features.bracket_holes:
-                if pilot.side != side:
-                    continue
-                point = (t_hip * t_servo * Pos(pilot.x, pilot.y, 0.0)).position
-                if plate_prefix == "top_plate":
-                    assert any(
-                        abs(h.a - point.X) < tolerance and abs(h.b - point.Y) < tolerance
-                        for h in holes
-                    ), (code, pilot.x, pilot.y)
-                else:  # hip plate holes are in the leg frame
-                    local = (t_servo * Pos(pilot.x, pilot.y, 0.0)).position
-                    assert any(
-                        abs(h.a - local.X) < tolerance and abs(h.b - local.Y) < tolerance
-                        for h in holes
-                    ), (code, pilot.x, pilot.y)
+        hip = next(p for p in body.parts if p.name == f"hip_plate_{code}")
+        for pilot in features.bracket_holes:
+            if pilot.side == "back":
+                centre = (t_hip * t_servo * Pos(pilot.x, pilot.y, 0)).position
+                plates, z = top, z_top
+            else:
+                centre = (t_hip * t_servo * Pos(pilot.x, pilot.y, 0)).position
+                plates, z = [hip], z_hip
+            empty = Vector(centre.X, centre.Y, z)
+            solid_near = Vector(centre.X + 1.2 + 0.5, centre.Y, z)  # beyond the 2.4 mm hole
+            assert not any(p.solid.is_inside(empty) for p in plates), (code, pilot.side, pilot.x)
+            assert any(p.solid.is_inside(solid_near) for p in plates), (code, pilot.side, pilot.x)
 
 
 def test_no_body_part_touches_a_real_coxa_servo(world):
@@ -101,21 +102,32 @@ def test_no_body_part_touches_a_real_coxa_servo(world):
             assert volume <= CONTACT_VOLUME, (code, part.name, volume)
 
 
+SIT = (math.radians(84.6), math.radians(-135.8))
+STAND = (math.radians(17.2), math.radians(-100.4))
+
+
 @pytest.mark.parametrize("coxa_deg", [-45.0, 0.0, 45.0])
-@pytest.mark.parametrize("femur_knee", [(0.0, -1.5), (1.57, -0.35), (-1.0, -2.0)])
-def test_a_swinging_leg_never_touches_the_body(world, coxa_deg, femur_knee):
-    """The left-front leg through the coxa range with the femur and knee in three poses."""
+@pytest.mark.parametrize(
+    "femur_knee",
+    [(0.0, -1.5), (1.57, -0.35), (-1.0, -2.0), SIT, STAND],
+    ids=lambda p: f"{p[0]:.2f}",
+)
+@pytest.mark.parametrize("code", ["lf", "lm"])
+def test_a_swinging_leg_never_touches_the_body(world, code, coxa_deg, femur_knee):
+    """A front and a middle leg through the coxa range with the femur and knee in five poses; the
+    body's screw heads under the hip plates are included."""
     _, _, leg, body = world
     posed = _posed(leg, *femur_knee)
-    t_hip = body.hip_transforms["lf"]
+    t_hip = body.hip_transforms[code]
     swing = Rot(Z=coxa_deg)
     problems = {}
     for name, (_, solid) in posed.items():
         if name == "coxa_servo":
             continue  # the coxa servo is part of the body mount, not the swinging leg
         moved = t_hip * (swing * solid)
-        for part in body.parts:
-            overlap = part.solid & moved
+        for part in (*body.parts, *body.hardware):
+            solid = part.solid
+            overlap = solid & moved
             volume = float(overlap.volume) if overlap else 0.0
             if volume > CONTACT_VOLUME:
                 problems[f"{name}|{part.name}"] = round(volume, 2)
@@ -151,7 +163,7 @@ def test_the_top_plate_carries_the_mounting_grid(world):
     }
     xs = {a for a, _ in grid}
     ys = {b for _, b in grid}
-    assert len(xs) >= 7 and len(ys) >= 5
+    assert len(grid) >= 30 and len(xs) >= 7 and len(ys) >= 5
     assert all((a - min(xs)) % 20 == 0 for a, _ in grid)  # a 20 mm pitch
 
 
@@ -161,3 +173,24 @@ def test_the_body_mass_is_an_estimate_with_a_budget_check(world):
     assert body.mass_kg == pytest.approx(
         body.printed_mass_kg + 6 * 0.055 + body.electronics_mass_kg, abs=1e-9
     )
+
+
+def test_the_body_hardware_is_listed_and_the_hub_passes_through_the_top_plate(world):
+    _, _, leg, body = world
+    by_where = {row[0]: row for row in body.screws}
+    assert by_where["top plate to coxa servo (M2)"][2] == 24
+    assert by_where["hip plate to coxa servo (M2)"][2] == 24
+    assert by_where["splice plates (M3, with nuts)"][4] is True
+    assert (
+        by_where["insert grid: heat-set inserts M3 (not screws)"][2] >= 35
+    )  # the docs promise at least 5 x 7 positions
+    # the hub tip is above the recess floor, so the plate has a through hole there
+    top = parts_named(body, "top_plate")
+    z_mid = sum(body.layout_mm["top_plate_z"]) / 2
+    for code in LEG_CODES:
+        hub = (body.hip_transforms[code] * Pos(0, 0, 0)).position
+        assert not any(p.solid.is_inside(Vector(hub.X, hub.Y, z_mid)) for p in top)
+        assert not any(
+            p.solid.is_inside(Vector(hub.X, hub.Y, body.layout_mm["top_plate_z"][1] - 0.3))
+            for p in top
+        )

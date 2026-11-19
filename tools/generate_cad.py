@@ -20,7 +20,7 @@ from bemu_cad.body import build_body  # noqa: E402
 from bemu_cad.components import ComponentsError, load_components  # noqa: E402
 from bemu_cad.export import export_all, export_coupon  # noqa: E402
 from bemu_cad.leg import build_leg  # noqa: E402
-from bemu_cad.masses import link_masses, sync_robot_params  # noqa: E402
+from bemu_cad.masses import link_inertias, link_masses, sync_robot_params  # noqa: E402
 from bemu_params import ParamsError, load_params  # noqa: E402
 
 PARAMS_FILE = REPO_ROOT / "config" / "robot_params.yaml"
@@ -60,7 +60,7 @@ def _run() -> int:
         leg = build_leg(load_params(PARAMS_FILE), components)
         body = build_body(load_params(PARAMS_FILE), components, leg)
         thickness = 2 * body.layout_mm["half_height"]
-        sync_robot_params(PARAMS_FILE, masses, thickness)
+        sync_robot_params(PARAMS_FILE, masses, thickness, link_inertias(leg, components))
         print(
             f"link masses (g): coxa {masses.coxa * 1000:.1f}, femur {masses.femur * 1000:.1f}, "
             f"tibia {masses.tibia * 1000:.1f}, body thickness {thickness:.2f} mm written to "

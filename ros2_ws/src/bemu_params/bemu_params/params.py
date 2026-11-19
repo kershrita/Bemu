@@ -27,6 +27,16 @@ class ParamsError(ValueError):
 
 
 @dataclass(frozen=True)
+class LinkInertial:
+    """A link's centre of mass and inertia from the CAD, in the leg axes at zero joint angle."""
+
+    com: tuple[float, float, float]  # m, from the link's joint
+    inertia: tuple[
+        float, float, float, float, float, float
+    ]  # kg m^2 about the COM: xx yy zz xy xz yz
+
+
+@dataclass(frozen=True)
 class LegParams:
     coxa_length: float  # m
     femur_length: float  # m
@@ -38,6 +48,7 @@ class LegParams:
     femur_mass: float
     tibia_mass: float
     foot_radius: float  # m, the foot sphere
+    link_inertia: dict[str, LinkInertial] | None = None  # from the CAD when present
 
 
 @dataclass(frozen=True)
@@ -120,6 +131,40 @@ def _check_units(root: Any) -> None:
             raise ParamsError(f"units.{kind}: only {expected!r} is supported, got {got!r}")
 
 
+def _is_positive_definite(i: tuple[float, ...]) -> bool:
+    xx, yy, zz, xy, xz, yz = i
+    det = xx * (yy * zz - yz * yz) - xy * (xy * zz - yz * xz) + xz * (xy * yz - yy * xz)
+    return xx > 0 and xx * yy - xy * xy > 0 and det > 0
+
+
+def _parse_inertia(leg: Any) -> dict[str, LinkInertial] | None:
+    node = leg.get("link_inertia") if isinstance(leg, dict) else None
+    if node is None:
+        return None
+    result = {}
+    for joint in JOINTS:
+        where = f"leg.link_inertia.{joint}"
+        entry = _get(node, "leg.link_inertia", joint)
+        com = _get(entry, where, "com_mm")
+        inertia = _get(entry, where, "inertia_g_mm2")
+        for name, values, count in (("com_mm", com, 3), ("inertia_g_mm2", inertia, 6)):
+            ok = isinstance(values, list) and len(values) == count
+            ok = ok and all(
+                isinstance(v, int | float) and not isinstance(v, bool) and math.isfinite(v)
+                for v in values
+            )
+            if not ok:
+                raise ParamsError(f"{where}.{name}: expected {count} numbers, got {values!r}")
+        scale = GRAM * MM * MM  # g mm^2 -> kg m^2
+        tensor = tuple(float(v) * scale for v in inertia)
+        if not _is_positive_definite(tensor):
+            raise ParamsError(
+                f"{where}.inertia_g_mm2: not a physical inertia (not positive definite)"
+            )
+        result[joint] = LinkInertial(tuple(float(v) * MM for v in com), tensor)
+    return result
+
+
 def _parse_leg(root: Any) -> LegParams:
     leg = _get(root, "leg", "leg")
     limits = _get(leg, "leg.joint_limits", "joint_limits")
@@ -138,6 +183,7 @@ def _parse_leg(root: Any) -> LegParams:
         femur_mass=mass["femur"],
         tibia_mass=mass["tibia"],
         foot_radius=_number(leg, "leg", "foot_radius", positive=True) * MM,
+        link_inertia=_parse_inertia(leg),
     )
 
 

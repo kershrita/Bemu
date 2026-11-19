@@ -16,7 +16,7 @@ lies in the z = 0 plane at zero angle, and the femur and knee axes run along y):
   relief for the stock centre screw's head.
 
 Parts that must not move relative to each other form three groups (fixed, femur, tibia) used by the
-checks. Hard stops and cable slots come with the body (version 1.5b).
+checks. Hard stops and cable slots are deferred (version 1.5c).
 """
 
 from __future__ import annotations
@@ -280,7 +280,7 @@ def build_leg(
     def knee_spacer(sign: int, side: str):
         face = half_t  # the servo's case face on this side
         lo, hi = (face, y_p0) if sign > 0 else (-y_p0, -face)
-        sp = _box(x_k - near, x_k + far + 1.5, lo, hi, -plate_z, plate_z)
+        sp = _box(x_k - near - 4.0, x_k + far + 1.5, lo, hi, -plate_z, plate_z)
         sp -= t_knee * pocket
         sp -= _cylinder_y(x_k, 0.0, window, lo - 1, hi + 1)
         holes = [HoleSpec(x, z, m2) for x, z in case_holes(side, x_k)]
@@ -339,7 +339,7 @@ def build_leg(
         material = extra.pop("material", "PETG")
         return Part(name, solid, count, material, outline, tuple(holes), print_axes, group, **extra)
 
-    knee_outline = (x_k - near, x_k + far + 1.5, -plate_z, plate_z)
+    knee_outline = (x_k - near - 4.0, x_k + far + 1.5, -plate_z, plate_z)
     femur_outline = (plate_x0, plate_x1, -plate_z, plate_z)
     knee_window = Window(x_k, 0.0, window)
     polygon = tuple(outline)
@@ -449,7 +449,7 @@ def build_leg(
     boss_horn_t = y_t0 - horn_y
     boss_back_t = y_t0 + back_y
     screws = (
-        ("coxa horn", "M3", 4, _screw_length(PLATE)),  # base plate on the horn, no boss
+        ("coxa horn", "M3", 4, _screw_length(PLATE + boss_len)),  # base plate plus its boss
         ("femur horn side", "M3", 4, _screw_length(PLATE + boss_horn_f)),
         ("femur back side", "M3", 4, _screw_length(PLATE + boss_back_f)),
         ("knee horn side", "M3", 4, _screw_length(PLATE + boss_horn_t)),

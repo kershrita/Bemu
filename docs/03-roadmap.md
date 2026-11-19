@@ -95,7 +95,7 @@ Progress (2026-11-19): version 1.5b (CAD masses in the model, the body plates an
 the version 1 tests and the 48-row torque report pass on the CAD masses and the CAD body thickness.
 Version 1.5a is done: the component library, verified servo hole table,
 printed-leg generators with fit checks, tolerance coupon, and the first print order (not ready to
-order until the coupon is measured). Next: 1.5b (body, CAD masses into the simulation) and 1.5c
+order until the coupon is measured). Next: 1.5c
 (printing and buying). See `docs/08-mechanical-design.md`.
 
 **Servo decision rule**

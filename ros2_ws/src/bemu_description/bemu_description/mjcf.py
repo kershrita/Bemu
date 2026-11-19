@@ -42,6 +42,16 @@ def joint_defaults_xml(actuators: ActuatorModel) -> str:
     )
 
 
+def _inertial(leg, joint: str, mass: float) -> str:
+    """The link's centre of mass and inertia from the CAD, when the parameter file has them."""
+    if leg.link_inertia is None:
+        return ""
+    item = leg.link_inertia[joint]
+    return (
+        f'<inertial pos="{vec(*item.com)}" mass="{num(mass)}" fullinertia="{vec(*item.inertia)}"/>'
+    )
+
+
 def leg_body_xml(
     params: RobotParams,
     leg_code: str,
@@ -70,15 +80,18 @@ def leg_body_xml(
     orientation = f' euler="{euler}"' if euler else ""
     return f"""<body name="{leg_code}_coxa" pos="{pos}"{orientation}>
       {joint(coxa, (0, 0, 1), limits[0])}
+      {_inertial(leg, "coxa", leg.coxa_mass)}
       <site name={q(hip_site(leg_code))} pos="0 0 0" size="0.004"/>
       <geom type="capsule" fromto="0 0 0 {vec(leg.coxa_length, 0, 0)}" \
 size="{num(LINK_RADIUS)}" mass="{num(leg.coxa_mass)}"/>
       <body name="{leg_code}_femur" pos="{vec(leg.coxa_length, 0, 0)}">
         {joint(femur, (0, -1, 0), limits[1])}
+        {_inertial(leg, "femur", leg.femur_mass)}
         <geom type="capsule" fromto="0 0 0 {vec(leg.femur_length, 0, 0)}" \
 size="{num(LINK_RADIUS)}" mass="{num(leg.femur_mass)}"/>
         <body name="{leg_code}_tibia" pos="{vec(leg.femur_length, 0, 0)}">
           {joint(tibia, (0, -1, 0), limits[2])}
+          {_inertial(leg, "tibia", leg.tibia_mass)}
           <geom type="capsule" fromto="0 0 0 {vec(leg.tibia_length, 0, 0)}" \
 size="{num(LINK_RADIUS)}" mass="{num(leg.tibia_mass)}"/>
           <geom name="{leg_code}_foot_tip" type="sphere" pos="{vec(leg.tibia_length, 0, 0)}" \

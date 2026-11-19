@@ -36,4 +36,6 @@ def test_pose_with_an_impossible_roll_prints_one_error_line(monkeypatch, capsys)
 def test_sit_reports_the_resting_height(monkeypatch, capsys):
     monkeypatch.setattr("sys.argv", ["stand", "sit"])
     assert load_tool().main() == 0
-    assert printed_height_mm(capsys.readouterr().out) == pytest.approx(28.0, abs=3.0)
+    assert printed_height_mm(capsys.readouterr().out) == pytest.approx(
+        29.04, abs=3.0
+    )  # the CAD body is 58.08 mm thick

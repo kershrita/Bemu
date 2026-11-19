@@ -39,6 +39,25 @@ def order_rows(body: BodyParts) -> list[str]:
     return rows
 
 
+def hardware_rows(body: BodyParts) -> list[str]:
+    rows = [
+        "",
+        "### Body hardware",
+        "",
+        "| Where | Thread | Count | Length (mm) | Nut |",
+        "|---|---|---|---|---|",
+    ]
+    for where, thread, count, length, nut in body.screws:
+        length_text = "-" if thread == "insert" else f"{length:g}"
+        rows.append(f"| {where} | {thread} | {count} | {length_text} | {'yes' if nut else 'no'} |")
+    rows.append("")
+    rows.append(
+        "Use low-profile (button or countersunk) M3 screws on the underside of the bottom plate, "
+        "or the real sit height is the plate thickness plus a head."
+    )
+    return rows
+
+
 def mass_json(body: BodyParts, leg: LegParts, components) -> dict:
     budget = link_masses(leg, components).chassis_budget()
     return {

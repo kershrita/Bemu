@@ -45,8 +45,7 @@ def _leg_parts(
     ):
         link_xml.append(
             f'  <link name="{child}">\n'
-            f'    <inertial><mass value="{_num(mass)}"/>'
-            f'<inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/></inertial>\n'
+            f"    {_inertial_xml(params, child.removeprefix(leg_code + '_'), mass)}\n"
             f"  </link>"
         )
         joint_xml.append(
@@ -93,6 +92,24 @@ def _hardware(
         f'      <param name="headless">{headless_text}</param>\n'
         f'      <param name="initial_keyframe">{keyframe}</param>\n'
         f"    </hardware>\n" + controls + "\n  </ros2_control>\n"
+    )
+
+
+def _inertial_xml(params: RobotParams, joint: str, mass: float) -> str:
+    """The link's inertial block: the CAD centre of mass and inertia, or a placeholder."""
+    item = None if params.leg.link_inertia is None else params.leg.link_inertia[joint]
+    if item is None:
+        return (
+            f'<inertial><mass value="{_num(mass)}"/>'
+            f'<inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6"/></inertial>'
+        )
+    xx, yy, zz, xy, xz, yz = item.inertia
+    cx, cy, cz = item.com
+    return (
+        f'<inertial><origin xyz="{_num(cx)} {_num(cy)} {_num(cz)}" rpy="0 0 0"/>'
+        f'<mass value="{_num(mass)}"/>'
+        f'<inertia ixx="{_num(xx)}" ixy="{_num(xy)}" ixz="{_num(xz)}" iyy="{_num(yy)}" '
+        f'iyz="{_num(yz)}" izz="{_num(zz)}"/></inertial>'
     )
 
 
