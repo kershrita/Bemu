@@ -164,6 +164,10 @@ Recorded on 2026-11-18, on the development PC.
 | Build | `colcon build --symlink-install` in `ros2_ws/` |
 | Test | `colcon test`, then `colcon test-result --verbose` |
 | Run the simulated leg (version 0) | `ros2 launch bemu_bringup leg.launch.py shape:=square` (or `circle`, `none`); add `headless:=true` for no window |
+| Run the simulated robot (version 1) | `ros2 launch bemu_bringup robot.launch.py` (add `headless:=true` for no window); it stands up by itself |
+| Walk it by hand | `ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/TwistStamped "{twist: {linear: {x: 0.06}}}"` (stop publishing and it stops after 0.5 s) |
+| Sit it down or stand it up | `ros2 service call /sit std_srvs/srv/Trigger` (or `/stand`) |
+| Change gait | `ros2 topic pub --once /gait_cmd bemu_msgs/msg/GaitCommand "{gait: ripple}"` |
 | Run on the robot | Version 2 onward; `use_sim:=false` stops with a message in version 0 |
 | Watch the robot's state | RViz |
 | Record data | `ros2 bag record` |

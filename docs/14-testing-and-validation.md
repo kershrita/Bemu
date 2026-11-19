@@ -77,6 +77,13 @@ switch between every ordered pair of gaits, and tripod to ripple to wave and bac
 stopping and with the stability margin above 15 mm; leg-to-leg contact; and torque, taken
 on every physics step, under the limit in all of them.
 
+Version 1b-2's tests: headless, the locomotion core (joint matching by name, the stand and sit
+sequences, the command timeout, rejected bad commands and unreachable poses), the quaternion
+conversion, the 18-joint URDF and controller file, and the message files; with ROS (`colcon
+test`, run in the CI `ros` job), the node's topics, services and bad-input handling and the launch
+description; and on the development PC only (`sim_launch`), `robot.launch.py` bringing up every
+controller, standing the robot and walking it on a `/cmd_vel`.
+
 The torque report's tests (`bemu_sim/test/test_robot_stats.py`, `test_torque_report*.py`):
 per-step joint statistics (peak, RMS, speed, steps at the limit); the 48-scenario matrix, the
 mass and scenario validation, the power model and the pass/fail and stability verdict
