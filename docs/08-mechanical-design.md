@@ -264,6 +264,12 @@ servos 330 g, electronics placeholders 575 g (Pi 75, battery 350, regulator and 
 1.156 kg against the chassis budget of 1.242 kg, a margin of 86 g: most of the 300 g add-on reserve is
 gone, and the electronics trays, hard stops and cable slots are still to come (1.5c).
 
+**The same design in the simulator.** `python3 tools/generate_cad.py` also writes visual meshes of every part
+(and the three servos as envelopes) into `ros2_ws/src/bemu_description/meshes/` with a manifest
+(`meshes.yaml`) saying which link of the model each mesh belongs to. The MuJoCo model and the URDF draw them
+(RViz and the viewer), while the capsules and box the physics uses stay as hidden collision shapes; masses,
+centres of mass and inertias come from the same CAD. Pictures: `docs/images/robot-stand-*.png`.
+
 ## Part families
 
 | Family | Parts | Notes |

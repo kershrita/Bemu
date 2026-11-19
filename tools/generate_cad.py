@@ -1,6 +1,7 @@
 """Generate the printed parts, the tolerance coupon, mass properties and the print order.
 
 Usage: python tools/generate_cad.py [--out DIR] [--coupon-only] [--allowance MM] [--sync-masses]
+                                    [--meshes DIR | --no-meshes]
 
 Reads config/robot_params.yaml and config/components.yaml and writes STEP and STL files, a
 mass_properties.json and a print_order.md into DIR (default cad/export/). --coupon-only writes just
@@ -19,12 +20,14 @@ for package in ("bemu_params", "bemu_cad"):
 from bemu_cad.body import build_body  # noqa: E402
 from bemu_cad.components import ComponentsError, load_components  # noqa: E402
 from bemu_cad.export import export_all, export_coupon  # noqa: E402
+from bemu_cad.export_visuals import export_visuals  # noqa: E402
 from bemu_cad.leg import build_leg  # noqa: E402
 from bemu_cad.masses import link_inertias, link_masses, sync_robot_params  # noqa: E402
 from bemu_params import ParamsError, load_params  # noqa: E402
 
 PARAMS_FILE = REPO_ROOT / "config" / "robot_params.yaml"
 DEFAULT_OUT = REPO_ROOT / "cad" / "export"
+DEFAULT_MESHES = REPO_ROOT / "ros2_ws" / "src" / "bemu_description" / "meshes"
 
 
 def main() -> int:
@@ -47,6 +50,13 @@ def _run() -> int:
         default=None,
         help="servo pocket allowance in mm (default: printing.pocket_allowance in components.yaml)",
     )
+    parser.add_argument(
+        "--meshes",
+        type=Path,
+        default=DEFAULT_MESHES,
+        help="where to write the simulator's visual meshes (default: bemu_description/meshes)",
+    )
+    parser.add_argument("--no-meshes", action="store_true", help="skip the visual meshes")
     parser.add_argument(
         "--sync-masses",
         action="store_true",
@@ -72,9 +82,17 @@ def _run() -> int:
         written = export_coupon(components, args.out)
     else:
         allowance = None if args.allowance is None else args.allowance * 1e-3
-        written = export_all(load_params(PARAMS_FILE), components, args.out, allowance=allowance)
+        params = load_params(PARAMS_FILE)
+        written = export_all(params, components, args.out, allowance=allowance)
+        if not args.no_meshes:
+            written |= {
+                f"meshes/{k}": v
+                for k, v in export_visuals(
+                    params, components, args.meshes, allowance=allowance
+                ).items()
+            }
     for name in sorted(written):
-        print(f"wrote {args.out / name}")
+        print(f"wrote {written[name]}")
     return 0
 
 

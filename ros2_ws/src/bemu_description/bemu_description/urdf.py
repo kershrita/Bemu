@@ -6,6 +6,7 @@ from xml.sax.saxutils import escape, quoteattr
 
 from bemu_description.mjcf import neutral_angles
 from bemu_description.names import BODY, joint_names, joint_order
+from bemu_description.visuals import Visuals
 from bemu_kinematics import BodyPose, pose_angles, sit_height
 from bemu_params import LEG_CODES, RobotParams
 
@@ -17,8 +18,47 @@ def _num(value: float) -> str:
     return repr(float(value))
 
 
+def _mesh_visual(mesh: str, xyz: tuple, rpy: str, rgba) -> str:
+    r, g, b, a = rgba
+    name = "c_" + "_".join(f"{v:g}".replace(".", "p") for v in rgba)
+    return (
+        f'    <visual><origin xyz="{_num(xyz[0])} {_num(xyz[1])} {_num(xyz[2])}" rpy="{rpy}"/>'
+        f'<geometry><mesh filename="package://bemu_description/meshes/{mesh}.stl" '
+        f'scale="0.001 0.001 0.001"/></geometry><material name="{name}">'
+        f'<color rgba="{r:g} {g:g} {b:g} {a:g}"/></material></visual>'
+    )
+
+
+def _visual_xml(visuals: Visuals | None, link: str) -> str:
+    """<visual> elements for a link: the CAD meshes, in metres, for RViz."""
+    if visuals is None:
+        return ""
+    return "\n".join(
+        _mesh_visual(item.mesh, item.pos, "0 0 0", item.rgba)
+        for item in visuals.links.get(link, ())
+    )
+
+
+def _body_visuals(params: RobotParams, visuals: Visuals | None) -> str:
+    """The body plates and posts, and each leg's hip plate and coxa servo at its mount."""
+    if visuals is None:
+        return ""
+    out = [_visual_xml(visuals, "body")]
+    for mount in params.mounts.values():
+        for item in visuals.per_leg:
+            out.append(
+                _mesh_visual(
+                    item.mesh, (mount.x, mount.y, 0.0), f"0 0 {_num(mount.yaw)}", item.rgba
+                )
+            )
+    return "\n".join(out) + "\n"
+
+
 def _leg_parts(
-    params: RobotParams, leg_code: str, initial: tuple[float, float, float]
+    params: RobotParams,
+    leg_code: str,
+    initial: tuple[float, float, float],
+    visuals: Visuals | None = None,
 ) -> tuple[str, str]:
     """The XML of one leg: its links (hip link to foot link), its joints, and its ros2_control
     joint blocks. `initial` is the starting angle of each joint."""
@@ -46,7 +86,8 @@ def _leg_parts(
         link_xml.append(
             f'  <link name="{child}">\n'
             f"    {_inertial_xml(params, child.removeprefix(leg_code + '_'), mass)}\n"
-            f"  </link>"
+            + (_visual_xml(visuals, child.removeprefix(leg_code + "_")) + "\n" if visuals else "")
+            + "  </link>"
         )
         joint_xml.append(
             f'  <joint name={q(jname)} type="revolute">\n'
@@ -131,14 +172,20 @@ def build_leg_urdf(
     )
 
 
-def build_robot_urdf(params: RobotParams, *, mujoco_model_path: str, headless: bool = False) -> str:
+def build_robot_urdf(
+    params: RobotParams,
+    *,
+    mujoco_model_path: str,
+    headless: bool = False,
+    visuals: Visuals | None = None,
+) -> str:
     """The full robot: a body link, six legs fixed at their mounts, and one ros2_control system
     over all 18 joints (in joint_order()), starting in the sit pose."""
     sit = pose_angles(params, BodyPose(sit_height(params)))
     legs, controls = [], {}
     for leg_code in LEG_CODES:
         mount = params.mounts[leg_code]
-        body, leg_controls = _leg_parts(params, leg_code, sit[leg_code])
+        body, leg_controls = _leg_parts(params, leg_code, sit[leg_code], visuals)
         controls[leg_code] = leg_controls
         legs.append(
             body + f'\n  <joint name="{leg_code}_hip_fixed" type="fixed">\n'
@@ -155,5 +202,6 @@ def build_robot_urdf(params: RobotParams, *, mujoco_model_path: str, headless: b
         f'  <link name="{BODY}">\n'
         f'    <inertial><mass value="{_num(params.body.mass)}"/>'
         f'<inertia ixx="1e-3" ixy="0" ixz="0" iyy="1e-3" iyz="0" izz="1e-3"/></inertial>\n'
+        f"{_body_visuals(params, visuals)}"
         f"  </link>\n" + "\n".join(legs) + "\n" + hardware + "</robot>\n"
     )

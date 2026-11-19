@@ -186,6 +186,7 @@ Recorded on 2026-11-18, on the development PC.
 | Walk the whole robot without ROS | `python3 tools/walk.py --gait tripod --vx 0.1 --seconds 10` (also `--vy`, `--omega`; add `--viewer` for a window) |
 | Write the full-robot model | `python3 tools/generate_model.py --robot` |
 | Generate the printed parts, the tolerance coupon, masses and the print order | `pip install -r requirements-dev.txt` once (build123d), then `python3 tools/generate_cad.py` (writes `cad/export/`; `--coupon-only` for the first print) |
+| See the CAD robot | `ros2 launch bemu_bringup robot.launch.py` (a window) or `python3 tools/stand.py stand --viewer` draw the CAD parts (blue printed parts, black servos, grey plates); the capsules and box used for collisions are hidden. `python3 tools/render_preview.py` writes pictures to `docs/images/` (needs `pip install matplotlib`). Regenerating the CAD (`python3 tools/generate_cad.py`) also rewrites the meshes in `ros2_ws/src/bemu_description/meshes/`; commit them together |
 | Put the CAD link masses into the parameter file | `python3 tools/generate_cad.py --sync-masses` (also sets the chassis budget so the total stays 2.5 kg) |
 | Run the torque report (about 75 s; `--quick` writes `v1-torque-report-quick.*` as a smoke check) | `python3 tools/torque_report.py` (writes `docs/reports/v1-torque-report.md` and `.json`) |
 | Trace a foot path without ROS | `python3 tools/trace_foot.py --shape square` (add `--viewer` for a window) |
