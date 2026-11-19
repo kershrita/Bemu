@@ -47,7 +47,7 @@ class GamepadNode(Node):
                 top_speeds(self._params, self._gait_params, self._gait),
             )
         except ValueError as exc:
-            self.get_logger().warn(f"joystick message ignored: {exc}", throttle_duration_sec=2.0)
+            self.get_logger().warning(f"joystick message ignored: {exc}", throttle_duration_sec=2.0)
             return
         for action in joy_actions(buttons, self._buttons, self._config):
             self._out.dispatch(action)

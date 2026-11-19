@@ -57,7 +57,9 @@ class Output:
         elif action.kind in ("stand", "sit"):
             client = self._stand if action.kind == "stand" else self._sit
             if not client.service_is_ready():
-                self._node.get_logger().warn(f"/{action.kind} is not available (is the walker up?)")
+                self._node.get_logger().warning(
+                    f"/{action.kind} is not available (is the walker up?)"
+                )
                 return
             future = client.call_async(Trigger.Request())
             future.add_done_callback(self._log_answer(action.kind))
@@ -66,6 +68,6 @@ class Output:
         def done(future) -> None:
             result = future.result()
             if result is not None and not result.success:
-                self._node.get_logger().warn(f"/{name}: {result.message}")
+                self._node.get_logger().warning(f"/{name}: {result.message}")
 
         return done

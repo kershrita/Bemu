@@ -133,7 +133,9 @@ def test_walking_and_the_command_timeout(automatic):
     assert max(max(row) - min(row) for row in zip(*walking, strict=True)) > 0.05
     automatic.spin(4.0)  # no more commands: the timeout stops the walk
     tail = [list(c.data) for c in automatic.commands[-10:]]
-    assert max(max(row) - min(row) for row in zip(*tail, strict=True)) < 1e-6
+    assert (
+        max(max(row) - min(row) for row in zip(*tail, strict=True)) < 1e-3
+    )  # settled (radians); the slew-down has an exponential tail
 
 
 def test_bad_commands_do_not_stop_the_node(automatic):

@@ -24,7 +24,13 @@ def load_launch():
 def context(**arguments):
     ctx = LaunchContext()
     ctx.launch_configurations.update(
-        {"use_sim": "true", "headless": "true", "params_file": str(PARAMS), **arguments}
+        {
+            "use_sim": "true",
+            "headless": "true",
+            "teleop": "none",
+            "params_file": str(PARAMS),
+            **arguments,
+        }
     )
     return ctx
 

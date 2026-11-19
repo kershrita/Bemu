@@ -72,7 +72,9 @@ class LocomotionNode(Node):
     def _on_joint_state(self, msg: JointState) -> None:
         ok = self._core.on_joint_state(msg.name, msg.position)
         if not ok and not self._joint_state_bad:
-            self.get_logger().warn("joint state is missing a joint or has a bad value; skipping it")
+            self.get_logger().warning(
+                "joint state is missing a joint or has a bad value; skipping it"
+            )
         self._joint_state_bad = not ok
 
     def _on_cmd_vel(self, msg: TwistStamped) -> None:
@@ -82,23 +84,25 @@ class LocomotionNode(Node):
                 twist.linear.x, twist.linear.y, twist.angular.z, now=time.monotonic()
             )
         except ValueError as exc:
-            self.get_logger().warn(f"/cmd_vel ignored: {exc}", throttle_duration_sec=2.0)
+            self.get_logger().warning(f"/cmd_vel ignored: {exc}", throttle_duration_sec=2.0)
 
     def _on_body_pose(self, msg: PoseStamped) -> None:
         p, q = msg.pose.position, msg.pose.orientation
         try:
             self._core.set_body_pose(pose_from_msg_values((p.x, p.y, p.z), (q.x, q.y, q.z, q.w)))
         except ValueError as exc:
-            self.get_logger().warn(f"/body_pose_cmd ignored: {exc}", throttle_duration_sec=2.0)
+            self.get_logger().warning(f"/body_pose_cmd ignored: {exc}", throttle_duration_sec=2.0)
 
     def _on_gait_cmd(self, msg: GaitCommand) -> None:
         if (msg.step_height or msg.cycle_time) and not self._warned_reserved:
             self._warned_reserved = True
-            self.get_logger().warn("step_height and cycle_time are reserved in version 1; ignored")
+            self.get_logger().warning(
+                "step_height and cycle_time are reserved in version 1; ignored"
+            )
         try:
             self._core.set_gait(msg.gait)
         except ValueError as exc:
-            self.get_logger().warn(f"/gait_cmd ignored: {exc}", throttle_duration_sec=2.0)
+            self.get_logger().warning(f"/gait_cmd ignored: {exc}", throttle_duration_sec=2.0)
 
     def _on_stand(self, _request, response):
         response.success, response.message = self._core.request_stand()
@@ -113,7 +117,7 @@ class LocomotionNode(Node):
     def _on_tick(self) -> None:
         tick = self._core.tick(time.monotonic())
         for notice in self._core.pop_notices():
-            self.get_logger().warn(notice)
+            self.get_logger().warning(notice)
         if tick is None:
             return
         self._publish(tick)
