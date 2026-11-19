@@ -7,7 +7,7 @@ from pathlib import Path
 from bemu_description.actuators import ActuatorModel
 from bemu_description.mjcf import build_leg_mjcf
 from bemu_description.robot_mjcf import build_robot_mjcf
-from bemu_description.urdf import build_leg_urdf
+from bemu_description.urdf import build_leg_urdf, build_robot_urdf
 from bemu_params import RobotParams
 
 
@@ -34,3 +34,16 @@ def write_robot_mjcf(params: RobotParams, actuators: ActuatorModel, out_dir: Pat
     path = (out_dir / "robot.xml").resolve()
     path.write_text(build_robot_mjcf(params, actuators), encoding="utf-8")
     return path
+
+
+def write_robot_models(
+    params: RobotParams, actuators: ActuatorModel, out_dir: Path, *, headless: bool = False
+) -> dict[str, Path]:
+    """Write robot.xml (MJCF) and robot.urdf into out_dir; the URDF names the MJCF by full path."""
+    mjcf_path = write_robot_mjcf(params, actuators, out_dir)
+    urdf_path = (Path(out_dir) / "robot.urdf").resolve()
+    urdf_path.write_text(
+        build_robot_urdf(params, mujoco_model_path=str(mjcf_path), headless=headless),
+        encoding="utf-8",
+    )
+    return {"mjcf": mjcf_path, "urdf": urdf_path}
