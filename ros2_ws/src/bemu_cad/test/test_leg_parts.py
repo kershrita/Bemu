@@ -196,3 +196,17 @@ def test_hardware_lengths_are_standard_and_listed(leg):
     for joint, thread, count, length in leg.screws:
         assert thread in ("M2", "M3") and count > 0
         assert length in (4, 5, 6, 8, 10, 12, 14, 16, 20), (joint, length)
+
+
+# ---- version 1.5b: the coxa servo is held by the body at both faces --------------------------
+
+
+def test_the_coxa_shelves_are_32_mm_apart_and_the_support_plate_clears_the_base_plate(leg):
+    layout = leg.layout_mm
+    assert layout["coxa_back_shelf_z"] - layout["coxa_support_top_z"] == pytest.approx(
+        32.0, abs=0.01
+    )
+    # the support plate sits on the horn-side shelf; the rotating base plate stays below it
+    assert layout["coxa_support_bottom_z"] - layout["base_plate_top_z"] >= 0.5
+    # the stock horn screw head fits in the boss relief; the boss reaches the horn tip
+    assert layout["coxa_horn_tip_z"] - layout["base_plate_top_z"] >= 2.0

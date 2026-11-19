@@ -31,6 +31,7 @@ from bemu_cad.servo import M_TO_MM, servo_pocket, servo_solid
 from bemu_params import RobotParams
 
 PLATE = 3.0  # mm, plate and wall thickness
+COXA_SUPPORT = 3.0  # mm, the body's plate under the coxa servo
 RUNNING_CLEARANCE = 0.6  # mm, between parts that rotate against each other
 BOSS_DIAMETER = 18.0  # mm, enters the horn window of the next plate
 WINDOW_MARGIN = 1.0  # mm, the window is the horn disc plus this
@@ -143,6 +144,7 @@ def build_leg(
     far = length - near
     width = servo.size[1] * M_TO_MM
     z0, z1 = (v * M_TO_MM for v in servo.case_z)
+    case_z1 = z1
     thickness = z1 - z0  # the case along the output axis, back shelf to lid strip
     z_centre = (z0 + z1) / 2
     horn_tip = servo.horn_z[1] * M_TO_MM - z1  # horn tip beyond the horn-side case face
@@ -166,7 +168,13 @@ def build_leg(
     horn_hole_pattern = [(h.x * M_TO_MM, h.y * M_TO_MM) for h in servo.horn_holes]
 
     # ---- servos, placed ------------------------------------------------------------------
-    z_tip = -(half_w + a)  # base plate top = coxa horn tip
+    z_b = -(half_w + a)  # base plate top: just under the femur servo
+    # the coxa servo hangs from the body, horn down; a support plate (COXA_SUPPORT thick) sits on
+    # its horn-side shelf and the base plate's boss reaches up through that plate's window
+    boss_len = RUNNING_CLEARANCE + COXA_SUPPORT - horn_tip + HORN_SCREW_RELIEF[1]
+    if boss_len <= 0:
+        raise ValueError("the coxa support plate does not leave room for the base-plate boss")
+    z_tip = z_b + boss_len  # the coxa horn tip
     c = z_tip + servo.horn_z[1] * M_TO_MM
     t_coxa = Pos(0, 0, c) * Rot(Y=180)
     t_femur = Pos(x_f, 0, 0) * Rot(X=-90) * Pos(0, 0, -z_centre)
@@ -193,10 +201,13 @@ def build_leg(
     wall_x0 = x_f - near - a - PLATE
     wall_x1 = x_f + far + a + PLATE
     base_x0 = -14.0
-    z_base1 = z_tip
+    z_base1 = z_b
     z_base0 = z_base1 - PLATE
     z_top = half_w + a + PLATE
     bracket = _box(base_x0, wall_x1, -y_out, y_out, z_base0, z_base1)
+    bracket += _cylinder_z(0.0, 0.0, BOSS_DIAMETER, z_base1 - 1.0, z_tip)  # boss up to the horn
+    d_relief, depth_relief = HORN_SCREW_RELIEF
+    bracket -= _cylinder_z(0.0, 0.0, d_relief, z_tip - depth_relief, z_tip + 1.0)
     for sign in (1, -1):
         lo, hi = (y_in, y_out) if sign > 0 else (-y_out, -y_in)
         bracket += _box(wall_x0, wall_x1, lo, hi, z_base0, z_top)
@@ -205,7 +216,7 @@ def build_leg(
     holes_base = [HoleSpec(x, y, m3, "base") for x, y in horn_hole_pattern]
     holes_base.append(HoleSpec(0.0, 0.0, m3, "base"))
     for h in holes_base:
-        bracket -= _cylinder_z(h.a, h.b, h.diameter, z_base0 - 1, z_base1 + 1)
+        bracket -= _cylinder_z(h.a, h.b, h.diameter, z_base0 - 1, z_tip + 1)
     horn_wall = case_holes("horn", x_f)
     back_wall = case_holes("back", x_f)
     for xs, (lo, hi) in ((horn_wall, (y_in, y_out)), (back_wall, (-y_out, -y_in))):
@@ -476,6 +487,13 @@ def build_leg(
             "horn_tip_y": horn_y,
             "rear_idler_y": back_y,
             "hub_tip_y": hub_y,
+            "base_plate_top_z": z_b,
+            "coxa_horn_tip_z": z_tip,
+            "coxa_support_top_z": c - case_z1,
+            "coxa_support_bottom_z": c - case_z1 - COXA_SUPPORT,
+            "coxa_back_shelf_z": c - z0,
+            "coxa_hub_tip_z": c - servo.rear_hub_z[0] * M_TO_MM,
+            "coxa_idler_top_z": c - servo.rear_idler_z[0] * M_TO_MM,
         },
         screws=screws,
     )
