@@ -97,3 +97,28 @@ def test_the_tool_coupon_only_run(monkeypatch, tmp_path):
     assert module.main() == 0
     assert (tmp_path / "tolerance_coupon.stl").exists()
     assert not (tmp_path / "coxa_bracket.stl").exists()
+
+
+def test_the_print_order_gates_on_measured_values_and_lists_hardware(exported):
+    text = (exported / "print_order.md").read_text()
+    assert "`servo.case_hole_thread`" in text.split("NOT READY TO ORDER")[1].split("Two steps")[0]
+    assert "## Hardware" in text and "| clevis walls | M2 |" in text
+    foot_row = next(line for line in text.splitlines() if line.startswith("| foot.stl"))
+    assert "turn the part over" in foot_row
+
+
+def test_the_order_becomes_ready_only_when_the_fit_values_are_measured():
+    import dataclasses
+
+    from bemu_cad.components import Field
+    from bemu_cad.export import RELEASE_FIELDS, release_blockers
+
+    components = load_components()
+    assert release_blockers(components) == list(RELEASE_FIELDS)
+    fields = {c: dict(body) for c, body in components.fields.items()}
+    for dotted in RELEASE_FIELDS:
+        component, name = dotted.split(".", 1)
+        old = fields[component][name]
+        fields[component][name] = Field(old.value, old.source, "measured")
+    measured = dataclasses.replace(components, fields=fields)
+    assert release_blockers(measured) == []

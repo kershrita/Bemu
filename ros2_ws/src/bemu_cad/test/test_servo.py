@@ -20,12 +20,14 @@ def box_mm(shape):
 
 def test_the_solid_matches_the_step_envelope(spec):
     x0, x1, y0, y1, z0, z1 = box_mm(servo_solid(spec))
-    # STEP (both manufacturer files): case x -10.11..35.11, y +-12.36, z -28.2..7.5; horn to 9.2
+    # STEP: case x -10.11..35.11, y +-12.36; hub tip -28.2; horn tip 9.2 or 9.6 (the models differ)
     assert (x0, x1) == pytest.approx((-10.11, 35.11), abs=0.05)
     assert (y0, y1) == pytest.approx((-12.36, 12.36), abs=0.05)
-    assert (z0, z1) == pytest.approx((-28.2, 9.2), abs=0.05)
+    assert (z0, z1) == pytest.approx((-28.2, 9.6), abs=0.05)
     assert x1 - x0 == pytest.approx(45.22, abs=0.05)  # the drawing
-    assert z1 - z0 == pytest.approx(37.4, abs=0.2)  # the drawing's 37.25 overall height
+    # the drawing's 37.25 mm overall height is the horn tip to the rear idler face
+    assert (spec.horn_z[1] - spec.rear_idler_z[0]) / MM == pytest.approx(37.25, abs=0.01)
+    assert (spec.case_z[1] - spec.case_z[0]) / MM == pytest.approx(32.0, abs=0.01)  # shelf to shelf
 
 
 def test_the_pocket_clears_the_solid_by_the_allowance_on_every_side(spec):

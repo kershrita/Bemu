@@ -119,3 +119,80 @@ def test_a_longer_femur_regenerates_with_the_checks_passing(params, components):
 def test_a_pocket_without_clearance_is_rejected(params, components):
     with pytest.raises(ValueError, match="allowance"):
         build_leg(params, components, allowance=0.0)
+
+
+# ---- review fixes: heads, bridge, hub, windows, library-driven holes, gating -----------------
+
+
+def test_screw_heads_are_modelled_and_every_sliding_gap_holds_one(leg):
+    assert len(leg.hardware) == 8 + 8 + 4  # clevis walls, knee servo, foot bridge
+    layout = leg.layout_mm
+    head = layout["screw_head_height"]
+    need = head + layout["running_clearance"] - 1e-9
+    assert layout["femur_plate_inner_y"] - layout["wall_outer_y"] >= need
+    femur_outer = layout["femur_plate_inner_y"] + 3.0
+    assert layout["tibia_plate_inner_y"] - femur_outer >= need
+
+
+def test_the_foot_bridge_has_screw_pilots_and_a_pocket_for_the_foot_stem(leg):
+    from build123d import Vector
+
+    bridge = next(p for p in leg.parts if p.name == "foot_bridge")
+    foot = next(p for p in leg.parts if p.name == "foot")
+    assert len(bridge.holes) == 4 and all(abs(h.diameter - 1.6) < 1e-9 for h in bridge.holes)
+    y_end = leg.layout_mm["tibia_plate_inner_y"]
+    for hole in bridge.holes:
+        sign = 1 if hole.face == "horn" else -1
+        inside_pilot = Vector(hole.a, sign * (y_end - 4.0), hole.b)
+        assert not bridge.solid.is_inside(inside_pilot)
+        assert bridge.solid.is_inside(Vector(hole.a, sign * (y_end - 4.0), hole.b + 1.5))
+    assert float((foot.solid & bridge.solid).volume) < 1e-3  # the stem sits in its pocket
+    assert foot.solid.distance_to(bridge.solid) <= 0.11
+
+
+def test_thin_walls_and_servo_pairs_are_checked(leg):
+    from bemu_cad.fit import thickness_problems
+
+    assert thickness_problems(leg) == []
+    assert "coxa_servo|femur_servo" in interference_volumes(leg, 0.0, 0.0)
+
+
+def test_a_hole_too_close_to_a_window_or_a_sloped_edge_is_caught(leg):
+    from bemu_cad.leg import HoleSpec
+
+    plate = next(p for p in leg.parts if p.name == "femur_plate_horn")
+    window = plate.windows[0]
+    near = HoleSpec(window.a + window.diameter / 2 + 1.2, window.b, 2.4)  # 1.2 mm from centre edge
+    broken = dataclasses.replace(leg, parts=(dataclasses.replace(plate, holes=(near,)),))
+    assert any("window" in p for p in edge_distance_problems(broken))
+
+    tibia = next(p for p in leg.parts if p.name == "tibia_plate_horn")
+    slope = HoleSpec(185.0, -3.0, 2.4)  # on the sloped lower edge
+    broken = dataclasses.replace(leg, parts=(dataclasses.replace(tibia, holes=(slope,)),))
+    assert any("edge" in p for p in edge_distance_problems(broken))
+
+
+def test_the_horn_hole_pattern_comes_from_the_library(params, components):
+    servo = components.servo
+    wider = tuple(dataclasses.replace(h, x=h.x * 8 / 7, y=h.y * 8 / 7) for h in servo.horn_holes)
+    changed = dataclasses.replace(components, servo=dataclasses.replace(servo, horn_holes=wider))
+    leg = build_leg(params, changed)
+    plate = next(p for p in leg.parts if p.name == "tibia_plate_horn")
+    x_k = leg.axes_mm["knee"][0]
+    assert any(abs(h.a - (x_k + 8.0)) < 1e-6 and abs(h.b) < 1e-6 for h in plate.holes)
+
+
+def test_the_pocket_allowance_comes_from_the_library(params, components):
+    from bemu_cad.components import Field
+
+    printing = dict(components.fields["printing"])
+    printing["pocket_allowance"] = Field(0.3, "test", "measured")
+    changed = dataclasses.replace(components, fields={**components.fields, "printing": printing})
+    assert build_leg(params, changed).allowance_mm == pytest.approx(0.3)
+
+
+def test_hardware_lengths_are_standard_and_listed(leg):
+    assert leg.screws
+    for joint, thread, count, length in leg.screws:
+        assert thread in ("M2", "M3") and count > 0
+        assert length in (4, 5, 6, 8, 10, 12, 14, 16, 20), (joint, length)

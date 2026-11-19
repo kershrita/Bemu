@@ -1,6 +1,6 @@
 """Generate the printed parts, the tolerance coupon, mass properties and the print order.
 
-Usage: python tools/generate_cad.py [--out DIR] [--coupon-only]
+Usage: python tools/generate_cad.py [--out DIR] [--coupon-only] [--allowance MM]
 
 Reads config/robot_params.yaml and config/components.yaml and writes STEP and STL files, a
 mass_properties.json and a print_order.md into DIR (default cad/export/). --coupon-only writes just
@@ -37,6 +37,12 @@ def _run() -> int:
     parser.add_argument(
         "--coupon-only", action="store_true", help="write only the tolerance coupon"
     )
+    parser.add_argument(
+        "--allowance",
+        type=float,
+        default=None,
+        help="servo pocket allowance in mm (default: printing.pocket_allowance in components.yaml)",
+    )
     args = parser.parse_args()
 
     components = load_components()
@@ -44,7 +50,8 @@ def _run() -> int:
     if args.coupon_only:
         written = export_coupon(components, args.out)
     else:
-        written = export_all(load_params(PARAMS_FILE), components, args.out)
+        allowance = None if args.allowance is None else args.allowance * 1e-3
+        written = export_all(load_params(PARAMS_FILE), components, args.out, allowance=allowance)
     for name in sorted(written):
         print(f"wrote {args.out / name}")
     return 0

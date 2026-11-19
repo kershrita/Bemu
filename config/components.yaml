@@ -25,18 +25,39 @@ servo:
     value: [29, 32, 35, 37.25]
     source: docs/reference/sts3215/waveshare-ST3215-2D-drawing.pdf
     status: datasheet
-  case_z_range:  # the case along the output axis, from the manufacturer's STEP (drawing: 35 mm)
-    value: [-28.2, 7.5]
+  case_z_range:  # back shelf to horn-side shelf: the drawing's 32 mm, where the bracket screws seat
+    value: [-25.6, 6.4]
     source: docs/reference/sts3215/feetech-ST3215-20200328.stp
     status: cad
-  horn_disc_diameter:
+  lid_strip_box:  # the raised lid strip above the horn-side shelf: x range, y range, z range
+    value: [[9.0, 34.3], [-7.0, 7.0], [6.4, 7.5]]
+    source: docs/reference/sts3215/waveshare-ST3215.step
+    status: cad
+  rear_boss_box:  # the rear motor-end boss below the back shelf (both models agree)
+    value: [[17.4, 29.7], [-9.2, 9.2], [-27.5, -25.6]]
+    source: docs/reference/sts3215/waveshare-ST3215.step
+    status: cad
+  rear_idler_z_range:  # the rear (second) horn disc, which stands proud of the back shelf
+    value: [-27.65, -24.3]  # the models differ: -27.4 (Feetech) and -27.65 (Waveshare); the larger used
+    source: docs/reference/sts3215/waveshare-ST3215.step
+    status: unverified
+  rear_hub_diameter:  # the fixed hub through the idler; a rear plate boss must clear it
+    value: 6.0
+    source: docs/reference/sts3215/feetech-ST3215-20200328.stp
+    status: cad
+  rear_hub_z_range:
+    value: [-28.2, -27.65]
+    source: docs/reference/sts3215/waveshare-ST3215.step
+    status: cad
+  horn_disc_diameter:  # datasheet horn drawing 19.95; the Waveshare model and 2D drawing say 19.2
     value: 19.95
     source: docs/reference/sts3215/seeed-ST-3215-C047-datasheet.pdf
-    status: datasheet
-  horn_z_range:  # the horn disc and boss along the output axis, from the STEP
-    value: [4.7, 9.2]
+    status: unverified
+  horn_z_range:  # horn disc along the output axis. Feetech STEP 9.2, Waveshare STEP and the drawing 9.6:
+    # the larger is used so nothing can overlap; the bosses may stand 0.4 mm short until measured
+    value: [4.7, 9.6]
     source: docs/reference/sts3215/feetech-ST3215-20200328.stp
-    status: cad
+    status: unverified
   horn_circle:
     value: 19.2
     source: docs/reference/sts3215/waveshare-ST3215-2D-drawing.pdf
@@ -85,6 +106,10 @@ screw_m3:  # socket head cap screw, ISO 4762
 screw_m2:  # the bracket holes are assumed M2 (pilot 1.6 mm) until the first servo is checked
   clearance_hole: {value: 2.4, source: ISO 273 medium series, status: standard}
   head_diameter: {value: 3.8, source: ISO 4762, status: standard}
+  head_height: {value: 2.0, source: ISO 4762, status: standard}
+
+printing:  # the tolerance coupon sets these (docs/08)
+  pocket_allowance: {value: 0.2, source: docs/08 starting value until the coupon is measured, status: unverified}
 
 nut_m3:
   across_flats: {value: 5.5, source: ISO 4032, status: standard}

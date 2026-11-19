@@ -26,6 +26,7 @@ def _posed(leg: LegParts, femur_angle: float, knee_angle: float) -> dict[str, tu
     posed = {}
     items = [(p.name, p.group, p.solid) for p in leg.parts]
     items += [(n, leg.servo_groups[n], s) for n, s in leg.servo_solids.items()]
+    items += [(h.name, h.group, h.solid) for h in leg.hardware]
     for name, group, solid in items:
         if group == "tibia":
             solid = _rotate_about_y(solid, x_k, knee_angle)
@@ -37,33 +38,72 @@ def _posed(leg: LegParts, femur_angle: float, knee_angle: float) -> dict[str, tu
 
 def interference_volumes(leg: LegParts, femur_angle: float, knee_angle: float) -> dict[str, float]:
     """Intersection volume (mm^3) of every pair of solids that can collide, for one pose: parts of
-    different groups, and any printed part against any servo."""
+    different groups, any printed part against any servo or screw head, and servo against servo."""
     posed = _posed(leg, femur_angle, knee_angle)
-    servos = set(leg.servo_solids)
+    kind = {p.name: "printed" for p in leg.parts}
+    kind |= dict.fromkeys(leg.servo_solids, "servo")
+    kind |= {h.name: "hardware" for h in leg.hardware}
     volumes = {}
     for (name_a, (group_a, solid_a)), (name_b, (group_b, solid_b)) in itertools.combinations(
         posed.items(), 2
     ):
-        if group_a == group_b and ((name_a in servos) == (name_b in servos)):
-            continue  # parts of one group are fixed to each other; a part and a servo are not
+        if group_a == group_b and kind[name_a] == kind[name_b] != "servo":
+            continue  # printed parts (or screw heads) of one group are fixed to each other;
+            # a printed part against a servo or head, and two servos, are checked
         overlap = solid_a & solid_b
         volumes[f"{name_a}|{name_b}"] = float(overlap.volume) if overlap else 0.0
     return volumes
 
 
+def _segment_distance(
+    px: float, py: float, a: tuple[float, float], b: tuple[float, float]
+) -> float:
+    ax, ay = a
+    bx, by = b
+    dx, dy = bx - ax, by - ay
+    t = (
+        0.0
+        if dx == dy == 0
+        else max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+    )
+    return math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+
+
+def _edge_distance(part: Part, hole) -> float:
+    if part.polygon:
+        points = part.polygon
+        return min(
+            _segment_distance(hole.a, hole.b, points[i], points[(i + 1) % len(points)])
+            for i in range(len(points))
+        )
+    a0, a1, b0, b1 = part.face_outlines.get(hole.face, part.outline)
+    return min(hole.a - a0, a1 - hole.a, hole.b - b0, b1 - hole.b)
+
+
 def edge_distance_problems(leg: LegParts) -> list[str]:
-    """Holes too close to a part's edge or to each other."""
+    """Holes too close to a part's edge, to each other, or to a round window."""
     problems = []
     for part in leg.parts:
-        a0, a1, b0, b1 = part.outline
         for hole in part.holes:
-            edge = min(hole.a - a0, a1 - hole.a, hole.b - b0, b1 - hole.b)
+            edge = _edge_distance(part, hole)
             need = MIN_EDGE_FACTOR * hole.diameter
             if edge < need - 1e-9:
                 problems.append(
                     f"{part.name}: hole at ({hole.a:.2f}, {hole.b:.2f}) is {edge:.2f} mm from the "
                     f"edge, needs {need:.2f} mm"
                 )
+            for window in part.windows:
+                if window.face != hole.face:
+                    continue
+                gap = (
+                    math.hypot(hole.a - window.a, hole.b - window.b)
+                    - (hole.diameter + window.diameter) / 2
+                )
+                if gap < MIN_LIGAMENT - 1e-9:
+                    problems.append(
+                        f"{part.name}: hole at ({hole.a:.2f}, {hole.b:.2f}) leaves {gap:.2f} mm "
+                        f"to the window, needs {MIN_LIGAMENT} mm"
+                    )
         for h1, h2 in itertools.combinations(part.holes, 2):
             if h1.face != h2.face:
                 continue

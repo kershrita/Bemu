@@ -53,6 +53,11 @@ class ServoSpec:
     horn_disc_diameter: float  # m
     case_z: tuple[float, float]  # m, the case along the output axis
     horn_z: tuple[float, float]  # m, the horn disc along the output axis
+    lid_strip: tuple[tuple[float, float], ...]  # m: x, y, z ranges above the horn-side shelf
+    rear_boss: tuple[tuple[float, float], ...]  # m: x, y, z ranges below the back shelf
+    rear_idler_z: tuple[float, float]  # m
+    rear_hub_diameter: float  # m
+    rear_hub_z: tuple[float, float]  # m
     horn_screw: str
     horn_holes: tuple[Hole, ...]
     case_holes: tuple[Hole, ...]
@@ -103,6 +108,10 @@ def _parse(raw: dict) -> dict[str, dict[str, Field]]:
                 "output_axis",
                 "case_z_range",
                 "horn_z_range",
+                "rear_idler_z_range",
+                "rear_hub_z_range",
+                "lid_strip_box",
+                "rear_boss_box",
             ):  # positions may be 0 or < 0
                 _positive(node["value"], where)
             fields[component][name] = Field(node["value"], source, status)
@@ -141,6 +150,11 @@ def _servo(fields: dict[str, dict[str, Field]]) -> ServoSpec:
         "horn_disc_diameter",
         "case_z_range",
         "horn_z_range",
+        "lid_strip_box",
+        "rear_boss_box",
+        "rear_idler_z_range",
+        "rear_hub_diameter",
+        "rear_hub_z_range",
         "horn_screw",
         "horn_holes",
         "case_holes",
@@ -164,6 +178,11 @@ def _servo(fields: dict[str, dict[str, Field]]) -> ServoSpec:
         horn_disc_diameter=body["horn_disc_diameter"].value * MM,
         case_z=tuple(v * MM for v in body["case_z_range"].value),
         horn_z=tuple(v * MM for v in body["horn_z_range"].value),
+        lid_strip=tuple(tuple(v * MM for v in r) for r in body["lid_strip_box"].value),
+        rear_boss=tuple(tuple(v * MM for v in r) for r in body["rear_boss_box"].value),
+        rear_idler_z=tuple(v * MM for v in body["rear_idler_z_range"].value),
+        rear_hub_diameter=body["rear_hub_diameter"].value * MM,
+        rear_hub_z=tuple(v * MM for v in body["rear_hub_z_range"].value),
         horn_screw=str(body["horn_screw"].value),
         horn_holes=_holes(body["horn_holes"], "servo.horn_holes"),
         case_holes=_holes(body["case_holes"], "servo.case_holes"),

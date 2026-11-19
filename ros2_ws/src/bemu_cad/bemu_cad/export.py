@@ -13,6 +13,18 @@ from bemu_cad.leg import LegParts, Part, build_leg
 from bemu_cad.servo import M_TO_MM
 from bemu_params import RobotParams
 
+# Fields every fit-critical feature depends on: the order is NOT READY until each is `measured`
+# on the real servo (docs/08).
+RELEASE_FIELDS = (
+    "servo.case_hole_thread",
+    "servo.case_z_range",
+    "servo.horn_disc_diameter",
+    "servo.horn_z_range",
+    "servo.rear_idler_z_range",
+    "servo.rear_hub_diameter",
+    "servo.rear_hub_z_range",
+    "printing.pocket_allowance",
+)
 LEGS = 6
 DENSITY_G_PER_MM3 = {"PETG": 1.27e-3, "TPU": 1.21e-3}
 FILL_FACTOR = 0.6  # perimeters plus 35% infill: an estimate until the printed parts are weighed
@@ -35,6 +47,7 @@ def part_mass_properties(part: Part) -> dict:
     return {
         "mass_kg": mass,
         "center_m": [centre.X / M_TO_MM, centre.Y / M_TO_MM, centre.Z / M_TO_MM],
+        "frame": "leg frame at zero joint angles (x outward from the hip axis, y lateral, z up)",
         "inertia_kg_m2": [[float(matrix[i][j]) * scale * 1e-6 for j in range(3)] for i in range(3)],
         "material": part.material,
     }
@@ -62,18 +75,39 @@ def _mass_json(leg: LegParts, components: Components) -> dict:
     }
 
 
+def release_blockers(components: Components) -> list[str]:
+    """The fit-critical values not yet measured on the real part or the printed coupon."""
+    blockers = []
+    for dotted in RELEASE_FIELDS:
+        component, name = dotted.split(".", 1)
+        field = components.fields.get(component, {}).get(name)
+        if field is None or field.status != "measured":
+            blockers.append(dotted)
+    return blockers
+
+
 def _print_order(leg: LegParts, components: Components) -> str:
     unverified = unverified_fields(components)
+    blockers = release_blockers(components)
+    if blockers:
+        status = [
+            "**Status: NOT READY TO ORDER.** These fit-critical values are not yet `measured` "
+            "(caliper on the first servo, or the printed coupon): "
+            + ", ".join(f"`{b}`" for b in blockers)
+            + ".",
+        ]
+    else:
+        status = ["**Status: READY once the coupon has been printed and measured.**"]
     lines = [
         "# Print order",
         "",
-        "**Status: NOT READY TO ORDER.** Two steps come first (docs/08):",
+        *status,
         "",
-        "1. Print `tolerance_coupon` alone, measure it, and set the pocket and hole allowances.",
-        "2. Measure the first servo received with a caliper and check which screws come in its "
-        "accessory bag (the datasheet does not give the bracket-hole thread).",
+        "Two steps come first (docs/08): print `tolerance_coupon` alone and measure it, and "
+        "caliper the first servo received (and check which screws come in its accessory bag: the "
+        "datasheet does not give the bracket-hole thread).",
         "",
-        f"Values still marked unverified in `config/components.yaml` ({len(unverified)}): "
+        f"All values still marked unverified in `config/components.yaml` ({len(unverified)}): "
         + ", ".join(f"`{name}`" for name in unverified)
         + ".",
         "",
@@ -87,10 +121,28 @@ def _print_order(leg: LegParts, components: Components) -> str:
     for part in leg.parts:
         quantity = LEGS * part.count + SPARES.get(part.name, 0)
         note = "rubber tips may replace the printed foot" if part.name == "foot" else ""
-        lines.append(
-            f"| {part.name}.stl | {part.material} | {quantity} | {ORIENTATION[part.print_axes]} "
-            f"| {note} |"
-        )
+        orientation = ORIENTATION[part.print_axes]
+        if part.print_flipped:
+            orientation = "turn the part over: flat face down, stem up (no supports)"
+        lines.append(f"| {part.name}.stl | {part.material} | {quantity} | {orientation} | {note} |")
+    lines += [
+        "",
+        "## Hardware (buy with the parts)",
+        "",
+        "Screw lengths are computed from the stack heights plus 3 mm of thread engagement and "
+        "rounded up to a standard ISO 4762 length. They assume the horn holes and the servo's "
+        "bracket holes are as in the STEP models; **check against the first servo** before buying "
+        "in bulk (the datasheet does not state the bracket-hole thread; M2 is assumed).",
+        "",
+        "| Where | Thread | Per leg | Length (mm) |",
+        "|---|---|---|---|",
+    ]
+    for joint, thread, count, length in leg.screws:
+        lines.append(f"| {joint} | {thread} | {count} | {length:g} |")
+    lines += [
+        "",
+        "Plus per servo: the centre screw that comes with the horn (M3 x 6), and 3 servos per leg.",
+    ]
     return "\n".join(lines) + "\n"
 
 
