@@ -83,13 +83,18 @@ Steps 1.4 to 1.6 are done headless (version 1b-1, `docs/superpowers/specs/2026-1
 
 | Step | Content |
 |---|---|
-| 1.5.1 | Choose the servo from the torque report (see the rule below) |
+| 1.5.1 | Choose the servo from the torque report (see the rule below). Evidence so far: the STS3215 12 V passes the V1 report; datasheet currents are now used |
 | 1.5.2 | Parametric CAD of the leg: brackets, links, foot |
 | 1.5.3 | Parametric CAD of the body: plates, electronics bay, battery bay, mounting grid |
 | 1.5.4 | Replace the block shapes in the simulation with masses and inertias from CAD |
 | 1.5.5 | Re-run the version 1 tests on the updated model |
 | 1.5.6 | Printability review: part sizes, overhangs, split lines, fastener access. Choose the print service and confirm its build size and materials |
 | 1.5.7 | Final component list with current prices and suppliers |
+
+Progress (2026-11-19): version 1.5a is done: the component library, verified servo hole table,
+printed-leg generators with fit checks, tolerance coupon, and the first print order (not ready to
+order until the coupon is measured). Next: 1.5b (body, CAD masses into the simulation) and 1.5c
+(printing and buying). See `docs/08-mechanical-design.md`.
 
 **Servo decision rule**
 

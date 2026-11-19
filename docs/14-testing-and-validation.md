@@ -88,6 +88,14 @@ Version 1c's tests: headless, the key and stick mapping (speed steps and limits,
 height limits, deadzone, bad axis values, once-per-press buttons) and the keyboard's refusal
 without a terminal; with ROS, the gamepad node and the `teleop` launch choices.
 
+Version 1.5a's tests (`bemu_cad/test`): the component library (every value has a source file
+and a valid status; bad or missing values are rejected naming the field); the STEP probe (the hole
+table equals the library, and the two manufacturer models agree); the servo solid, pocket and mass
+properties; the printed leg (axis distances equal the parameter file, no part penetrates a servo,
+screw-hole edge distances, print-bed fit, joint sweeps, and a longer femur regenerating with all
+checks passing); the tolerance coupon (pockets and holes cut at the stated sizes); and the
+exports and the `generate_cad` tool. They need build123d and are skipped in the ROS image job.
+
 The torque report's tests (`bemu_sim/test/test_robot_stats.py`, `test_torque_report*.py`):
 per-step joint statistics (peak, RMS, speed, steps at the limit); the 48-scenario matrix, the
 mass and scenario validation, the power model and the pass/fail and stability verdict

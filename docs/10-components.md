@@ -159,6 +159,12 @@ current as well (18 × 2.7 A is the worst case if every servo stalls), not only 
 average. Datasheet values, same source: no-load running current 180 mA, rated current 900 mA,
 winding resistance 1.0 Ω, Kt 11 kg·cm/A, operating voltage 4–14 V, mass 55 g ± 1 g.
 
+**Verified dimensions (version 1.5a).** The 12 V STS3215's body, horn and bracket-hole pattern are
+in `docs/08-mechanical-design.md` and `config/components.yaml`, from the datasheet, the drawing
+and the manufacturer's STEP. Buy the **12 V, 30 kg·cm** model (datasheet ST-3215-C047, listed by
+shops as C018). The 7.4 V, 19.5 kg·cm model (C001) has the same body but is the wrong servo for
+this design; one Saudi reseller listing found while planning sold only that version.
+
 ### Reading the table
 
 - The **12 V STS3215** is the first candidate: it passes the torque rule with

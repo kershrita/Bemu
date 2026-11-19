@@ -185,6 +185,7 @@ Recorded on 2026-11-18, on the development PC.
 | Stand, sit or pose the whole robot without ROS | `python3 tools/stand.py stand` (or `sit`, or `pose --roll 10 --shift 20 0`; add `--viewer` for a window) |
 | Walk the whole robot without ROS | `python3 tools/walk.py --gait tripod --vx 0.1 --seconds 10` (also `--vy`, `--omega`; add `--viewer` for a window) |
 | Write the full-robot model | `python3 tools/generate_model.py --robot` |
+| Generate the printed parts, the tolerance coupon, masses and the print order | `pip install -r requirements-dev.txt` once (build123d), then `python3 tools/generate_cad.py` (writes `cad/export/`; `--coupon-only` for the first print) |
 | Run the torque report (about 75 s; `--quick` writes `v1-torque-report-quick.*` as a smoke check) | `python3 tools/torque_report.py` (writes `docs/reports/v1-torque-report.md` and `.json`) |
 | Trace a foot path without ROS | `python3 tools/trace_foot.py --shape square` (add `--viewer` for a window) |
 | Regenerate the printable parts | A script in `cad/` |

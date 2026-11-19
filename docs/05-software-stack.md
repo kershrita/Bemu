@@ -44,6 +44,7 @@ bemu/
 │       ├── bemu_sim/          MuJoCo scene and bridge configuration
 │       ├── bemu_hardware/     servo bus driver plugin (version 2)
 │       ├── bemu_teleop/       keyboard and gamepad control
+│       ├── bemu_cad/          component library, printed-part generators, fit checks (build123d)
 │       ├── bemu_msgs/         custom message definitions
 │       └── bemu_bringup/      launch files and top-level configuration
 ├── tools/                        scripts: generate model, torque report, calibration
@@ -69,6 +70,7 @@ Packages added by later versions follow the same naming:
 | `bemu_description` | 0–1 | URDF and MuJoCo model, generated from the parameter file | Yes |
 | `bemu_sim` | 0 | Simulation world, simulated sensors | Yes |
 | `bemu_hardware` | 0 | Real servo driver | Yes (C++) |
+| `bemu_cad` | 1.5 | The component library (`config/components.yaml`), the build123d part generators for the printed leg, the tolerance coupon, fit checks and the STEP/STL/mass/print-order exports | No (needs build123d) |
 | `bemu_teleop` | 4 | Keyboard (latched speed, own terminal) and gamepad (`Joy`, stateless) control; the key and stick mapping is ROS-free | Yes |
 | `bemu_msgs` | all | Shared message types | Yes |
 | `bemu_bringup` | all | Launch files | Yes |
