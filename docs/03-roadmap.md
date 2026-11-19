@@ -113,7 +113,7 @@ rather than buying a stronger servo first.
 
 - [ ] Changing one leg length in `robot_params.yaml` regenerates the parts, the
       model and the maths with no manual editing.
-- [ ] The simulation with CAD-derived masses still passes the version 1 exit test.
+- [x] The simulation with CAD-derived masses still passes the version 1 exit test (all version 1 tests pass; 48 of 48 torque-report rows pass; worst peak 1.27 N·m, 43% of stall).
 - [ ] Every part fits the print service's build size.
 - [ ] The print order is written down: files, material, settings, quantities.
 - [ ] The component list is priced and the first purchase is approved.
