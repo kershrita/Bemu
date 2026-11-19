@@ -14,6 +14,7 @@ known-first-party = [
     "bemu_sim",
     "bemu_gait",
     "bemu_bringup",
+    "bemu_locomotion",
 ]
 
 [tool.pytest.ini_options]
@@ -26,6 +27,7 @@ pythonpath = [
     "ros2_ws/src/bemu_sim",
     "ros2_ws/src/bemu_gait",
     "ros2_ws/src/bemu_bringup",
+    "ros2_ws/src/bemu_locomotion",
 ]
 markers = [
     "sim_launch: needs ROS 2 and the MuJoCo bridge",
