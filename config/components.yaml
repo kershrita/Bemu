@@ -1,0 +1,87 @@
+# Dimensions of every bought part that touches a printed part (version 1.5).
+# Every value is {value, source, status}. Status: datasheet (a printed dimension or table),
+# cad (measured from the manufacturer's STEP), standard (an ISO/DIN table), measured (caliper on
+# the real part) or unverified. A mounting feature built on an unverified value fails the release
+# check (docs/superpowers/specs/2026-11-19-v1_5-printable-design.md).
+# Units: mm and g. Servo frame: origin on the output axis, x along the body toward the long side
+# (the far end is 35.11 mm away), y across the width from the centre line, z along the output axis.
+units: {length: mm, mass: g}
+
+servo:
+  model: {value: Feetech STS3215, source: docs/reference/sts3215/README.md, status: datasheet}
+  variant:
+    value: "12 V, 1:345, 30 kg.cm (datasheet ST-3215-C047; sold as C018). NOT the 7.4 V version"
+    source: docs/reference/sts3215/seeed-ST-3215-C047-datasheet.pdf
+    status: datasheet
+  size:  # body length, width, height without the horns
+    value: [45.22, 24.72, 35]
+    source: docs/reference/sts3215/waveshare-ST3215-2D-drawing.pdf
+    status: datasheet
+  output_axis:  # distance of the output axis from the nearer end, and from the width centre line
+    value: [10.11, 0]
+    source: docs/reference/sts3215/waveshare-ST3215-2D-drawing.pdf
+    status: datasheet
+  drawing_heights:  # the four heights on the drawing; meaning settled in version 1.5a task 3
+    value: [29, 32, 35, 37.25]
+    source: docs/reference/sts3215/waveshare-ST3215-2D-drawing.pdf
+    status: datasheet
+  horn_circle:
+    value: 19.2
+    source: docs/reference/sts3215/waveshare-ST3215-2D-drawing.pdf
+    status: datasheet
+  horn_screw:
+    value: M3x6
+    source: docs/reference/sts3215/seeed-ST-3215-C047-datasheet.pdf
+    status: datasheet
+  horn_holes:  # 4 x M3 on a 14 mm circle, on the output face
+    value:
+      - {x: 7, y: 0, diameter: 2.5, thread: M3}
+      - {x: -7, y: 0, diameter: 2.5, thread: M3}
+      - {x: 0, y: 7, diameter: 2.5, thread: M3}
+      - {x: 0, y: -7, diameter: 2.5, thread: M3}
+    source: docs/reference/sts3215/waveshare-ST3215.step
+    status: cad
+  case_holes:  # candidates for the external bracket holes: 20.7 x 20.5 pattern (task 2 decides)
+    value:
+      - {x: 8.3, y: 10.25, diameter: 2.5, thread: unknown}
+      - {x: 8.3, y: -10.25, diameter: 2.5, thread: unknown}
+      - {x: 29.0, y: 10.25, diameter: 2.5, thread: unknown}
+      - {x: 29.0, y: -10.25, diameter: 2.5, thread: unknown}
+    source: docs/reference/sts3215/waveshare-ST3215.step
+    status: unverified
+  mass:
+    value: 55
+    source: docs/reference/sts3215/seeed-ST-3215-C047-datasheet.pdf
+    status: datasheet
+
+screw_m3:  # socket head cap screw, ISO 4762
+  head_diameter: {value: 5.5, source: ISO 4762, status: standard}
+  head_height: {value: 3.0, source: ISO 4762, status: standard}
+  clearance_hole: {value: 3.4, source: ISO 273 medium series, status: standard}
+
+nut_m3:
+  across_flats: {value: 5.5, source: ISO 4032, status: standard}
+  thickness: {value: 2.4, source: ISO 4032, status: standard}
+
+insert_m3:  # heat-set insert; supplier not chosen until version 1.5c
+  hole_diameter: {value: 4.1, source: typical 4.0-4.2 mm; the coupon decides, status: unverified}
+  length: {value: 5.7, source: typical short M3 insert; choose supplier in 1.5c, status: unverified}
+
+bearing_623:
+  bore: {value: 3, source: ISO 15 (623), status: standard}
+  outer_diameter: {value: 10, source: ISO 15 (623), status: standard}
+  width: {value: 4, source: ISO 15 (623), status: standard}
+
+bearing_683:
+  bore: {value: 3, source: ISO 15 (683), status: standard}
+  outer_diameter: {value: 7, source: ISO 15 (683), status: standard}
+  width: {value: 3, source: ISO 15 (683), status: standard}
+
+raspberry_pi_5:
+  board: {value: [85, 56], source: Raspberry Pi 5 mechanical drawing (fetch in 1.5b), status: unverified}
+  hole_pattern: {value: [58, 49], source: Raspberry Pi 5 mechanical drawing (fetch in 1.5b), status: unverified}
+  hole_diameter: {value: 2.7, source: Raspberry Pi 5 mechanical drawing (fetch in 1.5b), status: unverified}
+
+battery:  # chosen in 1.5c with shipping to Saudi Arabia in mind
+  size: {value: [100, 35, 30], source: placeholder until a pack is chosen, status: unverified}
+  mass: {value: 350, source: placeholder until a pack is chosen, status: unverified}
