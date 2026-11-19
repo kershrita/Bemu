@@ -27,6 +27,9 @@ def _setup(context):
         raise RuntimeError("Real hardware arrives in version 2")
     headless = LaunchConfiguration("headless").perform(context).lower() == "true"
     params_file = LaunchConfiguration("params_file").perform(context)
+    teleop = LaunchConfiguration("teleop").perform(context)
+    if teleop not in ("none", "gamepad", "keyboard"):
+        raise RuntimeError(f"teleop must be none, gamepad or keyboard, got {teleop!r}")
 
     params = load_params(params_file or None)
     actuators = load_actuator_model(
@@ -88,7 +91,22 @@ def _setup(context):
             EmitEvent(event=Shutdown(reason="leg_position_controller failed to start")),
         ]
 
+    extras = []
+    if teleop == "gamepad":
+        extras = [
+            Node(package="joy", executable="joy_node", output="screen"),
+            Node(
+                package="bemu_teleop",
+                executable="gamepad",
+                output="screen",
+                parameters=[{"params_file": params_file}],
+            ),
+        ]
+    elif teleop == "keyboard":
+        extras = [LogInfo(msg="Run: ros2 run bemu_teleop keyboard (in its own terminal)")]
+
     return [
+        *extras,
         simulator,
         state_publisher,
         broadcaster,
@@ -105,6 +123,7 @@ def generate_launch_description():
         [
             DeclareLaunchArgument("use_sim", default_value="true"),
             DeclareLaunchArgument("headless", default_value="false"),
+            DeclareLaunchArgument("teleop", default_value="none"),
             DeclareLaunchArgument(
                 "params_file", default_value=EnvironmentVariable("BEMU_PARAMS", default_value="")
             ),
