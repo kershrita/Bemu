@@ -35,8 +35,9 @@ servo:
   stall_torque_nm: 2.94
   max_speed_rad_s: 4.7
   rated_torque_nm: 0.98          # continuous (docs/10-components.md)
-  # Placeholders for the torque report's power estimate: confirm against the exact STS3215
-  # sub-model (docs/10-components.md) and replace with measurements in version 2.
+  # Power estimate inputs. Stall and idle current are from the Feetech ST-3215-C047 (12 V)
+  # datasheet, section 5 (docs/reference/sts3215/); the supply voltage is the servo's nominal
+  # 12 V, and the real battery voltage (docs/10) will move the power figures. Version 2 measures.
   supply_voltage_v: 12
   stall_current_a: 2.7
-  idle_current_a: 0.1
+  idle_current_a: 0.03

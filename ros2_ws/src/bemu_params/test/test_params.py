@@ -43,7 +43,7 @@ def test_servo_report_constants_load(params):
     assert params.servo.rated_torque == pytest.approx(0.98)
     assert params.servo.supply_voltage == pytest.approx(12.0)
     assert params.servo.stall_current == pytest.approx(2.7)
-    assert params.servo.idle_current == pytest.approx(0.1)
+    assert params.servo.idle_current == pytest.approx(0.03)
 
 
 def test_six_mounts_in_order(params):

@@ -41,7 +41,7 @@ def test_render_markdown(params, actuators):
     for heading in ("# ", "## Method", "## Summary", "## 2.0 kg", "## 2.5 kg"):
         assert heading in text
     assert "abc1234" in text and "2026-11-18" in text
-    assert "placeholder" in text.lower() and "stall_current_a" in text
+    assert "placeholder" in text.lower() and "supply_voltage_v" in text and "datasheet" in text
     assert "FAIL" in text and "UNSTABLE" in text and "PASS" in text
     assert joint_order()[3] in text
     assert "51%" in text  # 1.50 N·m over the 2.94 N·m stall
@@ -54,7 +54,7 @@ def test_to_json_round_trips(params, actuators):
     data = to_json(results(), params, actuators, commit="abc1234", date="2026-11-18")
     assert json.loads(json.dumps(data)) == data
     assert data["commit"] == "abc1234"
-    assert data["placeholders"] == ["stall_current_a", "idle_current_a", "supply_voltage_v"]
+    assert data["placeholders"] == ["supply_voltage_v"]
     assert len(data["results"]) == 5
     first = data["results"][2]
     assert set(first["peak_torque"]) == set(joint_order())

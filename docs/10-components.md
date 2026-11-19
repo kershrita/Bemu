@@ -151,10 +151,13 @@ simulated position loop (kp 20, kv 0.5), not from carrying the body, so a real s
 internal loop could peak differently; version 2's one-leg measurement checks this. Second, joint
 speed reaches 83% of the 4.7 rad/s *no-load* speed (wave sideways) and 73% for ripple, and the
 loaded speed is lower and unknown, so tracking headroom is thin. The report's power figures
-(about 36–54 W for 18 servos) use **placeholder** `stall_current_a` (2.7 A), `idle_current_a`
-(0.1 A) and `supply_voltage_v` (12 V) in `config/robot_params.yaml`: confirm them against the
-datasheet or a bench measurement before sizing the battery and wiring from them. The estimate assumes supply current equals
-winding current, so it is an upper bound.
+(about 21–39 W for 18 servos while standing and walking) use the Feetech ST-3215-C047 (12 V)
+datasheet's stall current (2.7 A) and idle current (30 mA); the 12 V supply is the servo's
+nominal voltage, so the real battery voltage will move them. The estimate assumes supply current
+equals winding current, so it is an upper bound. Size the battery and wiring for the stall
+current as well (18 × 2.7 A is the worst case if every servo stalls), not only for the walking
+average. Datasheet values, same source: no-load running current 180 mA, rated current 900 mA,
+winding resistance 1.0 Ω, Kt 11 kg·cm/A, operating voltage 4–14 V, mass 55 g ± 1 g.
 
 ### Reading the table
 
