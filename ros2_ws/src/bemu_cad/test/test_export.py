@@ -122,3 +122,20 @@ def test_the_order_becomes_ready_only_when_the_fit_values_are_measured():
         fields[component][name] = Field(old.value, old.source, "measured")
     measured = dataclasses.replace(components, fields=fields)
     assert release_blockers(measured) == []
+
+
+def test_the_body_is_exported_with_counts_and_a_mass_budget(exported):
+    data = json.loads((exported / "mass_properties.json").read_text())
+    body = data["body"]
+    assert body["total_kg"] == pytest.approx(
+        body["printed_kg"] + body["coxa_servos_kg"] + body["electronics_placeholders_kg"]
+    )
+    assert body["margin_kg"] == pytest.approx(body["chassis_budget_kg"] - body["total_kg"])
+    assert body["margin_kg"] > 0.0  # the body fits the 2.5 kg design mass budget
+    counts = {name: entry["count"] for name, entry in body["parts"].items()}
+    assert counts["hip_plate"] == 6 and counts["post_hip"] == 12 and counts["post_main"] == 8
+    assert counts["splice_top"] == 4 and counts["splice_bottom"] == 4
+    for name in ("top_plate_centre", "bottom_plate_front", "hip_plate", "post_main", "splice_top"):
+        assert (exported / f"{name}.stl").stat().st_size > 500, name
+    text = (exported / "print_order.md").read_text()
+    assert "| top_plate_rear.stl |" in text and "| post_hip.stl | PETG | 12 |" in text

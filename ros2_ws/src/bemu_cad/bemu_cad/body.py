@@ -1,0 +1,311 @@
+"""The printed body: a top and a bottom plate (each split in three to fit the bed), a support plate
+under each coxa servo, posts, splice plates and a 20 mm M3 insert grid on the top plate.
+
+Body frame (millimetres): x forward, y left, z up, the hip plane at z = 0. The legs are mounted at
+the `mounts` of robot_params.yaml: a leg frame maps to the body by Pos(x, y, 0) * Rot(Z=yaw). Each
+coxa servo hangs horn-down: its back shelf seats against the top plate (idler and hub in a recess),
+its horn-side shelf against a small support plate that stands on posts from the bottom plate, so
+the servo is held at both faces against the tilt moment of a loaded leg.
+
+Electronics trays are not here: the Raspberry Pi, battery and regulator dimensions are not verified
+yet (docs/08, version 1.5c); their masses are placeholders in the mass budget.
+"""
+
+from __future__ import annotations
+
+import math
+from dataclasses import dataclass
+
+from build123d import Box, Cylinder, Polygon, Pos, Rot, Solid, extrude
+
+from bemu_cad.components import Components
+from bemu_cad.export import part_mass_properties
+from bemu_cad.leg import PLATE, HoleSpec, LegParts, Part, Window
+from bemu_cad.servo import M_TO_MM, servo_pocket
+from bemu_params import LEG_CODES, RobotParams
+
+TOP_THICKNESS = 4.0  # mm: the idler recess is 2.1 mm deep, so the plate keeps 1.9 mm of floor
+BOTTOM_THICKNESS = 4.0
+JOINT_X = (-40.0, 40.0)  # where the plates are split
+SPLICE = {"length": 30.0, "width": 12.0, "y": (-30.0, 30.0), "pitch": 8.0}
+POST_DIAMETER = 8.0
+POST_PILOT = (2.5, 10.0)  # mm diameter and depth of the screw pilots in the post ends
+MAIN_POSTS = [(-70.0, -15.0), (-70.0, 15.0), (70.0, -15.0), (70.0, 15.0)] + [
+    (-15.0, -18.0),
+    (-15.0, 18.0),
+    (15.0, -18.0),
+    (15.0, 18.0),
+]
+HIP_POSTS_LEG = [(-42.0, -8.0), (-42.0, 8.0)]  # in each leg frame
+HIP_PLATE = (-48.0, 12.0, -14.0, 14.0)  # x0, x1, y0, y1 in the leg frame
+FOOTPRINT_PAD = 5.0  # mm beyond the coxa servo's outline
+GRID_PITCH = 20.0
+GRID_X = tuple(-70.0 + 20.0 * i for i in range(8))
+GRID_Y = (-40.0, -20.0, 0.0, 20.0, 40.0)
+INSERT_HOLE = 4.1  # mm, from the unverified insert entry; the coupon decides
+ELECTRONICS_KG = 0.075 + 0.350 + 0.120  # Pi 5, battery, regulator and wiring: placeholders
+FASTENERS_KG = 0.030  # body screws and inserts: an estimate
+DECAGON = [
+    (120.0, -40.0),
+    (120.0, 40.0),
+    (100.0, 60.0),
+    (0.0, 80.0),
+    (-100.0, 60.0),
+    (-120.0, 40.0),
+    (-120.0, -40.0),
+    (-100.0, -60.0),
+    (0.0, -80.0),
+    (100.0, -60.0),
+]
+
+
+@dataclass(frozen=True)
+class BodyParts:
+    parts: tuple[Part, ...]
+    hip_transforms: dict  # leg code -> body <- leg frame
+    layout_mm: dict
+    printed_mass_kg: float
+    electronics_mass_kg: float
+
+    @property
+    def mass_kg(self) -> float:
+        """Printed parts, the six coxa servos and the electronics placeholders."""
+        return self.printed_mass_kg + 6 * 0.055 + self.electronics_mass_kg
+
+
+def _prism(points, z0: float, z1: float) -> Solid:
+    return Pos(0, 0, z0) * extrude(Polygon(*points, align=None), amount=z1 - z0)
+
+
+def _box(x0, x1, y0, y1, z0, z1) -> Solid:
+    return Pos((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2) * Box(x1 - x0, y1 - y0, z1 - z0)
+
+
+def _cyl(x: float, y: float, diameter: float, z0: float, z1: float) -> Solid:
+    return Pos(x, y, (z0 + z1) / 2) * Cylinder(diameter / 2, z1 - z0)
+
+
+def build_body(params: RobotParams, components: Components, leg: LegParts) -> BodyParts:
+    servo = components.servo
+    layout = leg.layout_mm
+    allowance = leg.allowance_mm
+    m2 = components.fields["screw_m2"]["clearance_hole"].value
+    m3 = components.fields["screw_m3"]["clearance_hole"].value
+    window_d = servo.horn_disc_diameter * M_TO_MM + 1.0
+    z_seat = layout["coxa_back_shelf_z"]  # top plate underside
+    z_top = (z_seat, z_seat + TOP_THICKNESS)
+    z_bot = (-z_seat - BOTTOM_THICKNESS, -z_seat)  # symmetric about the hip plane
+    z_hip = (layout["coxa_support_bottom_z"], layout["coxa_support_top_z"])
+    t_servo = leg.servo_transforms["coxa_servo"]
+    pocket = servo_pocket(servo, allowance * 1e-3)
+
+    hip_t = {}
+    for code in LEG_CODES:
+        mount = params.mounts[code]
+        hip_t[code] = Pos(mount.x * M_TO_MM, mount.y * M_TO_MM, 0) * Rot(Z=math.degrees(mount.yaw))
+
+    # ---- plate outline: the decagon plus a padded coxa-servo footprint at every hip ----------
+    near = layout["servo_near_end"]
+    far = layout["servo_far_end"]
+    half_w = servo.size[1] * M_TO_MM / 2
+    foot = [
+        (-far - FOOTPRINT_PAD, -half_w - FOOTPRINT_PAD),
+        (near + FOOTPRINT_PAD, -half_w - FOOTPRINT_PAD),
+        (near + FOOTPRINT_PAD, half_w + FOOTPRINT_PAD),
+        (-far - FOOTPRINT_PAD, half_w + FOOTPRINT_PAD),
+    ]
+
+    def plate(z0: float, z1: float) -> Solid:
+        solid = _prism(DECAGON, z0, z1)
+        for t in hip_t.values():
+            pts = [(t * Pos(x, y, 0)).position for x, y in foot]
+            solid += _prism([(p.X, p.Y) for p in pts], z0, z1)
+        return solid
+
+    top = plate(*z_top)
+    bottom = plate(*z_bot)
+
+    # ---- top plate: coxa servo seats, post and splice holes, the insert grid -------------------
+    top_holes: list[HoleSpec] = []
+    bottom_holes: list[HoleSpec] = []
+    seat_holes = []
+    for t in hip_t.values():
+        top -= t * (t_servo * pocket)  # the shelf, strip, boss, idler and hub relief
+        for h in servo.case_holes:
+            if h.side == "back":
+                p = (t * t_servo * Pos(h.x * M_TO_MM, h.y * M_TO_MM, 0)).position
+                seat_holes.append((p.X, p.Y))
+    for x, y in seat_holes:
+        top -= _cyl(x, y, m2, z_top[0] - 1, z_top[1] + 1)
+        top_holes.append(HoleSpec(x, y, m2))
+
+    def drill(solid, holes, x, y, d, z0, z1):
+        holes.append(HoleSpec(x, y, d))
+        return solid - _cyl(x, y, d, z0 - 1, z1 + 1)
+
+    for x, y in MAIN_POSTS:
+        top = drill(top, top_holes, x, y, m3, *z_top)
+        bottom = drill(bottom, bottom_holes, x, y, m3, *z_bot)
+    hip_post_xy = {}
+    for code, t in hip_t.items():
+        for x, y in HIP_POSTS_LEG:
+            p = (t * Pos(x, y, 0)).position
+            hip_post_xy[(code, x, y)] = (p.X, p.Y)
+            bottom = drill(bottom, bottom_holes, p.X, p.Y, m3, *z_bot)
+    joint_holes = []
+    for jx in JOINT_X:
+        for cy in SPLICE["y"]:
+            for dx in (-SPLICE["pitch"], SPLICE["pitch"]):
+                joint_holes.append((jx + dx, cy))
+    for x, y in joint_holes:
+        top = drill(top, top_holes, x, y, m3, *z_top)
+        bottom = drill(bottom, bottom_holes, x, y, m3, *z_bot)
+
+    taken = [(h.a, h.b) for h in top_holes]
+    footprints = []
+    for t in hip_t.values():
+        pts = [(t * Pos(x, y, 0)).position for x, y in foot]
+        footprints.append([(p.X, p.Y) for p in pts])
+
+    def in_footprint(x: float, y: float, margin: float = 6.0) -> bool:
+        for t in hip_t.values():
+            local = (t.inverse() * Pos(x, y, 0)).position
+            if (
+                -far - FOOTPRINT_PAD - margin <= local.X <= near + FOOTPRINT_PAD + margin
+                and abs(local.Y) <= half_w + FOOTPRINT_PAD + margin
+            ):
+                return True
+        return False
+
+    for gx in GRID_X:
+        for gy in GRID_Y:
+            if in_footprint(gx, gy) or any(math.hypot(gx - a, gy - b) < 9.0 for a, b in taken):
+                continue
+            top = drill(top, top_holes, gx, gy, INSERT_HOLE, *z_top)
+    del footprints
+
+    def split(solid, holes, name, z, prefix):
+        pieces = []
+        bounds = [
+            (-300.0, JOINT_X[0], "rear"),
+            (JOINT_X[0], JOINT_X[1], "centre"),
+            (JOINT_X[1], 300.0, "front"),
+        ]
+        for x0, x1, label in bounds:
+            piece = solid & _box(x0, x1, -300, 300, z[0] - 1, z[1] + 1)
+            box = piece.bounding_box()
+            mine = tuple(h for h in holes if x0 <= h.a < x1 or (label == "front" and h.a >= x1))
+            pieces.append(
+                Part(
+                    f"{prefix}_{label}",
+                    piece,
+                    1,
+                    "PETG",
+                    (box.min.X, box.max.X, box.min.Y, box.max.Y),
+                    mine,
+                    "z",
+                    "body",
+                    family=f"{prefix}_{label}",
+                )
+            )
+        return pieces
+
+    parts: list[Part] = []
+    parts += split(top, top_holes, "top", z_top, "top_plate")
+    parts += split(bottom, bottom_holes, "bottom", z_bot, "bottom_plate")
+
+    # ---- support plates under the coxa servos --------------------------------------------------
+    hx0, hx1, hy0, hy1 = HIP_PLATE
+    horn_holes_leg = []
+    for h in servo.case_holes:
+        if h.side == "horn":
+            p = (t_servo * Pos(h.x * M_TO_MM, h.y * M_TO_MM, 0)).position
+            horn_holes_leg.append((p.X, p.Y))
+    for code, t in hip_t.items():
+        plate_leg = _box(hx0, hx1, hy0, hy1, *z_hip)
+        plate_leg -= t_servo * pocket
+        plate_leg -= _cyl(0.0, 0.0, window_d, z_hip[0] - 1, z_hip[1] + 1)
+        holes = []
+        for x, y in horn_holes_leg:
+            plate_leg -= _cyl(x, y, m2, z_hip[0] - 1, z_hip[1] + 1)
+            holes.append(HoleSpec(x, y, m2))
+        for x, y in HIP_POSTS_LEG:
+            plate_leg -= _cyl(x, y, m3, z_hip[0] - 1, z_hip[1] + 1)
+            holes.append(HoleSpec(x, y, m3))
+        parts.append(
+            Part(
+                f"hip_plate_{code}",
+                t * plate_leg,
+                1,
+                "PETG",
+                (hx0, hx1, hy0, hy1),
+                tuple(holes),
+                "z",
+                "body",
+                windows=(Window(0.0, 0.0, window_d),),
+                family="hip_plate",
+            )
+        )
+
+    # ---- posts ---------------------------------------------------------------------------------
+    pilot_d, pilot_depth = POST_PILOT
+
+    def post(name, x, y, z0, z1, family):
+        solid = _cyl(x, y, POST_DIAMETER, z0, z1)
+        solid -= _cyl(x, y, pilot_d, z0 - 1, z0 + pilot_depth)
+        solid -= _cyl(x, y, pilot_d, z1 - pilot_depth, z1 + 1)
+        return Part(
+            name, solid, 1, "PETG", (x - 4, x + 4, y - 4, y + 4), (), "z", "body", family=family
+        )
+
+    for i, (x, y) in enumerate(MAIN_POSTS):
+        parts.append(post(f"post_main_{i}", x, y, z_bot[1], z_top[0], "post_main"))
+    for (code, _lx, ly), (x, y) in hip_post_xy.items():
+        side = "a" if ly < 0 else "b"
+        parts.append(post(f"post_hip_{code}_{side}", x, y, z_bot[1], z_hip[0], "post_hip"))
+
+    # ---- splice plates -------------------------------------------------------------------------
+    length, width, pitch = SPLICE["length"], SPLICE["width"], SPLICE["pitch"]
+    for level, (zl, zh) in (
+        ("top", (z_top[0] - PLATE, z_top[0])),
+        ("bottom", (z_bot[1], z_bot[1] + PLATE)),
+    ):
+        index = 0
+        for jx in JOINT_X:
+            for cy in SPLICE["y"]:
+                solid = _box(
+                    jx - length / 2, jx + length / 2, cy - width / 2, cy + width / 2, zl, zh
+                )
+                holes = []
+                for dx in (-pitch, pitch):
+                    solid -= _cyl(jx + dx, cy, m3, zl - 1, zh + 1)
+                    holes.append(HoleSpec(jx + dx, cy, m3))
+                parts.append(
+                    Part(
+                        f"splice_{level}_{index}",
+                        solid,
+                        1,
+                        "PETG",
+                        (jx - length / 2, jx + length / 2, cy - width / 2, cy + width / 2),
+                        tuple(holes),
+                        "z",
+                        "body",
+                        family=f"splice_{level}",
+                    )
+                )
+                index += 1
+
+    printed = sum(part_mass_properties(p)["mass_kg"] for p in parts)
+    return BodyParts(
+        parts=tuple(parts),
+        hip_transforms=hip_t,
+        layout_mm={
+            "top_plate_z": z_top,
+            "bottom_plate_z": z_bot,
+            "hip_plate_z": z_hip,
+            "joint_x": JOINT_X,
+            "half_height": z_top[1],
+        },
+        printed_mass_kg=printed,
+        electronics_mass_kg=ELECTRONICS_KG + FASTENERS_KG,
+    )

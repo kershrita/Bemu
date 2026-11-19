@@ -95,7 +95,7 @@ def release_blockers(components: Components) -> list[str]:
     return blockers
 
 
-def _print_order(leg: LegParts, components: Components) -> str:
+def _print_order(leg: LegParts, components: Components, body_rows: list[str] | None = None) -> str:
     unverified = unverified_fields(components)
     blockers = release_blockers(components)
     if blockers:
@@ -121,7 +121,7 @@ def _print_order(leg: LegParts, components: Components) -> str:
         + ".",
         "",
         f"Settings for every part unless stated: {SETTINGS}. Quantities are for six legs plus "
-        "spares. The body parts come in version 1.5b.",
+        "spares; the body rows are the whole body. The electronics trays come in version 1.5c.",
         "",
         "| File | Material | Quantity | Orientation | Note |",
         "|---|---|---|---|---|",
@@ -134,6 +134,7 @@ def _print_order(leg: LegParts, components: Components) -> str:
         if part.print_flipped:
             orientation = "turn the part over: flat face down, stem up (no supports)"
         lines.append(f"| {part.name}.stl | {part.material} | {quantity} | {orientation} | {note} |")
+    lines += body_rows or []
     lines += [
         "",
         "## Hardware (buy with the parts)",
@@ -171,17 +172,26 @@ def export_all(
         else build_leg(params, components, allowance=allowance)
     )
     coupon = build_coupon(components)
+    from bemu_cad.body import build_body  # imported here: the body module imports this one
+    from bemu_cad.export_body import canonical_solid, families, mass_json, order_rows
+
+    body = build_body(params, components, leg)
     written = {}
-    for part in (*leg.parts, coupon.part):
+    outputs = [(part.name, part.solid) for part in (*leg.parts, coupon.part)]
+    for family, members in families(body).items():
+        outputs.append((family, canonical_solid(body, members[0])))
+    for name, solid in outputs:
         for suffix, writer in (("step", export_step), ("stl", export_stl)):
-            path = out_dir / f"{part.name}.{suffix}"
-            if not writer(part.solid, str(path)):
+            path = out_dir / f"{name}.{suffix}"
+            if not writer(solid, str(path)):
                 raise ValueError(f"could not write {path}")
-            written[f"{part.name}.{suffix}"] = path
+            written[f"{name}.{suffix}"] = path
     mass = out_dir / "mass_properties.json"
-    mass.write_text(json.dumps(_mass_json(leg, components), indent=2) + "\n")
+    data = _mass_json(leg, components)
+    data["body"] = mass_json(body, leg, components)
+    mass.write_text(json.dumps(data, indent=2) + "\n")
     order = out_dir / "print_order.md"
-    order.write_text(_print_order(leg, components))
+    order.write_text(_print_order(leg, components, order_rows(body)))
     written["mass_properties.json"], written["print_order.md"] = mass, order
     return written
 

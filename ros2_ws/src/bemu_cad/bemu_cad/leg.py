@@ -77,6 +77,7 @@ class Part:
     face_outlines: dict[str, tuple[float, float, float, float]] = field(default_factory=dict)
     polygon: tuple[tuple[float, float], ...] = ()  # exact outline when it is not a rectangle
     print_flipped: bool = False  # print with the flat face down: turn the part over
+    family: str = ""  # parts printed as copies of one file share a family (default: the name)
 
 
 @dataclass(frozen=True)

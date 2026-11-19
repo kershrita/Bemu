@@ -5,7 +5,7 @@ Usage: python tools/generate_cad.py [--out DIR] [--coupon-only] [--allowance MM]
 Reads config/robot_params.yaml and config/components.yaml and writes STEP and STL files, a
 mass_properties.json and a print_order.md into DIR (default cad/export/). --coupon-only writes just
 the tolerance coupon, the first thing to print. --sync-masses rewrites the three link_mass numbers
-in config/robot_params.yaml from the CAD (the simulation model then uses them).
+(and the chassis budget and body thickness) in config/robot_params.yaml from the CAD.
 """
 
 import argparse
@@ -16,6 +16,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 for package in ("bemu_params", "bemu_cad"):
     sys.path.insert(0, str(REPO_ROOT / "ros2_ws" / "src" / package))
 
+from bemu_cad.body import build_body  # noqa: E402
 from bemu_cad.components import ComponentsError, load_components  # noqa: E402
 from bemu_cad.export import export_all, export_coupon  # noqa: E402
 from bemu_cad.leg import build_leg  # noqa: E402
@@ -56,10 +57,14 @@ def _run() -> int:
     components = load_components()
     if args.sync_masses:
         masses = link_masses(build_leg(load_params(PARAMS_FILE), components), components)
-        sync_robot_params(PARAMS_FILE, masses)
+        leg = build_leg(load_params(PARAMS_FILE), components)
+        body = build_body(load_params(PARAMS_FILE), components, leg)
+        thickness = 2 * body.layout_mm["half_height"]
+        sync_robot_params(PARAMS_FILE, masses, thickness)
         print(
             f"link masses (g): coxa {masses.coxa * 1000:.1f}, femur {masses.femur * 1000:.1f}, "
-            f"tibia {masses.tibia * 1000:.1f} written to {PARAMS_FILE}"
+            f"tibia {masses.tibia * 1000:.1f}, body thickness {thickness:.2f} mm written to "
+            f"{PARAMS_FILE}"
         )
         return 0
     args.out.mkdir(parents=True, exist_ok=True)  # fails early, before any CAD work

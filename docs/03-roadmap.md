@@ -91,7 +91,9 @@ Steps 1.4 to 1.6 are done headless (version 1b-1, `docs/superpowers/specs/2026-1
 | 1.5.6 | Printability review: part sizes, overhangs, split lines, fastener access. Choose the print service and confirm its build size and materials |
 | 1.5.7 | Final component list with current prices and suppliers |
 
-Progress (2026-11-19): version 1.5a is done: the component library, verified servo hole table,
+Progress (2026-11-19): version 1.5b (CAD masses in the model, the body plates and coxa mounts) is done too:
+the version 1 tests and the 48-row torque report pass on the CAD masses and the CAD body thickness.
+Version 1.5a is done: the component library, verified servo hole table,
 printed-leg generators with fit checks, tolerance coupon, and the first print order (not ready to
 order until the coupon is measured). Next: 1.5b (body, CAD masses into the simulation) and 1.5c
 (printing and buying). See `docs/08-mechanical-design.md`.

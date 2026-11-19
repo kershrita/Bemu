@@ -1,6 +1,6 @@
-# Version 1.5 (CAD masses) torque report
+# Version 1.5 (CAD masses and body) torque report
 
-Generated 2026-11-19 at commit `0ae9790` by `tools/torque_report.py`.
+Generated 2026-11-19 at commit `3266571` by `tools/torque_report.py`.
 
 ## Method
 
@@ -22,17 +22,17 @@ Power estimate inputs: `stall_current_a` = 2.7 A and `idle_current_a` = 0.03 A a
 
 | Scenario | Speed | Peak (joint) | Peak % stall | RMS (joint) | RMS % rated | Max speed % | Power W | Steps at limit | Min margin mm | Slip mm | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| stand | 0 | 0.58 N·m (lm_femur_joint) | 20% | 0.19 N·m (rm_femur_joint) | 20% | 22% | 22 | 0 | - | - | PASS |
+| stand | 0 | 0.57 N·m (lm_femur_joint) | 19% | 0.19 N·m (rm_femur_joint) | 20% | 22% | 22 | 0 | - | - | PASS |
 | tripod forward 25% | 30 mm/s | 0.54 N·m (lm_femur_joint) | 18% | 0.32 N·m (rm_femur_joint) | 33% | 24% | 27 | 0 | 89 | 2.7 | PASS |
 | tripod forward 50% | 60 mm/s | 0.82 N·m (lf_femur_joint) | 28% | 0.35 N·m (rm_femur_joint) | 35% | 49% | 31 | 0 | 83 | 2.8 | PASS |
-| tripod forward 100% | 120 mm/s | 0.90 N·m (lf_tibia_joint) | 31% | 0.35 N·m (rm_femur_joint) | 35% | 58% | 36 | 0 | 70 | 3.4 | PASS |
+| tripod forward 100% | 120 mm/s | 0.90 N·m (lf_tibia_joint) | 31% | 0.35 N·m (lm_femur_joint) | 35% | 58% | 36 | 0 | 70 | 3.4 | PASS |
 | tripod sideways | 120 mm/s | 1.07 N·m (rm_tibia_joint) | 36% | 0.36 N·m (lm_femur_joint) | 37% | 70% | 35 | 0 | 81 | 5.4 | PASS |
 | tripod turn | 0.51 rad/s | 0.90 N·m (rf_femur_joint) | 31% | 0.35 N·m (rm_femur_joint) | 35% | 52% | 34 | 0 | 94 | 3.0 | PASS |
 | ripple forward 25% | 15 mm/s | 0.45 N·m (rr_tibia_joint) | 15% | 0.25 N·m (rr_femur_joint) | 25% | 24% | 26 | 0 | 92 | 2.1 | PASS |
 | ripple forward 50% | 30 mm/s | 0.83 N·m (rf_femur_joint) | 28% | 0.27 N·m (rr_femur_joint) | 27% | 49% | 29 | 0 | 89 | 2.7 | PASS |
-| ripple forward 100% | 60 mm/s | 0.95 N·m (lr_tibia_joint) | 32% | 0.27 N·m (lf_femur_joint) | 28% | 62% | 32 | 0 | 82 | 3.7 | PASS |
+| ripple forward 100% | 60 mm/s | 0.95 N·m (lr_tibia_joint) | 32% | 0.27 N·m (lf_femur_joint) | 28% | 62% | 32 | 0 | 83 | 3.7 | PASS |
 | ripple sideways | 60 mm/s | 1.12 N·m (rm_tibia_joint) | 38% | 0.28 N·m (lm_femur_joint) | 28% | 73% | 32 | 0 | 87 | 4.6 | PASS |
-| ripple turn | 0.26 rad/s | 1.20 N·m (rf_femur_joint) | 41% | 0.27 N·m (lm_femur_joint) | 27% | 63% | 31 | 0 | 83 | 2.2 | PASS |
+| ripple turn | 0.26 rad/s | 1.20 N·m (lr_femur_joint) | 41% | 0.27 N·m (lm_femur_joint) | 27% | 63% | 31 | 0 | 83 | 2.2 | PASS |
 | wave forward 25% | 6 mm/s | 0.82 N·m (lr_femur_joint) | 28% | 0.23 N·m (lm_femur_joint) | 24% | 37% | 24 | 0 | 97 | 2.6 | PASS |
 | wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.25 N·m (lm_femur_joint) | 25% | 56% | 25 | 0 | 98 | 3.1 | PASS |
 | wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.24 N·m (lm_femur_joint) | 25% | 69% | 27 | 0 | 102 | 3.5 | PASS |
@@ -43,7 +43,7 @@ Power estimate inputs: `stall_current_a` = 2.7 A and `idle_current_a` = 0.03 A a
 
 | Scenario | Speed | Peak (joint) | Peak % stall | RMS (joint) | RMS % rated | Max speed % | Power W | Steps at limit | Min margin mm | Slip mm | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| stand | 0 | 0.60 N·m (rm_femur_joint) | 20% | 0.22 N·m (lm_femur_joint) | 22% | 22% | 24 | 0 | - | - | PASS |
+| stand | 0 | 0.60 N·m (rm_femur_joint) | 20% | 0.22 N·m (rm_femur_joint) | 22% | 22% | 24 | 0 | - | - | PASS |
 | tripod forward 25% | 30 mm/s | 0.60 N·m (lm_femur_joint) | 20% | 0.36 N·m (rm_femur_joint) | 36% | 24% | 28 | 0 | 89 | 2.9 | PASS |
 | tripod forward 50% | 60 mm/s | 0.85 N·m (rm_tibia_joint) | 29% | 0.38 N·m (rm_femur_joint) | 38% | 49% | 32 | 0 | 83 | 3.0 | PASS |
 | tripod forward 100% | 120 mm/s | 0.90 N·m (lf_tibia_joint) | 31% | 0.38 N·m (lm_femur_joint) | 39% | 58% | 37 | 0 | 70 | 3.6 | PASS |
@@ -53,7 +53,7 @@ Power estimate inputs: `stall_current_a` = 2.7 A and `idle_current_a` = 0.03 A a
 | ripple forward 50% | 30 mm/s | 0.82 N·m (lf_femur_joint) | 28% | 0.29 N·m (rr_femur_joint) | 30% | 49% | 30 | 0 | 89 | 2.9 | PASS |
 | ripple forward 100% | 60 mm/s | 0.95 N·m (lr_tibia_joint) | 32% | 0.30 N·m (lf_femur_joint) | 30% | 62% | 34 | 0 | 82 | 3.9 | PASS |
 | ripple sideways | 60 mm/s | 1.12 N·m (rm_tibia_joint) | 38% | 0.30 N·m (lm_femur_joint) | 31% | 73% | 33 | 0 | 87 | 4.7 | PASS |
-| ripple turn | 0.26 rad/s | 1.20 N·m (rf_femur_joint) | 41% | 0.29 N·m (rm_femur_joint) | 30% | 63% | 33 | 0 | 83 | 2.4 | PASS |
+| ripple turn | 0.26 rad/s | 1.20 N·m (lr_femur_joint) | 41% | 0.29 N·m (lm_femur_joint) | 30% | 63% | 33 | 0 | 83 | 2.4 | PASS |
 | wave forward 25% | 6 mm/s | 0.82 N·m (lr_femur_joint) | 28% | 0.26 N·m (lm_femur_joint) | 26% | 37% | 26 | 0 | 97 | 2.8 | PASS |
 | wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.27 N·m (lm_femur_joint) | 28% | 56% | 27 | 0 | 98 | 3.3 | PASS |
 | wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.27 N·m (lm_femur_joint) | 28% | 69% | 28 | 0 | 102 | 3.8 | PASS |
@@ -64,7 +64,7 @@ Power estimate inputs: `stall_current_a` = 2.7 A and `idle_current_a` = 0.03 A a
 
 | Scenario | Speed | Peak (joint) | Peak % stall | RMS (joint) | RMS % rated | Max speed % | Power W | Steps at limit | Min margin mm | Slip mm | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| stand | 0 | 0.64 N·m (lm_femur_joint) | 22% | 0.26 N·m (rm_femur_joint) | 26% | 22% | 27 | 0 | - | - | PASS |
+| stand | 0 | 0.63 N·m (lm_femur_joint) | 22% | 0.26 N·m (rm_femur_joint) | 26% | 22% | 27 | 0 | - | - | PASS |
 | tripod forward 25% | 30 mm/s | 0.68 N·m (lm_femur_joint) | 23% | 0.40 N·m (rm_femur_joint) | 41% | 24% | 31 | 0 | 89 | 3.3 | PASS |
 | tripod forward 50% | 60 mm/s | 0.90 N·m (rm_tibia_joint) | 31% | 0.43 N·m (rm_femur_joint) | 43% | 49% | 35 | 0 | 83 | 3.5 | PASS |
 | tripod forward 100% | 120 mm/s | 0.92 N·m (rm_tibia_joint) | 31% | 0.43 N·m (lm_femur_joint) | 44% | 58% | 40 | 0 | 70 | 3.9 | PASS |
@@ -74,7 +74,7 @@ Power estimate inputs: `stall_current_a` = 2.7 A and `idle_current_a` = 0.03 A a
 | ripple forward 50% | 30 mm/s | 0.83 N·m (lf_femur_joint) | 28% | 0.33 N·m (rr_femur_joint) | 33% | 49% | 33 | 0 | 89 | 3.2 | PASS |
 | ripple forward 100% | 60 mm/s | 0.95 N·m (lr_tibia_joint) | 32% | 0.33 N·m (lf_femur_joint) | 34% | 62% | 36 | 0 | 82 | 4.2 | PASS |
 | ripple sideways | 60 mm/s | 1.12 N·m (rm_tibia_joint) | 38% | 0.34 N·m (lm_femur_joint) | 35% | 73% | 36 | 0 | 87 | 5.0 | PASS |
-| ripple turn | 0.26 rad/s | 1.20 N·m (rf_femur_joint) | 41% | 0.33 N·m (rm_femur_joint) | 34% | 63% | 36 | 0 | 83 | 2.6 | PASS |
+| ripple turn | 0.26 rad/s | 1.20 N·m (lr_femur_joint) | 41% | 0.33 N·m (lm_femur_joint) | 34% | 63% | 36 | 0 | 83 | 2.6 | PASS |
 | wave forward 25% | 6 mm/s | 0.83 N·m (lr_femur_joint) | 28% | 0.30 N·m (lm_femur_joint) | 31% | 36% | 29 | 0 | 97 | 3.1 | PASS |
 | wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.31 N·m (lm_femur_joint) | 32% | 56% | 30 | 0 | 98 | 3.6 | PASS |
 | wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.31 N·m (lm_femur_joint) | 32% | 69% | 31 | 0 | 102 | 4.1 | PASS |

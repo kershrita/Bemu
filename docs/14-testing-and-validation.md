@@ -88,6 +88,11 @@ Version 1c's tests: headless, the key and stick mapping (speed steps and limits,
 height limits, deadzone, bad axis values, once-per-press buttons) and the keyboard's refusal
 without a terminal; with ROS, the gamepad node and the `teleop` launch choices.
 
+Version 1.5b's tests add: link masses from the CAD and the guard that keeps `robot_params.yaml` equal to
+them (and to the CAD body thickness and the 2.5 kg design mass), the coxa mount, and the body (coverage,
+bed fit, real-STEP seating at both faces, no contact with a real coxa servo, swinging-leg sweeps,
+splices, the insert grid, the mass budget).
+
 Version 1.5a's tests (`bemu_cad/test`): the component library (every value has a source file
 and a valid status; bad or missing values are rejected naming the field); the STEP probe (the hole
 table equals the library, and the two manufacturer models agree); the servo solid, pocket and mass

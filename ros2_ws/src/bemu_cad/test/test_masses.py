@@ -81,3 +81,11 @@ def test_the_parameter_file_matches_the_cad(parts):
     )  # 0.1 g rounding x 6
     total = params.body.mass + 6 * (leg.coxa_mass + leg.femur_mass + leg.tibia_mass)
     assert total == pytest.approx(2.5, abs=0.002)  # the design mass
+
+
+def test_the_body_thickness_in_the_parameter_file_matches_the_cad(parts):
+    from bemu_cad.body import build_body
+
+    params, components, leg, _ = parts
+    body = build_body(params, components, leg)
+    assert params.body.size[2] == pytest.approx(2 * body.layout_mm["half_height"] * 1e-3, abs=1e-4)

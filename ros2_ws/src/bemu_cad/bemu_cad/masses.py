@@ -61,7 +61,7 @@ def link_masses(leg: LegParts, components: Components) -> LinkMasses:
     return LinkMasses(**total)
 
 
-def sync_robot_params(path: Path, masses: LinkMasses) -> None:
+def sync_robot_params(path: Path, masses: LinkMasses, body_thickness: float | None = None) -> None:
     """Rewrite the three `link_mass` numbers and the chassis budget (grams) in the parameter file,
     keeping its comments."""
     path = Path(path)
@@ -81,4 +81,11 @@ def sync_robot_params(path: Path, masses: LinkMasses) -> None:
     text, count = chassis.subn(rf"\g<1>{grams}\g<2>", text, count=1)
     if count != 1:
         raise ValueError(f"{path}: could not find the chassis mass line")
+    if body_thickness is not None:  # mm in the file; the sim's body box is the CAD body's height
+        size = re.compile(
+            r"^(\s+size:\s*\{x:\s*[0-9.]+,\s*y:\s*[0-9.]+,\s*z:\s*)[0-9.]+(\}.*)$", re.MULTILINE
+        )
+        text, count = size.subn(rf"\g<1>{body_thickness:.2f}\g<2>", text, count=1)
+        if count != 1:
+            raise ValueError(f"{path}: could not find the body size line")
     path.write_text(text, encoding="utf-8")
