@@ -1,6 +1,6 @@
 # Version 1 torque report
 
-Generated 2026-11-18 at commit `e400b57` by `tools/torque_report.py`.
+Generated 2026-11-19 at commit `1657afd` by `tools/torque_report.py`.
 
 ## Method
 
@@ -12,11 +12,11 @@ Placeholder constants (not datasheet values, to be confirmed on the real servo):
 
 ## Summary
 
-48 of 48 rows pass the peak and RMS rules.
+48 of 48 rows pass the peak and RMS rules and keep a stability margin above 15 mm.
 - Largest peak: 1.26 N·m (43% of stall), wave sideways at 2.5 kg.
 - Largest RMS: 0.43 N·m (44% of rated), tripod sideways at 2.5 kg.
-- Rows at the actuator limit: 0.
-- Unstable rows: 0.
+- Rows with steps over the design limit: 0.
+- 0 unstable rows.
 
 ## 2.0 kg
 

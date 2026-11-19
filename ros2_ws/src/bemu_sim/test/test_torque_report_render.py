@@ -62,3 +62,12 @@ def test_to_json_round_trips(params, actuators):
     assert first["verdict"]["peak_ok"] is False
     assert data["results"][3]["verdict"]["stable"] is False
     assert data["results"][0]["min_margin"] is None
+
+
+def test_status_tags_land_on_the_right_rows(params, actuators):
+    text = render_markdown(results(), params, actuators, commit="abc1234", date="2026-11-18")
+    rows = {line.split("|")[1].strip(): line for line in text.splitlines() if line.startswith("| ")}
+    assert rows["ripple forward 100%"].rstrip().endswith("FAIL |")
+    assert rows["wave turn"].rstrip().endswith("PASS UNSTABLE |")
+    assert rows["stand"].rstrip().endswith("PASS |")
+    assert "3 of 5 rows pass" in text and "1 unstable" in text

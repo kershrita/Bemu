@@ -150,7 +150,10 @@ def run_scenario(
     """Run one scenario. Peak torque and speed cover the whole run; RMS, mean torque, power,
     margin and slip cover the steady part after the warm-up."""
     robot = params_for_mass(params, scenario.total_mass)
-    sim = RobotSim(build_robot_mjcf(robot, report_actuators(actuators, params.servo)))
+    sim = RobotSim(
+        build_robot_mjcf(robot, report_actuators(actuators, params.servo)),
+        count_limit=actuators.max_torque,  # steps over the design limit, though clipped at stall
+    )
     joints = joint_order()
 
     if scenario.motion == "stand":
@@ -233,10 +236,11 @@ def render_markdown(
     *,
     commit: str,
     date: str,
+    quick: bool = False,
 ) -> str:
     servo = params.servo
     out = [
-        "# Version 1 torque report",
+        "# Version 1 torque report" + (" (quick smoke run, not the report)" if quick else ""),
         "",
         f"Generated {date} at commit `{commit}` by `tools/torque_report.py`.",
         "",
@@ -260,11 +264,12 @@ def render_markdown(
         "torque, speed and the verdicts do not depend on them.",
         "",
     ]
-    passing = sum(1 for r in results if verdict(r, servo).peak_ok and verdict(r, servo).rms_ok)
+    passing = sum(1 for r in results if _status(r, servo) == "PASS")
     out += [
         "## Summary",
         "",
-        f"{passing} of {len(results)} rows pass the peak and RMS rules.",
+        f"{passing} of {len(results)} rows pass the peak and RMS rules "
+        "and keep a stability margin above 15 mm.",
     ]
     at_limit = sum(verdict(r, servo).steps_at_limit > 0 for r in results)
     peak_row = max(results, key=lambda r: float(r.peak_torque.max()))
@@ -276,8 +281,8 @@ def render_markdown(
         f"- Largest RMS: {rms_row.rms_torque.max():.2f} N·m "
         f"({verdict(rms_row, servo).rms_vs_rated:.0%} of rated), "
         f"{_label(rms_row.scenario)} at {rms_row.scenario.total_mass} kg.",
-        f"- Rows at the actuator limit: {at_limit}.",
-        f"- Unstable rows: {sum(not verdict(r, servo).stable for r in results)}.",
+        f"- Rows with steps over the design limit: {at_limit}.",
+        f"- {sum(not verdict(r, servo).stable for r in results)} unstable rows.",
         "",
     ]
     for mass in sorted({r.scenario.total_mass for r in results}):

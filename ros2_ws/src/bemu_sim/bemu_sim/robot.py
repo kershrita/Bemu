@@ -31,7 +31,7 @@ class JointStats:
 
 
 class RobotSim:
-    def __init__(self, mjcf: str) -> None:
+    def __init__(self, mjcf: str, *, count_limit: float | None = None) -> None:
         self._model = mujoco.MjModel.from_xml_string(mjcf)
         self._data = mujoco.MjData(self._model)
         self._steps_per_control = round(1.0 / (CONTROL_RATE * self._model.opt.timestep))
@@ -45,7 +45,11 @@ class RobotSim:
             leg: [self._model.joint(n).qposadr[0] for n in joint_names(leg)] for leg in LEG_CODES
         }
         self._dofs = [self._model.joint(name).dofadr[0] for name in joint_order()]
+        # steps_at_limit counts against the actuator range, or against count_limit when given
+        # (the torque report clips at stall but counts steps over the design limit)
         self._limit = np.array(self._model.actuator_forcerange[:, 1])
+        if count_limit is not None:
+            self._limit = np.full_like(self._limit, count_limit)
         self.clear_stats()
         self.reset("sit")
 

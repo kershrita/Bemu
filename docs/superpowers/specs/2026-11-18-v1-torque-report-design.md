@@ -1,7 +1,7 @@
 # Version 1 — The torque report
 
 **Date:** 2026-11-18
-**Status:** implemented 2026-11-18 (short design, placeholder servo currents accepted). Result: all 48 rows pass; worst peak 1.26 N·m (43% of stall, wave sideways), worst RMS 0.43 N·m (44% of rated), no step at the actuator limit, margin never under 70 mm. See `docs/reports/v1-torque-report.md`.
+**Status:** implemented 2026-11-18 (short design, placeholder servo currents accepted). Result: all 48 rows pass; worst peak 1.26 N·m (43% of stall, wave sideways), worst RMS 0.43 N·m (44% of rated), no step at the actuator limit, margin never under 69.8 mm. See `docs/reports/v1-torque-report.md`.
 **Size:** a small project
 **Roadmap step:** 1.8, and the exit-test box "a torque report exists" in [03 — Roadmap](../../03-roadmap.md)
 

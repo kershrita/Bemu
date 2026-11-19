@@ -14,8 +14,8 @@ def load_tool():
 def test_tool_quick_run_writes_both_files(monkeypatch, tmp_path, capsys):
     monkeypatch.setattr("sys.argv", ["torque_report", "--quick", "--out", str(tmp_path)])
     assert load_tool().main() == 0
-    markdown = (tmp_path / "v1-torque-report.md").read_text()
-    assert (tmp_path / "v1-torque-report.json").exists()
+    markdown = (tmp_path / "v1-torque-report-quick.md").read_text()
+    assert (tmp_path / "v1-torque-report-quick.json").exists()
     assert "tripod" in markdown and "stand" in markdown and "wave" in markdown
     assert "turn" in markdown and "forward" in markdown
 

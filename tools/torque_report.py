@@ -4,7 +4,8 @@ Usage: python tools/torque_report.py [--out DIR] [--quick]
 
 Runs the 48-scenario matrix (a stand plus walking, sideways and turning at three robot masses) with
 the torque clip at the servo's stall torque, and writes v1-torque-report.md and .json into DIR
-(default docs/reports/). --quick runs three short scenarios as a smoke check.
+(default docs/reports/). --quick runs three short scenarios as a smoke check and writes
+v1-torque-report-quick.* instead, so the real report is never overwritten.
 """
 
 import argparse
@@ -91,11 +92,14 @@ def _run() -> int:
         results.append(run_scenario(params, actuators, gait_params, scenario, **timing))
 
     commit, today = _commit(), date.today().isoformat()
-    markdown = render_markdown(results, params, actuators, commit=commit, date=today)
+    markdown = render_markdown(
+        results, params, actuators, commit=commit, date=today, quick=args.quick
+    )
     data = to_json(results, params, actuators, commit=commit, date=today)
-    (args.out / "v1-torque-report.md").write_text(markdown + "\n")
-    (args.out / "v1-torque-report.json").write_text(json.dumps(data, indent=2) + "\n")
-    print(f"wrote {args.out / 'v1-torque-report.md'} and .json")
+    stem = "v1-torque-report-quick" if args.quick else "v1-torque-report"  # never the real report
+    (args.out / f"{stem}.json").write_text(json.dumps(data, indent=2) + "\n")
+    (args.out / f"{stem}.md").write_text(markdown + "\n")
+    print(f"wrote {args.out / stem}.md and .json")
     return 0
 
 

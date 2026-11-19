@@ -95,3 +95,14 @@ def test_steps_at_limit_counts_saturation(params, actuators):
     for _ in range(3):  # holding the pose it starts in: no demand near the stall torque
         sim.command(pose_angles(params, BodyPose(sit_height(params))))
     assert not sim.stats().steps_at_limit.any()
+
+
+def test_count_limit_overrides_the_actuator_range(params, actuators):
+    strong = dataclasses.replace(actuators, max_torque=2.94)
+    sim = RobotSim(build_robot_mjcf(params, strong), count_limit=0.05)
+    sim.clear_stats()
+    for _ in range(3):
+        sim.command(targets(params))
+    stats = sim.stats()
+    assert stats.steps_at_limit.sum() > 0
+    assert stats.peak_torque.max() > 0.05

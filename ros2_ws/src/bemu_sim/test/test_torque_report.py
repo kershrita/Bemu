@@ -1,3 +1,4 @@
+import dataclasses
 import math
 
 import numpy as np
@@ -151,3 +152,13 @@ def test_a_walking_scenario_runs(params, actuators, gait_params):
     assert result.max_slip is not None
     assert result.command == pytest.approx((0.06, 0.0, 0.0))
     assert 21.6 < result.power < 18 * 12 * 2.7
+
+
+def test_run_scenario_clips_at_stall_and_counts_the_design_limit(params, actuators, gait_params):
+    # Review finding: a walk that needs more than the design clip must show it, not be clipped,
+    # and the steps over the design limit must be counted.
+    low = dataclasses.replace(actuators, max_torque=0.3)
+    scenario = Scenario("tripod", "forward", 0.5, 2.5)
+    result = run_scenario(params, low, gait_params, scenario, warmup=1.0, seconds=2.0)
+    assert result.peak_torque.max() > 0.3 + 1e-6  # not clipped at the design limit
+    assert result.steps_at_limit.sum() > 0  # counted against the design limit
