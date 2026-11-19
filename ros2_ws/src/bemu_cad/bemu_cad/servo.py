@@ -16,6 +16,7 @@ from build123d import Box, Cylinder, Pos, Solid
 from bemu_cad.components import ServoSpec
 
 M_TO_MM = 1000.0
+REAR_HORN_RECESS = 0.8  # mm, from the manufacturer's STEP (rear horn face at z = -27.4)
 
 
 @dataclass(frozen=True)
@@ -54,7 +55,12 @@ def _dimensions(spec: ServoSpec, grow: float = 0.0):
 def servo_solid(spec: ServoSpec) -> Solid:
     """The case box and the output horn disc (the envelope a bracket must not touch)."""
     case, horn = _dimensions(spec)
-    return case + horn
+    z0, _ = (v * M_TO_MM for v in spec.case_z)
+    h0, _ = (v * M_TO_MM for v in spec.horn_z)
+    # the rear horn's outer face sits 0.8 mm inside the back face (STEP): a bracket boss enters
+    # that recess, so the recess is a void in the envelope
+    recess = _horn(spec.horn_disc_diameter * M_TO_MM, z0 - 1.0, z0 + REAR_HORN_RECESS)
+    return case + horn - recess
 
 
 def servo_pocket(spec: ServoSpec, allowance: float) -> Solid:

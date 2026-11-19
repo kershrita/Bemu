@@ -82,6 +82,10 @@ screw_m3:  # socket head cap screw, ISO 4762
   head_height: {value: 3.0, source: ISO 4762, status: standard}
   clearance_hole: {value: 3.4, source: ISO 273 medium series, status: standard}
 
+screw_m2:  # the bracket holes are assumed M2 (pilot 1.6 mm) until the first servo is checked
+  clearance_hole: {value: 2.4, source: ISO 273 medium series, status: standard}
+  head_diameter: {value: 3.8, source: ISO 4762, status: standard}
+
 nut_m3:
   across_flats: {value: 5.5, source: ISO 4032, status: standard}
   thickness: {value: 2.4, source: ISO 4032, status: standard}
