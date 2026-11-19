@@ -366,3 +366,22 @@ learned walker is compared against. See [11 — Learning roadmap](11-learning-ro
 
 The full list for the project is in [References](references.md). A dash means the source
 is listed for reference and was not re-read on a specific date.
+
+## Running it under ROS (version 1)
+
+`bemu_locomotion` wraps the walker. All its decisions are in a ROS-free `LocomotionCore`
+(tested headless); the node only moves messages. Commands: `/cmd_vel` (`TwistStamped`),
+`/body_pose_cmd` (`PoseStamped`, `position.z` is the hip height), `/gait_cmd` (`GaitCommand`),
+services `/stand` and `/sit`. It publishes 18 joint targets at 50 Hz, `/gait_state` and
+`/stability_margin`.
+
+- It stands up by itself on start (`auto_stand`), and only when the legs are within 0.3 rad of
+  the sit pose.
+- A `/cmd_vel` older than 0.5 s (measured on the node's own clock, not the message stamp) means
+  zero velocity, so a lost controller or a stopped publisher stops the robot.
+- `/sit` first stops walking and returns the body pose to standing, waits (at least 1.5 s) until
+  every foot is back at its neutral position, then lowers the body. If the feet do not settle
+  within 10 s the sit is cancelled with a warning.
+- Bad input never crashes it: NaN velocities, unreachable body poses, unknown gaits and joint
+  states missing a joint are rejected with a warning and the previous command stays in force.
+- `/stand` and `/sit` are refused (with a reason) while the robot is in the wrong state.

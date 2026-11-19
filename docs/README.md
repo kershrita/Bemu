@@ -36,6 +36,7 @@ Read in this order the first time. After that, each document stands on its own.
 | 13 | [Development environment](13-dev-environment.md) | What to install on the PC and the Pi |
 | 14 | [Testing and validation](14-testing-and-validation.md) | How each layer is tested |
 | 15 | [Risks and open questions](15-risks-and-open-questions.md) | What could go wrong, what is undecided |
+| — | [Version 1 release notes](releases/v1.md), [torque report](reports/v1-torque-report.md) | What version 1 delivers, its known limitations, and the servo evidence |
 | — | [Glossary](glossary.md) | Terms used in these documents |
 | — | [References](references.md) | External sources, with the date each was checked |
 | — | [Decision records](decisions/README.md) | Why each significant choice was made |
