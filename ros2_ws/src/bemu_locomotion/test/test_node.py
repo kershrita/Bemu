@@ -57,6 +57,9 @@ class Harness:
         msg.position = self.sit[::-1] + [0.0]
         self.joint_pub.publish(msg)
 
+    def mode(self) -> str:
+        return self.states[-1].mode if self.states else ""
+
     def spin(self, seconds: float, until=None) -> bool:
         end = time.monotonic() + seconds
         while time.monotonic() < end:
@@ -110,12 +113,12 @@ def test_commands_are_in_joint_order_and_types_match(manual):
 def test_stand_service_and_a_second_request(manual):
     manual.spin(1.0)
     assert manual.call("/stand").success
-    assert manual.spin(6.0, until=lambda: manual.states[-1].mode == "standing")
+    assert manual.spin(6.0, until=lambda: manual.mode() == "standing")
     assert not manual.call("/stand").success
 
 
 def test_walking_and_the_command_timeout(automatic):
-    assert automatic.spin(8.0, until=lambda: automatic.states[-1].mode == "standing")
+    assert automatic.spin(8.0, until=lambda: automatic.mode() == "standing")
 
     def publish_forward():
         msg = TwistStamped()
@@ -134,7 +137,7 @@ def test_walking_and_the_command_timeout(automatic):
 
 
 def test_bad_commands_do_not_stop_the_node(automatic):
-    assert automatic.spin(8.0, until=lambda: automatic.states[-1].mode == "standing")
+    assert automatic.spin(8.0, until=lambda: automatic.mode() == "standing")
     bad = TwistStamped()
     bad.twist.linear.x = math.nan
     automatic.twist_pub.publish(bad)
