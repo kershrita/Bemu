@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>bemu_locomotion</name>
+  <version>0.1.0</version>
+  <description>The Bemu walker node: velocity, body pose and gait commands to joint targets.</description>
+  <maintainer email="noreply@example.com">Bemu</maintainer>
+  <license>Proprietary</license>
+  <depend>bemu_params</depend>
+  <depend>bemu_kinematics</depend>
+  <depend>bemu_description</depend>
+  <depend>bemu_gait</depend>
+  <depend>bemu_msgs</depend>
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

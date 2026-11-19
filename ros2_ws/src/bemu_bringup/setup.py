@@ -7,7 +7,7 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/bemu_bringup"]),
         ("share/bemu_bringup", ["package.xml"]),
-        ("share/bemu_bringup/launch", ["launch/leg.launch.py"]),
+        ("share/bemu_bringup/launch", ["launch/leg.launch.py", "launch/robot.launch.py"]),
     ],
     install_requires=["setuptools"],
     extras_require={"test": ["pytest"]},

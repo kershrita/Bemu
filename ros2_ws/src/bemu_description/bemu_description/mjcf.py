@@ -1,4 +1,6 @@
-"""Build the MuJoCo model of one leg hanging from a fixed stand (XML text; no mujoco import).
+"""MuJoCo model text for one leg on a stand, and the leg chain the full-robot model reuses.
+
+No mujoco import: these build XML text.
 
 Leg frame: origin on the coxa axis, x out, y left, z up. The femur and tibia hinges point
 along -y so that a positive angle raises the link.
@@ -16,7 +18,6 @@ from bemu_params import RobotParams
 TIMESTEP = 0.002  # s
 STAND_HEIGHT = 0.20  # m, hip above the floor
 LINK_RADIUS = 0.012  # m
-FOOT_RADIUS = 0.008  # m
 FOOT_FRICTION = 1.0
 
 
@@ -26,65 +27,96 @@ def neutral_angles(params: RobotParams) -> tuple[float, float, float]:
     return tuple(inverse(params.leg, foot))
 
 
-def _num(value: float) -> str:
+def num(value: float) -> str:
     return repr(float(value))
 
 
-def _vec(*values: float) -> str:
-    return " ".join(_num(v) for v in values)
+def vec(*values: float) -> str:
+    return " ".join(num(v) for v in values)
 
 
-def build_leg_mjcf(params: RobotParams, actuators: ActuatorModel, leg_code: str = "lf") -> str:
+def joint_defaults_xml(actuators: ActuatorModel) -> str:
+    return (
+        f'<joint armature="{num(actuators.armature)}" damping="{num(actuators.damping)}" '
+        f'frictionloss="{num(actuators.frictionloss)}"/>'
+    )
+
+
+def leg_body_xml(
+    params: RobotParams,
+    leg_code: str,
+    *,
+    pos: str,
+    euler: str | None = None,
+    foot_contact: str = "",
+) -> str:
+    """The nested coxa, femur and tibia bodies of one leg, with its hip and foot sites.
+
+    `pos` (and `euler`) place the coxa body in its parent. The foot sphere's centre is the tibia
+    end; `foot_contact` adds contype/conaffinity attributes to the foot geom, for models whose
+    default geoms do not collide.
+    """
     leg = params.leg
     coxa, femur, tibia = joint_names(leg_code)
     limits = (leg.coxa_limits, leg.femur_limits, leg.tibia_limits)
-    neutral = neutral_angles(params)
     q = quoteattr
 
     def joint(name: str, axis: tuple[float, float, float], rng: tuple[float, float]) -> str:
         return (
-            f'<joint name={q(name)} type="hinge" axis="{_vec(*axis)}" limited="true" '
-            f'range="{_vec(*rng)}"/>'
+            f'<joint name={q(name)} type="hinge" axis="{vec(*axis)}" limited="true" '
+            f'range="{vec(*rng)}"/>'
         )
 
-    actuator_lines = "\n".join(
-        f'    <position name={q(name)} joint={q(name)} kp="{_num(actuators.kp)}" '
-        f'kv="{_num(actuators.kv)}" ctrllimited="true" ctrlrange="{_vec(*rng)}" '
-        f'forcelimited="true" forcerange="{_vec(-actuators.max_torque, actuators.max_torque)}"/>'
-        for name, rng in zip((coxa, femur, tibia), limits, strict=True)
+    orientation = f' euler="{euler}"' if euler else ""
+    return f"""<body name="{leg_code}_coxa" pos="{pos}"{orientation}>
+      {joint(coxa, (0, 0, 1), limits[0])}
+      <site name={q(hip_site(leg_code))} pos="0 0 0" size="0.004"/>
+      <geom type="capsule" fromto="0 0 0 {vec(leg.coxa_length, 0, 0)}" \
+size="{num(LINK_RADIUS)}" mass="{num(leg.coxa_mass)}"/>
+      <body name="{leg_code}_femur" pos="{vec(leg.coxa_length, 0, 0)}">
+        {joint(femur, (0, -1, 0), limits[1])}
+        <geom type="capsule" fromto="0 0 0 {vec(leg.femur_length, 0, 0)}" \
+size="{num(LINK_RADIUS)}" mass="{num(leg.femur_mass)}"/>
+        <body name="{leg_code}_tibia" pos="{vec(leg.femur_length, 0, 0)}">
+          {joint(tibia, (0, -1, 0), limits[2])}
+          <geom type="capsule" fromto="0 0 0 {vec(leg.tibia_length, 0, 0)}" \
+size="{num(LINK_RADIUS)}" mass="{num(leg.tibia_mass)}"/>
+          <geom name="{leg_code}_foot_tip" type="sphere" pos="{vec(leg.tibia_length, 0, 0)}" \
+size="{num(leg.foot_radius)}" density="0" {foot_contact} \
+friction="{num(FOOT_FRICTION)} 0.005 0.0001"/>
+          <site name={q(foot_site(leg_code))} pos="{vec(leg.tibia_length, 0, 0)}" size="0.004"/>
+        </body>
+      </body>
+    </body>"""
+
+
+def leg_actuators_xml(params: RobotParams, actuators: ActuatorModel, leg_code: str) -> str:
+    leg = params.leg
+    limits = (leg.coxa_limits, leg.femur_limits, leg.tibia_limits)
+    q = quoteattr
+    return "\n".join(
+        f'    <position name={q(name)} joint={q(name)} kp="{num(actuators.kp)}" '
+        f'kv="{num(actuators.kv)}" ctrllimited="true" ctrlrange="{vec(*rng)}" '
+        f'forcelimited="true" forcerange="{vec(-actuators.max_torque, actuators.max_torque)}"/>'
+        for name, rng in zip(joint_names(leg_code), limits, strict=True)
     )
-    qpos = _vec(*neutral)
+
+
+def build_leg_mjcf(params: RobotParams, actuators: ActuatorModel, leg_code: str = "lf") -> str:
+    qpos = vec(*neutral_angles(params))
+    body = leg_body_xml(params, leg_code, pos=vec(0, 0, STAND_HEIGHT))
     return f"""<mujoco model="bemu_{leg_code}_leg">
   <compiler angle="radian"/>
-  <option timestep="{_num(TIMESTEP)}"/>
+  <option timestep="{num(TIMESTEP)}"/>
   <default>
-    <joint armature="{_num(actuators.armature)}" damping="{_num(actuators.damping)}" \
-frictionloss="{_num(actuators.frictionloss)}"/>
+    {joint_defaults_xml(actuators)}
   </default>
   <worldbody>
     <geom name="floor" type="plane" size="2 2 0.1"/>
-    <body name="{leg_code}_coxa" pos="0 0 {_num(STAND_HEIGHT)}">
-      {joint(coxa, (0, 0, 1), limits[0])}
-      <site name={q(hip_site(leg_code))} pos="0 0 0" size="0.004"/>
-      <geom type="capsule" fromto="0 0 0 {_vec(leg.coxa_length, 0, 0)}" \
-size="{_num(LINK_RADIUS)}" mass="{_num(leg.coxa_mass)}"/>
-      <body name="{leg_code}_femur" pos="{_vec(leg.coxa_length, 0, 0)}">
-        {joint(femur, (0, -1, 0), limits[1])}
-        <geom type="capsule" fromto="0 0 0 {_vec(leg.femur_length, 0, 0)}" \
-size="{_num(LINK_RADIUS)}" mass="{_num(leg.femur_mass)}"/>
-        <body name="{leg_code}_tibia" pos="{_vec(leg.femur_length, 0, 0)}">
-          {joint(tibia, (0, -1, 0), limits[2])}
-          <geom type="capsule" fromto="0 0 0 {_vec(leg.tibia_length, 0, 0)}" \
-size="{_num(LINK_RADIUS)}" mass="{_num(leg.tibia_mass)}"/>
-          <geom name="{leg_code}_foot_tip" type="sphere" pos="{_vec(leg.tibia_length, 0, 0)}" \
-size="{_num(FOOT_RADIUS)}" density="0" friction="{_num(FOOT_FRICTION)} 0.005 0.0001"/>
-          <site name={q(foot_site(leg_code))} pos="{_vec(leg.tibia_length, 0, 0)}" size="0.004"/>
-        </body>
-      </body>
-    </body>
+    {body}
   </worldbody>
   <actuator>
-{actuator_lines}
+{leg_actuators_xml(params, actuators, leg_code)}
   </actuator>
   <keyframe>
     <key name="neutral" qpos="{qpos}" ctrl="{qpos}"/>

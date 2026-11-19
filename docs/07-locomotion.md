@@ -132,6 +132,12 @@ are in [08 — Mechanical design](08-mechanical-design.md).
 
 ### Body pose
 
+In the code (`bemu_kinematics.body`) the planted foot is the foot sphere's *centre*, 8 mm above
+the floor, and heights are the hip plane's height above the floor: **98 mm** standing (the
+stance's 90 mm above the foot centres, plus the 8 mm) and **28 mm** sitting (half the 56 mm
+body). The sit pose is the tight one: the femur needs 85.6° of its 90° limit, and the
+parameter loader rejects a body too thin (under 48 mm) to sit.
+
 To raise, shift or tilt the body while the feet stay planted: if the body should
 move by translation `t` and rotation `R` from neutral, each planted foot, seen from
 the body, moves the opposite way:
@@ -214,10 +220,65 @@ of touchdown.
 | Parameter | Starting value |
 |---|---|
 | Cycle time (tripod) | 1.0 s |
-| Step height | 30 mm |
+| Step height | 20 mm (30 mm in the first draft; see below) |
 | Maximum stride | 60 mm |
 | Body height | 90 mm |
 | Resulting top speed (tripod) | 60 mm ÷ 0.5 s = 0.12 m/s |
+| Cycle time, ripple / wave | 1.5 s / 3.0 s: every gait swings for 0.5 s |
+| Top speed, ripple / wave | 60 mm ÷ 1.0 s = 0.06 m/s / 60 mm ÷ 2.5 s = 0.024 m/s |
+
+These are the values in `bemu_gait/config/gait.yaml`, tuned against the simulator
+(version 1b-1). **Swing speed sets the torque:** the largest torque
+on any 2 ms physics step grows with how fast a foot is lifted and lowered. With a 30 mm step
+the tripod needed 1.24 to 1.45 N·m at 0.1 m/s (the limit is 1.47); with 20 mm, 0.88 to 0.98.
+A 0.6 s wave cycle swung a foot in 0.1 s and saturated the servo model, so every gait now
+swings for the tripod's 0.5 s, which also makes the wave the slowest, as it should be.
+**Planted-foot slip is the walker's job to keep small, and it is:** with foot positions
+integrated (see below), loaded slip is 3.7 to 4.4 mm for the tripod, ripple and wave at forward
+speeds up to their tops, and for turning in place. The one exception is the tripod walking
+sideways: 5.0 mm at 0.08 m/s and 5.9 mm at its 0.12 m/s top speed.
+
+### How the feet move
+
+Phases decide *when* a leg is in stance or swing. Foot *positions* are state. In stance a
+foot moves in the body frame at exactly the speed the ground moves under the body,
+`−(v + ω × r)`, a rigid motion about the body centre, so a planted foot does not slip
+whatever the command or the gait does. In swing the foot goes from where it lifted off to the
+point where the stance will begin (`+stride/2`), along the smooth blend. The closed form
+`stride × (0.5 − u)` in the section above is the steady-state path. As the walker's whole
+definition it dragged planted feet whenever the speed or the duty factor changed (20.9 mm for
+the wave at start-up), which is why positions are integrated.
+
+### Starting and stopping
+
+The commanded velocity is clamped to what the 60 mm stride cap allows, then slewed
+(0.05 m/s², 1 rad/s²), so a command above top speed cannot wind up and stopping always takes
+top speed ÷ acceleration (2.4 s for the tripod). The step height is scaled by the stride (full
+at 30 mm of stride), so at zero command the feet stand at their neutral points and do not
+lift; there is no special "stopped" state. At the very start the tripod legs that begin in
+swing scrape the floor for about a second (up to 9 mm) while the lift is still rising.
+
+### Gait switching
+
+A gait change keeps every leg's phase and slides its phase offset (the short way round the
+circle), the duty factor and the cycle time linearly to the new gait's values over two cycles
+of the old gait. Foot position depends smoothly on phase and duty, so no foot jumps. Part-way
+through a blend the legs on the ground can form a triangle that does not contain the centre
+of mass (a margin of −4 mm was seen about a second into tripod to ripple). The stability
+reaction below lowers the lifts, but cannot prevent that moment, the body is knocked, and
+**planted feet slip while a gait is changing**: 3.6 to 25 mm at 0.9× the pair's top speed
+(worst: ripple to tripod 25 mm, tripod to ripple 18 mm), and 4 mm or less once the blend is
+done. The exit criteria still hold (margin 82 to 92 mm, tilt under 1°, torque at most
+1.17 N·m, no stop). The proper fix is stability-gated lift-off: a leg that would leave an
+unstable support stays planted until it is safe. That changes the blend, so it is left as an
+open design question. Asking again for the gait already being walked changes nothing; a
+request for a different one during a blend replaces its target.
+
+### Body pose while walking
+
+A body pose command (height, shift, tilt) goes through the same joint-angle calculation as
+standing, and is applied gradually: 30 mm/s for height and shift, 0.3 rad/s for tilt. A
+one-tick 10 mm or 5° step saturated the torque limit in simulation.
 
 ### Limits
 
@@ -231,7 +292,7 @@ so the robot slows rather than distorting its gait.
 
 | Sequence | Steps |
 |---|---|
-| Stand up | 1. With the body resting on the ground, move each foot to its neutral horizontal position at ground level. 2. Raise the body height command smoothly, from the height at which the body rests on the ground up to the target, over 2 s. |
+| Stand up | 1. With the body resting on the ground, move each foot to its neutral horizontal position at ground level. 2. Raise the body height command smoothly, from the height at which the body rests on the ground up to the target, over 2 s. In simulation (version 1a) the robot starts in the `sit` keyframe, which is already step 1's end state, so only step 2 runs. |
 | Sit down | The reverse, then switch off joint torque. |
 
 Both are body pose movements, so they reuse the formula in section 2.
@@ -246,7 +307,11 @@ mass to the edge of that polygon.
 
 - The walker computes the margin every cycle and publishes it.
 - Target: above 15 mm at all times on flat ground **(estimate)**.
-- If the margin falls below a threshold, the walker slows down.
+- If the margin of the feet on the ground falls below a threshold (25 mm, above the 15 mm
+  target to leave room for a foot lagging its command by a tick), the walker lowers the
+  lift of the feet: lifted feet come down and join the support. The strides are not
+  touched, so the robot keeps moving. The lift scale falls at 6 per second and recovers
+  at 1 per second. The reach limit and the 60 mm stride cap are separate and immediate.
 
 ---
 
@@ -301,3 +366,22 @@ learned walker is compared against. See [11 — Learning roadmap](11-learning-ro
 
 The full list for the project is in [References](references.md). A dash means the source
 is listed for reference and was not re-read on a specific date.
+
+## Running it under ROS (version 1)
+
+`bemu_locomotion` wraps the walker. All its decisions are in a ROS-free `LocomotionCore`
+(tested headless); the node only moves messages. Commands: `/cmd_vel` (`TwistStamped`),
+`/body_pose_cmd` (`PoseStamped`, `position.z` is the hip height), `/gait_cmd` (`GaitCommand`),
+services `/stand` and `/sit`. It publishes 18 joint targets at 50 Hz, `/gait_state` and
+`/stability_margin`.
+
+- It stands up by itself on start (`auto_stand`), and only when the legs are within 0.3 rad of
+  the sit pose.
+- A `/cmd_vel` older than 0.5 s (measured on the node's own clock, not the message stamp) means
+  zero velocity, so a lost controller or a stopped publisher stops the robot.
+- `/sit` first stops walking and returns the body pose to standing, waits (at least 1.5 s) until
+  every foot is back at its neutral position, then lowers the body. If the feet do not settle
+  within 10 s the sit is cancelled with a warning.
+- Bad input never crashes it: NaN velocities, unreachable body poses, unknown gaits and joint
+  states missing a joint are rejected with a warning and the previous command stays in force.
+- `/stand` and `/sit` are refused (with a reason) while the robot is in the wrong state.

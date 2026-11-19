@@ -111,6 +111,7 @@ under WSL 2). Everything after step 1 runs inside Ubuntu.
    echo 'export BEMU_PARAMS=~/bemu/config/robot_params.yaml' >> ~/.bashrc && source ~/.bashrc
    python3 -m pytest -m "not sim_launch"
    cd ros2_ws && colcon build --symlink-install && source install/setup.bash
+   # in every new terminal, and so in ~/.bashrc:  source ~/bemu/ros2_ws/install/setup.bash
    colcon test && colcon test-result --verbose
    ```
 
@@ -123,6 +124,13 @@ under WSL 2). Everything after step 1 runs inside Ubuntu.
 | `libsdformat.so.16` not found | Terminal opened before the packages were installed | Open a fresh terminal |
 | Spawners fail with `Failed loading controller`, repeated `Moved backwards in time` | Two simulators running on one ROS network | Stop the old one: `pkill -f "ros2 launch"; pkill -f ros2_control_node; pkill -f robot_state_publisher` |
 | `colcon test` says `NO TESTS RAN` | The package does not declare pytest | `extras_require={"test": ["pytest"]}` in `setup.py` (setuptools no longer accepts `tests_require`) |
+| `Package 'bemu_bringup' not found` (or `bemu_teleop`), or `The passed message type is invalid` for a `bemu_msgs` message | This terminal has not loaded the built workspace (only `/opt/ros/lyrical` is searched), or the workspace was built before those packages existed | `source ~/bemu/ros2_ws/install/setup.bash`; if the package is still missing, `git pull && colcon build --symlink-install` and source again. Put both `source` lines in `~/.bashrc` so every terminal has them |
+| Launch tests fail with `Launch stopped before the active tests finished` and `cannot read parameter file .../Bemu/config/robot_params.yaml` | `BEMU_PARAMS` points at a path with the wrong capital letters (Linux paths are case-sensitive; the folder is `~/bemu`) | `export BEMU_PARAMS=~/bemu/config/robot_params.yaml`, and fix the line in `~/.bashrc` |
+| `colcon test` reports failures in `bemu_bringup` only | It runs the simulated launch tests (`sim_launch`) too, which need a free ROS network and `BEMU_PARAMS`; the GitHub check skips them | Fix the cause above, stop any running simulator, or run `colcon test --pytest-args -m "not sim_launch"` |
+| `/stand` answers `success=False` with `the robot is stopping` or `... standing_up` | Not an error: a stand request is refused while a sit or stand is in progress, so the legs never jerk | Wait about 4 s after `/sit` for the robot to lie down, then call `/stand` |
+| `/sit` answers `cannot sit down: the robot is sitting` | It is already sitting | None needed |
+| `ros2 topic pub` fills the terminal | It prints every message it sends | Add `> /dev/null` to the command |
+| A node crashes with `'RcutilsLogger' object has no attribute 'warn'` | `Logger.warn` was removed in ROS 2 Lyrical | Use `get_logger().warning(...)` |
 | Closing the MuJoCo viewer window segfaults | Mesa EGL crash in `glfw.terminate` under WSL | `tools/trace_foot.py` ends the process without that teardown |
 
 ## Version record
@@ -164,10 +172,20 @@ Recorded on 2026-11-18, on the development PC.
 | Build | `colcon build --symlink-install` in `ros2_ws/` |
 | Test | `colcon test`, then `colcon test-result --verbose` |
 | Run the simulated leg (version 0) | `ros2 launch bemu_bringup leg.launch.py shape:=square` (or `circle`, `none`); add `headless:=true` for no window |
+| Run the simulated robot (version 1) | `ros2 launch bemu_bringup robot.launch.py` (add `headless:=true` for no window); it stands up by itself |
+| Walk it by hand | `ros2 topic pub -r 10 /cmd_vel geometry_msgs/msg/TwistStamped "{twist: {linear: {x: 0.06}}}"` (stop publishing and it stops after 0.5 s) |
+| Sit it down or stand it up | `ros2 service call /sit std_srvs/srv/Trigger` (or `/stand`) |
+| Change gait | `ros2 topic pub --once /gait_cmd bemu_msgs/msg/GaitCommand "{gait: ripple}"` |
+| Drive it from the keyboard | In a second terminal (after `source install/setup.bash`): `ros2 run bemu_teleop keyboard`. `w`/`s` forward and back, `a`/`d` left and right, `q`/`e` turn, space stop (each press steps the speed 20% of the gait's top speed), `1`/`2`/`3` tripod, ripple, wave, `r`/`f` body up and down 5 mm, `h` stand, `j` sit, `x` quit |
+| Drive it with a gamepad | `ros2 launch bemu_bringup robot.launch.py teleop:=gamepad` (starts `joy_node` and the gamepad node). Left stick walks and strafes, right stick turns, hold LB for 30% speed; A stands, B sits, X tripod, Y ripple, RB wave. Xbox layout on Linux; other pads: set the axis and button parameters of the `gamepad` node. Releasing the sticks stops it |
 | Run on the robot | Version 2 onward; `use_sim:=false` stops with a message in version 0 |
 | Watch the robot's state | RViz |
 | Record data | `ros2 bag record` |
 | Regenerate the model after a parameter change | `python3 tools/generate_model.py` |
+| Stand, sit or pose the whole robot without ROS | `python3 tools/stand.py stand` (or `sit`, or `pose --roll 10 --shift 20 0`; add `--viewer` for a window) |
+| Walk the whole robot without ROS | `python3 tools/walk.py --gait tripod --vx 0.1 --seconds 10` (also `--vy`, `--omega`; add `--viewer` for a window) |
+| Write the full-robot model | `python3 tools/generate_model.py --robot` |
+| Run the torque report (about 75 s; `--quick` writes `v1-torque-report-quick.*` as a smoke check) | `python3 tools/torque_report.py` (writes `docs/reports/v1-torque-report.md` and `.json`) |
 | Trace a foot path without ROS | `python3 tools/trace_foot.py --shape square` (add `--viewer` for a window) |
 | Regenerate the printable parts | A script in `cad/` |
 
@@ -177,8 +195,10 @@ On every change pushed to GitHub:
 
 1. Formatting and static checks.
 2. Unit tests for the maths libraries.
-3. Build of the ROS workspace in a container.
-4. The simulated exit tests of every completed version, run without a screen.
+3. Build of the ROS workspace in a container, and the ROS tests (nodes, services, launch description) except the simulated launch tests.
+4. The simulated exit tests of every completed version, run without a screen (the Python ones).
+
+The simulated launch tests (`-m sim_launch`: `leg.launch.py` and `robot.launch.py` bringing up the real simulator) run on the development PC only: `colcon test --packages-select bemu_bringup`.
 
 Set up in step 0.1. See [14 — Testing and validation](14-testing-and-validation.md).
 

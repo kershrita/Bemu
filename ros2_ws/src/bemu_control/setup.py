@@ -7,7 +7,10 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/bemu_control"]),
         ("share/bemu_control", ["package.xml"]),
-        ("share/bemu_control/config", ["config/leg_controllers.yaml"]),
+        (
+            "share/bemu_control/config",
+            ["config/leg_controllers.yaml", "config/robot_controllers.yaml"],
+        ),
     ],
     install_requires=["setuptools"],
     extras_require={"test": ["pytest"]},

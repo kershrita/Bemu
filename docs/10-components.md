@@ -141,6 +141,21 @@ estimate from [08 — Mechanical design](08-mechanical-design.md): **design peak
 | Dynamixel XM430-W210 | 3.0 N·m at 12 V | Not published as one number | Position, speed, current, and more | 10–14.8 V | Several times the XL430; to be priced | — | 40% | Yes, at high cost |
 | Hobby PWM servo (no feedback) | Varies | Varies | **None** | 5–7.4 V | $5–15 | $100–300 | — | **Ruled out** |
 
+**Simulated check (version 1 torque report).** The hand estimate above is 1.2 N·m peak. The
+simulated walks give a worst peak of 1.26 N·m, 43% of the STS3215's stall torque, with a worst
+RMS of 0.43 N·m against the 0.98 N·m rated torque, across every gait, direction and mass in the
+matrix (`docs/reports/v1-torque-report.md`). The STS3215 12 V passes
+on these numbers, with two cautions. First, the peaks barely change with total mass (the worst
+peak is the same at 2.0, 2.2 and 2.5 kg) and come from swing and start-up transients of the
+simulated position loop (kp 20, kv 0.5), not from carrying the body, so a real servo's stiffer
+internal loop could peak differently; version 2's one-leg measurement checks this. Second, joint
+speed reaches 83% of the 4.7 rad/s *no-load* speed (wave sideways) and 73% for ripple, and the
+loaded speed is lower and unknown, so tracking headroom is thin. The report's power figures
+(about 36–54 W for 18 servos) use **placeholder** `stall_current_a` (2.7 A), `idle_current_a`
+(0.1 A) and `supply_voltage_v` (12 V) in `config/robot_params.yaml`: confirm them against the
+datasheet or a bench measurement before sizing the battery and wiring from them. The estimate assumes supply current equals
+winding current, so it is an upper bound.
+
 ### Reading the table
 
 - The **12 V STS3215** is the first candidate: it passes the torque rule with

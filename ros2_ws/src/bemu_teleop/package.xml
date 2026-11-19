@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>bemu_teleop</name>
+  <version>0.1.0</version>
+  <description>Keyboard and gamepad control of the Bemu walker.</description>
+  <maintainer email="noreply@example.com">Bemu</maintainer>
+  <license>Proprietary</license>
+  <depend>bemu_params</depend>
+  <depend>bemu_kinematics</depend>
+  <depend>bemu_gait</depend>
+  <depend>bemu_msgs</depend>
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_srvs</depend>
+  <exec_depend>joy</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

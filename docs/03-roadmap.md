@@ -58,17 +58,20 @@ Versions 0 to 1.5 cost nothing. The first purchase is at version 2.
 | 1.4 | Tripod gait driven by a velocity command |
 | 1.5 | Turning in place and walking sideways |
 | 1.6 | Ripple and wave gaits; switching gait while moving |
-| 1.7 | Keyboard and gamepad control |
+| 1.7 | Keyboard and gamepad control (`bemu_teleop`) |
 | 1.8 | Measurement: joint torque, speed, power, stability margin, logged per run |
+
+Steps 1.1 to 1.3 are done (version 1a, `docs/superpowers/specs/2026-11-18-v1a-full-body-design.md`).
+Steps 1.4 to 1.6 are done headless (version 1b-1, `docs/superpowers/specs/2026-11-18-v1b-walking-design.md`); the ROS walker node and launch (`robot.launch.py`, 1b-2) are written and tested headless and by ROS tests; the first run on the development PC passed (controllers active, robot stands, walks and stops). Step 1.7 (keyboard and gamepad) is `bemu_teleop`.
 
 **Exit test**
 
-- [ ] Walks 2 m in a straight line with less than 10% sideways drift.
-- [ ] Turns 360° in place and ends within 50 mm of where it started.
-- [ ] Changes body height and tilt while walking without a foot slipping.
-- [ ] Switches between tripod, ripple and wave gaits without stopping.
-- [ ] A torque report exists: peak and average torque for every joint in every gait.
-- [ ] The whole test runs without a screen as an automated check.
+- [x] Walks 2 m in a straight line with less than 10% sideways drift.
+- [x] Turns 360° in place and ends within 50 mm of where it started.
+- [x] Changes body height and tilt while walking without a foot slipping.
+- [x] Switches between tripod, ripple and wave gaits without stopping.
+- [x] A torque report exists: peak and average torque for every joint in every gait (`docs/reports/v1-torque-report.md`).
+- [x] The whole test runs without a screen as an automated check.
 
 **Spending:** none.
 

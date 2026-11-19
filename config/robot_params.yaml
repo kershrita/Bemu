@@ -4,6 +4,7 @@ leg:
   coxa_length: 45
   femur_length: 65
   tibia_length: 110
+  foot_radius: 8          # the foot sphere
   joint_limits:
     coxa:  [-45, 45]
     femur: [-60, 90]
@@ -14,6 +15,8 @@ leg:
     tibia: 85           # knee servo plus the lower leg and foot
 
 body:
+  size: {x: 240, y: 160, z: 56}   # the box the legs hang from; z is the thickness
+  mass: 1390                        # chassis: everything except the six legs
   mounts:
     lf: {x: 100,  y: 60,  yaw: 45}
     lm: {x: 0,    y: 80,  yaw: 90}
@@ -31,3 +34,9 @@ servo:
   mass: 55
   stall_torque_nm: 2.94
   max_speed_rad_s: 4.7
+  rated_torque_nm: 0.98          # continuous (docs/10-components.md)
+  # Placeholders for the torque report's power estimate: confirm against the exact STS3215
+  # sub-model (docs/10-components.md) and replace with measurements in version 2.
+  supply_voltage_v: 12
+  stall_current_a: 2.7
+  idle_current_a: 0.1

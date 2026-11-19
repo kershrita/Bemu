@@ -1,0 +1,32 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 50  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    leg_position_controller:
+      type: forward_command_controller/ForwardCommandController
+
+leg_position_controller:
+  ros__parameters:
+    joints:  # the 18 names of bemu_description.names.joint_order(); a test keeps them in step
+      - lf_coxa_joint
+      - lf_femur_joint
+      - lf_tibia_joint
+      - lm_coxa_joint
+      - lm_femur_joint
+      - lm_tibia_joint
+      - lr_coxa_joint
+      - lr_femur_joint
+      - lr_tibia_joint
+      - rf_coxa_joint
+      - rf_femur_joint
+      - rf_tibia_joint
+      - rm_coxa_joint
+      - rm_femur_joint
+      - rm_tibia_joint
+      - rr_coxa_joint
+      - rr_femur_joint
+      - rr_tibia_joint
+    interface_name: position

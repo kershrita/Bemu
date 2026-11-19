@@ -38,7 +38,7 @@ bemu/
 │       ├── bemu_params/       parameter file loader; pure Python, no ROS dependency
 │       ├── bemu_description/  robot model, generated from the parameter file
 │       ├── bemu_kinematics/   leg maths; pure Python, no ROS dependency
-│       ├── bemu_gait/         gait timing and foot paths; pure Python
+│       ├── bemu_gait/         gaits, foot paths, the walker core and gait.yaml; pure Python
 │       ├── bemu_locomotion/   the walker node (layer 2)
 │       ├── bemu_control/      ros2_control configuration (layer 1)
 │       ├── bemu_sim/          MuJoCo scene and bridge configuration
@@ -63,13 +63,13 @@ Packages added by later versions follow the same naming:
 |---|---|---|---|
 | `bemu_params` | all | Loads `robot_params.yaml` and converts it to SI units; used by the CAD scripts too | No |
 | `bemu_kinematics` | 2 | Forward and inverse kinematics for one leg and for the body | No |
-| `bemu_gait` | 2 | Gait phase timing, swing and stance foot paths | No |
-| `bemu_locomotion` | 2 | Node that combines command, gait and kinematics into joint targets | Yes |
+| `bemu_gait` | 2 | Gait phase timing, swing and stance foot paths, the phase-driven `Walker` (velocity command in, 18 joint angles out), gait defaults in `config/gait.yaml` | No |
+| `bemu_locomotion` | 2 | ROS node that wraps the `bemu_gait` walker: topics in, joint targets out. The behaviour (stand and sit sequences, command timeout, joint matching by name) is in a ROS-free `LocomotionCore`; the node only moves messages | Yes |
 | `bemu_control` | 1 | Controller configuration and joint limits | Yes |
 | `bemu_description` | 0–1 | URDF and MuJoCo model, generated from the parameter file | Yes |
 | `bemu_sim` | 0 | Simulation world, simulated sensors | Yes |
 | `bemu_hardware` | 0 | Real servo driver | Yes (C++) |
-| `bemu_teleop` | 4 | Human control | Yes |
+| `bemu_teleop` | 4 | Keyboard (latched speed, own terminal) and gamepad (`Joy`, stateless) control; the key and stick mapping is ROS-free | Yes |
 | `bemu_msgs` | all | Shared message types | Yes |
 | `bemu_bringup` | all | Launch files | Yes |
 
@@ -139,6 +139,7 @@ as it honours them.
 | `/body_pose_cmd` | `geometry_msgs/PoseStamped` | Layers 3–4 → walker | Desired body height, shift and tilt relative to neutral |
 | `/gait_cmd` | `bemu_msgs/GaitCommand` | Layers 3–4 → walker | Gait type, step height, cycle time |
 | `/leg_position_controller/commands` | `std_msgs/Float64MultiArray` | Walker → joint controller | 18 joint angle targets, in address order |
+| `/stability_margin` | `std_msgs/Float64` | Walker | Stability margin in metres |
 
 ### State (upward)
 
@@ -157,7 +158,7 @@ as it honours them.
 
 | Name | Type | Meaning |
 |---|---|---|
-| `/stand_up`, `/sit_down` | `std_srvs/Trigger` | Run the stand or sit sequence |
+| `/stand`, `/sit` | `std_srvs/Trigger` | Run the stand or sit sequence. `/sit` first stops walking and waits for the feet to settle. Both answer `success=False` with a reason when the robot is in the wrong state |
 | `/relax` | `std_srvs/Trigger` | Switch off joint torque |
 | `/set_gait` | `bemu_msgs/SetGait` | Change gait |
 
@@ -171,6 +172,14 @@ as it honours them.
   the walker still sees one `/cmd_vel`.
 
 ## Launch structure
+
+Version 1b-2: `ros2 launch bemu_bringup robot.launch.py` (arguments `use_sim`, `headless`,
+`params_file`) starts the MuJoCo simulator, `robot_state_publisher`, the two controllers
+(`robot_controllers.yaml`) and `locomotion_node`. The walker stands the robot up on start
+(parameter `auto_stand`) and treats a `/cmd_vel` older than 0.5 s as zero velocity.
+`GaitCommand.step_height` and `cycle_time` are reserved in version 1 (non-zero values are
+ignored with a warning); `GaitState.mode` is `sitting`, `standing_up`, `standing`, `stopping`
+or `sitting_down`.
 
 One top-level launch file with arguments, rather than many near-identical files.
 
@@ -190,7 +199,7 @@ includes when asked.
 | What | Where | Used by |
 |---|---|---|
 | Dimensions, masses, joint limits | `config/robot_params.yaml` | CAD, model generator, kinematics |
-| Gait defaults | `bemu_locomotion/config/gait.yaml` | Walker |
+| Gait defaults | `bemu_gait/config/gait.yaml` | Walker |
 | Controller setup | `bemu_control/config/controllers.yaml` | Joint layer |
 | Simulated servo model | `bemu_sim/config/actuators.yaml` | Model generator |
 | Servo addresses, offsets, directions | `bemu_hardware/config/servos.yaml` | Servo driver |

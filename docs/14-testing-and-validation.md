@@ -62,6 +62,38 @@ Each roadmap exit test that can be simulated is a script. Examples from version 
 | Long run, 5 minutes | No drift into instability; no error messages |
 | Limits | No joint exceeds its range; no torque exceeds the limit |
 
+Version 1a's simulation tests (`bemu_sim/test/test_stand.py`, `test_pose.py`): stand up to
+within 3 mm of 98 mm with under 1° tilt, six feet down, foot slip under 5 mm; sit down to
+within 3 mm of 28 mm; hold twelve poses (height ±15 mm, shift ±20 mm, roll and pitch ±10°,
+yaw ±15°, and one combined roll, pitch and yaw pose that separates the rotation orders) with
+the feet planted and a positive stability margin; torque, taken on every physics step, under
+the limit.
+
+Version 1b-1's walking tests (`bemu_sim/test/test_walk_*.py`, `test_collisions.py`): walk 2 m
+straight with under 10% sideways drift; turn 360° in place and end within 50 mm; walk
+sideways and in a curve; hold body pose changes (height ±10 mm, roll and pitch ±5°) while
+walking with no foot slipping more than 5 mm; walk straight in the ripple and the wave;
+switch between every ordered pair of gaits, and tripod to ripple to wave and back, without
+stopping and with the stability margin above 15 mm; leg-to-leg contact; and torque, taken
+on every physics step, under the limit in all of them.
+
+Version 1b-2's tests: headless, the locomotion core (joint matching by name, the stand and sit
+sequences, the command timeout, rejected bad commands and unreachable poses), the quaternion
+conversion, the 18-joint URDF and controller file, and the message files; with ROS (`colcon
+test`, run in the CI `ros` job), the node's topics, services and bad-input handling and the launch
+description; and on the development PC only (`sim_launch`), `robot.launch.py` bringing up every
+controller, standing the robot and walking it on a `/cmd_vel`.
+
+Version 1c's tests: headless, the key and stick mapping (speed steps and limits, gait clamping,
+height limits, deadzone, bad axis values, once-per-press buttons) and the keyboard's refusal
+without a terminal; with ROS, the gamepad node and the `teleop` launch choices.
+
+The torque report's tests (`bemu_sim/test/test_robot_stats.py`, `test_torque_report*.py`):
+per-step joint statistics (peak, RMS, speed, steps at the limit); the 48-scenario matrix, the
+mass and scenario validation, the power model and the pass/fail and stability verdict
+boundaries; real short stand and walking runs; the Markdown and JSON rendering with failing and
+unstable rows; and the tool's quick run and its one-line error on an unwritable output folder.
+
 Every simulation test also records the measurements listed under the torque report
 in [06 — Simulation](06-simulation.md), so trends are visible across changes.
 
