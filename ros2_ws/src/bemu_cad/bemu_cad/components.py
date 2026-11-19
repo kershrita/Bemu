@@ -50,6 +50,9 @@ class ServoSpec:
     output_axis: tuple[float, float]  # m: from the nearer end, from the width centre line
     drawing_heights_mm: tuple[float, ...]
     horn_circle: float  # m
+    horn_disc_diameter: float  # m
+    case_z: tuple[float, float]  # m, the case along the output axis
+    horn_z: tuple[float, float]  # m, the horn disc along the output axis
     horn_screw: str
     horn_holes: tuple[Hole, ...]
     case_holes: tuple[Hole, ...]
@@ -94,7 +97,13 @@ def _parse(raw: dict) -> dict[str, dict[str, Field]]:
             status = node.get("status")
             if status not in STATUSES:
                 raise ComponentsError(f"{where}: status must be one of {', '.join(STATUSES)}")
-            if name not in ("horn_holes", "case_holes", "output_axis"):  # positions may be 0 or < 0
+            if name not in (
+                "horn_holes",
+                "case_holes",
+                "output_axis",
+                "case_z_range",
+                "horn_z_range",
+            ):  # positions may be 0 or < 0
                 _positive(node["value"], where)
             fields[component][name] = Field(node["value"], source, status)
     return fields
@@ -129,6 +138,9 @@ def _servo(fields: dict[str, dict[str, Field]]) -> ServoSpec:
         "output_axis",
         "drawing_heights",
         "horn_circle",
+        "horn_disc_diameter",
+        "case_z_range",
+        "horn_z_range",
         "horn_screw",
         "horn_holes",
         "case_holes",
@@ -149,6 +161,9 @@ def _servo(fields: dict[str, dict[str, Field]]) -> ServoSpec:
         output_axis=axis,
         drawing_heights_mm=tuple(float(v) for v in body["drawing_heights"].value),
         horn_circle=body["horn_circle"].value * MM,
+        horn_disc_diameter=body["horn_disc_diameter"].value * MM,
+        case_z=tuple(v * MM for v in body["case_z_range"].value),
+        horn_z=tuple(v * MM for v in body["horn_z_range"].value),
         horn_screw=str(body["horn_screw"].value),
         horn_holes=_holes(body["horn_holes"], "servo.horn_holes"),
         case_holes=_holes(body["case_holes"], "servo.case_holes"),

@@ -25,6 +25,18 @@ servo:
     value: [29, 32, 35, 37.25]
     source: docs/reference/sts3215/waveshare-ST3215-2D-drawing.pdf
     status: datasheet
+  case_z_range:  # the case along the output axis, from the manufacturer's STEP (drawing: 35 mm)
+    value: [-28.2, 7.5]
+    source: docs/reference/sts3215/feetech-ST3215-20200328.stp
+    status: cad
+  horn_disc_diameter:
+    value: 19.95
+    source: docs/reference/sts3215/seeed-ST-3215-C047-datasheet.pdf
+    status: datasheet
+  horn_z_range:  # the horn disc and boss along the output axis, from the STEP
+    value: [4.7, 9.2]
+    source: docs/reference/sts3215/feetech-ST3215-20200328.stp
+    status: cad
   horn_circle:
     value: 19.2
     source: docs/reference/sts3215/waveshare-ST3215-2D-drawing.pdf
