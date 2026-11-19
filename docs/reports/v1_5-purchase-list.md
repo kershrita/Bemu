@@ -19,7 +19,7 @@ quality before 16 more servos are paid for.
 
 ### 1.1 Order of events
 
-1. **Order the tolerance coupon alone** (`cad/export/tolerance_coupon.stl`, about 25 g of PETG).
+1. **Order the tolerance coupon alone** (`cad/export/tolerance_coupon.stl`, about 60 g of PETG).
    It is cheap and quick. When it arrives, measure the pockets and holes with a caliper and
    choose the allowance (`docs/08-mechanical-design.md`, "Tolerance coupon").
 2. **Order the servos and the bench items** (table 2) at the same time, so the first servo can be
@@ -32,28 +32,31 @@ quality before 16 more servos are paid for.
 | # | Item | Qty | Exactly what to buy | Unit price | Evidence | Where |
 |---|---|---|---|---|---|---|
 | 1 | Feetech STS3215 servo, 12 V, 30 kg·cm, 1:345 | 4 (3 + 1 spare) | **12 V** version, datasheet ST-3215-C047, sold as **C018**. **Not C001 (7.4 V).** Ask for the accessory bag (horns and screws). | $22–39 | listed: Comet (B2B) $22 excl. VAT; Robotshop UK £19.20; aifitlab $26 (backordered); rcdrone.top $29 (sold out); eBay US stock $38.94 | Official Feetech store or authorised reseller on AliExpress (not checked: no AliExpress page was reachable); the shops above; Waveshare |
-| 2 | Waveshare Bus Servo Adapter (A), USB | 1 | Waveshare "Bus Servo Adapter (A)" for ST/SC series; also lets the PC talk to the servos | about $8–15 | not priced (listings found, no number kept) | waveshare.com, official resellers |
-| 3 | 12 V bench power supply, current-limited, 10 A or more | 1 | Adjustable 0–30 V / 10 A lab supply | $25–40 | not priced (from `docs/10`) | local electronics shop, Amazon.sa, Noon |
+| 2 | Waveshare Bus Servo Adapter (A), USB | 1 | Waveshare "Bus Servo Adapter (A)" for ST/SC series; also lets the PC talk to the servos | — | not priced (listings found, no number kept) | waveshare.com, official resellers |
+| 3 | 12 V bench power supply, current-limited, 10 A or more | 1 | Adjustable 0–30 V / 10 A lab supply | — | not priced (docs/10 guesses $25–40, unverified) | local electronics shop, Amazon.sa, Noon |
 | 4 | Pi 5 active cooler, 27 W supply, microSD | — | Only if not already owned | — | skip if owned | — |
-| 5 | Heat-set inserts, M3 × 4 mm (brass) | 1 pack of 50 | **Length 4 mm** (the top plates are 4 mm thick); outer diameter near 4.6–4.9 mm; hole in CAD is 4.1 mm, confirm with the coupon | about $5–10 | reference only: Grobotronics assortment 7.92 (currency not shown) | AliExpress, Amazon.sa |
-| 6 | Screws: M2 (servo mounting, length per `print_order.md`), M3 socket-head assortment | 1 set | Stainless socket-head, M2 × 6–10 and M3 assortment | about $10–15 | not priced | AliExpress, Amazon.sa |
-| 7 | Multimeter, soldering iron | 1 each | Only if not already owned (needed to fit the inserts) | $15–25 each | not priced | local |
+| 5 | Heat-set inserts, M3 × 4 mm (brass) | 1 pack of 50 | **Length 4 mm** (the top plates are 4 mm thick); outer diameter near 4.6–4.9 mm; hole in CAD is 4.1 mm, confirm with the coupon | — | reference only: Grobotronics assortment 7.92 (currency not shown) | AliExpress, Amazon.sa |
+| 6 | Screws: M2 (servo mounting, length per `print_order.md`), M3 socket-head assortment | 1 set | Stainless socket-head, M2 × 6–10 and M3 assortment | — | not priced (docs/10 guesses $10–15, unverified) | AliExpress, Amazon.sa |
+| 7 | Multimeter, soldering iron | 1 each | Only if not already owned (needed to fit the inserts) | — | not priced (docs/10 guesses $15–25 each, unverified) | local |
 
-**Priced total for item 1 alone (4 servos):** about **$88–156** at $22–39; plan on about **$104–116
-at $26–29** (the aifitlab and rcdrone prices), plus shipping and any import charges.
+**Priced total for item 1 alone (4 servos):** about **$88–156** at $22–39 each. The low end is a
+business price excluding VAT, and the two $26–29 listings (aifitlab, rcdrone.top) were backordered or
+sold out when seen; the only in-stock listing seen was $38.94 (eBay, US stock). **Plan on about
+$156 for four**, and treat anything lower as a bonus that depends on stock. Shipping and any
+import charges are extra.
 
 ## 2. The full robot (stage 2, bought only after version 2 passes)
 
-| # | Item | Qty | What to buy | Indicative price | Evidence |
+| # | Item | Qty | What to buy | Rough price (a guess unless Evidence says *listed*) | Evidence |
 |---|---|---|---|---|---|
 | 8 | Servos, same model | 16 (15 + 1 spare) | As item 1; with item 1 this makes 20: 18 in the robot, 2 spares | $22–39 each, **$352–624** | listed (as item 1) |
-| 9 | Battery, 3S LiPo, 5000 mAh, 40–50C, XT60 | 1 | e.g. Ovonic or GENS ACE 3S 5000 mAh. Ovonic's 5000 mAh pack is listed at **359 g, 138 × 42 × 28 mm** (the body's placeholder is 350 g; fits the bay). | $45–85 | reference: GENS ACE 3S 5000 mAh 50C AED 305 excl. VAT (about $83) at a UAE shop; Ovonic 5000 mAh not priced |
-| 10 | Balance charger for 3S LiPo, and a fire-resistant charging bag | 1 + 1 | Any reputable 3S charger with a balance port | $30–60 | not priced |
-| 11 | Step-down converter, 12 V to 5.1 V, 5 A or more, with a **USB-C connector that identifies itself to the Pi 5 as a 5 A supply** | 1 | See the caution below | $8–20 | not priced (no listing price found; 27 W wall adapters are $13–18, which is not what is needed) |
-| 12 | Main switch, fuse holder, 20 A fuses, silicone wire (14/16/20 AWG), XT60 connectors, bulk capacitor (1000 µF, 25 V) | 1 set | | $20–35 | not priced |
-| 13 | Servo bus cables and a distribution board | as needed | Use the cables supplied with the servos; hand-wire a junction | $5–15 | not priced |
-| 14 | TPU feet (printed) or rubber tips | 6 | Printed in TPU by the service, or bought | $5–15 | not priced |
-| 15 | Low-voltage cell alarm | 1 | Independent backup | $3–5 | not priced |
+| 9 | Battery, 3S LiPo, 5000 mAh, 40–50C, XT60 | 1 | e.g. Ovonic or GENS ACE 3S 5000 mAh. Ovonic's 5000 mAh pack is listed at **359 g, 138 × 42 × 28 mm** (the body's placeholder is 350 g; whether it fits has not been checked, because the battery bay is not designed yet). | $45–85 | reference: GENS ACE 3S 5000 mAh 50C AED 305 excl. VAT (about $83) at a UAE shop; Ovonic 5000 mAh not priced |
+| 10 | Balance charger for 3S LiPo, and a fire-resistant charging bag | 1 + 1 | Any reputable 3S charger with a balance port | $30–60 | not priced (rough estimate from docs/10, unverified) |
+| 11 | Step-down converter, 12 V to 5.1 V, 5 A or more, with a **USB-C connector that identifies itself to the Pi 5 as a 5 A supply** | 1 | See the caution below | $8–20 | not priced (no listing price found; 27 W wall adapters are $13–18, which is not what is needed; $8–20 is a guess) |
+| 12 | Main switch, fuse holder, 20 A fuses, silicone wire (14/16/20 AWG), XT60 connectors, bulk capacitor (1000 µF, 25 V) | 1 set | | $20–35 | not priced (rough estimate from docs/10, unverified) |
+| 13 | Servo bus cables and a distribution board | as needed | Use the cables supplied with the servos; hand-wire a junction | $5–15 | not priced (rough estimate from docs/10, unverified) |
+| 14 | TPU feet (printed) or rubber tips | 6 | Printed in TPU by the service, or bought | $5–15 | not priced (rough estimate from docs/10, unverified) |
+| 15 | Low-voltage cell alarm | 1 | Independent backup | $3–5 | not priced (rough estimate from docs/10, unverified) |
 
 **Caution (item 11).** The Pi 5 only draws its full 5 A when its USB-C port negotiates a 5 A
 (27 W) supply. A plain 5 V buck converter without that negotiation makes the Pi limit its USB
@@ -70,7 +73,7 @@ based**: send the same request to two or three services and compare. The request
 English and Arabic, is `docs/reports/v1_5-print-quote-request.md`.
 
 Material for the robot (computed from the CAD, 60% fill estimate, `cad/export/printability.md`):
-**PETG about 664 g, TPU about 7 g**; about 764 g of PETG with a 14% allowance for supports, purge
+**PETG about 664 g, TPU about 7 g**; about 764 g of PETG with a 15% allowance for supports, purge
 and one failed print. One 1 kg spool is enough. Largest footprint is 190 mm, so the parts fit a
 200 × 200 mm bed.
 

@@ -66,3 +66,8 @@ def analyze(part: Part) -> PrintAnalysis:
         best > SUPPORT_AREA,
         mass,
     )
+
+
+def support_label(analysis: PrintAnalysis) -> str:
+    """The Supports column: "no", or "yes" with the overhanging area that needs them."""
+    return f"yes ({analysis.overhang_mm2:.0f} mm²)" if analysis.supports else "no"

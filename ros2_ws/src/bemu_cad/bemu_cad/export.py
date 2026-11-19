@@ -102,6 +102,8 @@ def _print_order(
     body_hardware: list[str] | None = None,
     analyses: dict | None = None,
 ) -> str:
+    from bemu_cad.printability import support_label
+
     unverified = unverified_fields(components)
     blockers = release_blockers(components)
     if blockers:
@@ -138,13 +140,13 @@ def _print_order(
         quantity = LEGS * part.count + SPARES.get(part.name, 0)
         note = "rubber tips may replace the printed foot" if part.name == "foot" else ""
         orientation = ORIENTATION[part.print_axes]
-        if part.print_flipped:
-            orientation = "turn the part over: flat face down, stem up"
+        if part.name == "foot":
+            orientation = "as modelled: dome down, stem up; the dome needs a small support"
         found = (analyses or {}).get(part.name)
         up = ""
         if found:
             up = f" ({'+' if found.up_sign > 0 else '-'}{part.print_axes} up)"
-        supports = "-" if found is None else ("yes, small" if found.supports else "no")
+        supports = "-" if found is None else support_label(found)
         lines.append(
             f"| {part.name}.stl | {part.material} | {quantity} | {orientation}{up} | "
             f"{supports} | {note} |"
@@ -220,7 +222,7 @@ def export_all(
     )
     written["mass_properties.json"], written["print_order.md"] = mass, order
     review = out_dir / "printability.md"
-    review.write_text(printability_report(leg, body, components))
+    review.write_text(printability_report(leg, body, components, analyses))
     written["printability.md"] = review
     return written
 

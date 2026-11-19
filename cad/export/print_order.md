@@ -11,15 +11,15 @@ Settings for every part unless stated: 0.2 mm layers, 4 perimeters, 35% infill (
 | File | Material | Quantity | Orientation | Supports | Note |
 |---|---|---|---|---|---|
 | tolerance_coupon.stl | PETG | 1 | base down | print this first, alone |
-| coxa_bracket.stl | PETG | 7 | base plate down (the leg's vertical axis points up) (+z up) | yes, small |  |
+| coxa_bracket.stl | PETG | 7 | base plate down (the leg's vertical axis points up) (+z up) | yes (195 mm²) |  |
 | femur_plate_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (-y up) | no |  |
 | femur_plate_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (+y up) | no |  |
 | knee_spacer_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (-y up) | no |  |
 | knee_spacer_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (+y up) | no |  |
-| tibia_plate_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (-y up) | yes, small |  |
-| tibia_plate_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (+y up) | yes, small |  |
-| foot_bridge.stl | PETG | 6 | base plate down (the leg's vertical axis points up) (-z up) | yes, small |  |
-| foot.stl | TPU | 8 | turn the part over: flat face down, stem up (+z up) | yes, small | rubber tips may replace the printed foot |
+| tibia_plate_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (-y up) | yes (36 mm²) |  |
+| tibia_plate_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (+y up) | yes (45 mm²) |  |
+| foot_bridge.stl | PETG | 6 | base plate down (the leg's vertical axis points up) (-z up) | yes (40 mm²) |  |
+| foot.stl | TPU | 8 | as modelled: dome down, stem up; the dome needs a small support (+z up) | yes (99 mm²) | rubber tips may replace the printed foot |
 | top_plate_rear.stl | PETG | 1 | flat, large face down (-z up) | no | body |
 | top_plate_centre.stl | PETG | 1 | flat, large face down (-z up) | no | body |
 | top_plate_front.stl | PETG | 1 | flat, large face down (-z up) | no | body |

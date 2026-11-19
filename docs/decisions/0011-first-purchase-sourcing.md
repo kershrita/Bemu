@@ -28,7 +28,7 @@ change. No Saudi printing service with a published price was found.
 
 | Alternative | Strength | Why not |
 |---|---|---|
-| Buy all 20 servos at once | One shipment, possible volume discount | $350–620 at risk before one leg works |
+| Buy all 20 servos at once | One shipment, possible volume discount | $440–780 at risk (20 × $22–39) before one leg works |
 | Dynamixel servos | Best documentation, official ROS 2 driver | The affordable model fails the torque rule (docs/10) |
 | Import the battery | Possibly cheaper | Lithium shipping rules and customs documentation; local purchase avoids both |
 | Own printer | Fast iteration | Not chosen by the owner (decision 0009) |

@@ -104,7 +104,7 @@ def test_the_print_order_gates_on_measured_values_and_lists_hardware(exported):
     assert "`servo.case_hole_thread`" in text.split("NOT READY TO ORDER")[1].split("Two steps")[0]
     assert "## Hardware" in text and "| clevis walls | M2 |" in text
     foot_row = next(line for line in text.splitlines() if line.startswith("| foot.stl"))
-    assert "turn the part over" in foot_row
+    assert "dome down, stem up" in foot_row
 
 
 def test_the_order_becomes_ready_only_when_the_fit_values_are_measured():
@@ -148,3 +148,33 @@ def test_the_printability_report_is_exported_and_fits_the_bed(exported):
     order = (exported / "print_order.md").read_text()
     assert "Supports" in order and "up)" in order
     assert "(no supports)" not in order
+    assert "flat face down, stem up" not in order and "turn it over" not in text
+
+
+def test_the_printability_text_agrees_with_its_numbers(exported):
+    import re
+
+    from bemu_cad.export_printability import SHRINK_ALLOWANCE
+
+    text = (exported / "printability.md").read_text()
+    total = re.search(r"PETG (\d+) g, TPU (\d+) g; with (\d+)% .*?PETG (\d+) g", text)
+    petg, _, percent, with_extra = map(int, total.groups())
+    assert percent == round((SHRINK_ALLOWANCE - 1) * 100) == 15
+    assert with_extra == pytest.approx(petg * SHRINK_ALLOWANCE, abs=1)
+    # every part marked as needing supports is named in the list to ask about
+    table = text.split("| Part |")[1].split("\n\n")[0]
+    needing = {row.split("|")[1].strip() for row in table.splitlines() if "| yes (" in row}
+    asked = text.split("## Parts to ask about")[1]
+    assert needing and all(f"`{name}`" in asked for name in needing)
+    assert "brim" not in text.split("## What a print service must offer")[1].split("##")[0]
+
+
+def test_the_print_order_and_the_printability_report_quote_the_same_overhangs(exported):
+    import re
+
+    order = (exported / "print_order.md").read_text()
+    report = (exported / "printability.md").read_text()
+    for name in ("coxa_bracket", "foot_bridge", "foot"):
+        in_order = re.search(rf"\| {name}\.stl .*?yes \((\d+) mm²\)", order)
+        in_report = re.search(rf"\| {name} \|.*?yes \((\d+) mm²\)", report)
+        assert in_order and in_report and in_order.group(1) == in_report.group(1), name

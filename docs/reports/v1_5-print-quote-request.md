@@ -11,7 +11,7 @@ estimates are in `cad/export/printability.md`.
 | Order | Files | When |
 |---|---|---|
 | **A: tolerance coupon** | `tolerance_coupon.stl` × 1 | now, alone |
-| **B: one leg** | the 9 leg files in `print_order.md` at the quantities for **one leg**, plus 1 spare coxa bracket | after the coupon is measured |
+| **B: one leg** | the 9 leg files, **one of each** (coxa bracket, femur plate horn and back, knee spacer horn and back, tibia plate horn and back, foot bridge, foot), plus 1 spare coxa bracket and 1 spare foot | after the coupon is measured |
 | **C: body and five more legs** | body plates (3 + 3 pieces), hip plates, posts, splice plates, and the leg files × 5 | after version 2 passes |
 
 ## English
@@ -19,7 +19,7 @@ estimates are in `cad/export/printability.md`.
 > Hello, I would like a quote for FDM (filament) 3D printing, delivered to <city>, Saudi Arabia.
 >
 > - **Material:** PETG (ABS, ASA or nylon is acceptable if PETG is not available). One small part
->   family, the robot feet, in TPU (flexible, shore 95A) if you offer it; otherwise skip them.
+>   family, the robot feet, in TPU (flexible, Shore 95A) if you offer it; otherwise skip them.
 > - **Settings:** 0.2 mm layers, 4 perimeters (about 1.6 mm walls), 35% infill, any colour.
 >   Orientation per file is given in the attached `print_order.md` (plates flat, posts upright).
 >   Small supports are needed on a few parts only (listed in `printability.md`).
@@ -28,27 +28,34 @@ estimates are in `cad/export/printability.md`.
 > - **Accuracy matters:** holes and pockets must come out at the modelled size. Please do not
 >   enable "hole compensation" or scaling. I am ordering a small test coupon first so I can
 >   measure your printer's accuracy before ordering the real parts.
-> - **Files:** attached (STL). Quantities per file are in `print_order.md`.
+> - **Orders:** order A is one file, the test coupon, printed alone and first. Order B is one leg:
+>   one each of the 9 attached leg files, plus a spare of `coxa_bracket` and of `foot`. The
+>   quantities in `print_order.md` are for the whole robot (six legs); please quote those
+>   as an indication of the later order C.
+> - **Files:** attached (STL).
 >
-> Please tell me: the price per order (A, then B), the delivery time, what layer height and
+> Please tell me: the price of order A and of order B, the delivery time, what layer height and
 > nozzle you use, and whether you can print TPU. Thank you.
 
 ## العربية
 
-> السلام عليكم، أرغب في عرض سعر لطباعة ثلاثية الأبعاد بتقنية FDM (الخيط)، مع التوصيل إلى <المدينة>،
+> السلام عليكم، أرغب في عرض سعر لطباعة ثلاثية الأبعاد بتقنية FDM (الطباعة بالخيوط البلاستيكية)، مع التوصيل إلى <المدينة>،
 > المملكة العربية السعودية.
 >
 > - **الخامة:** PETG (ويمكن استخدام ABS أو ASA أو النايلون إذا لم يتوفر PETG). قطع صغيرة
->   (أقدام الروبوت) بخامة TPU المرنة (شور 95A) إن كانت متوفرة لديكم، وإلا فتُستثنى.
-> - **الإعدادات:** سماكة الطبقة 0.2 مم، 4 جدران (حوالي 1.6 مم)، تعبئة 35%، أي لون.
+>   (أقدام الروبوت) بخامة TPU المرنة (شور 95A) إن كانت متوفرة لديكم، وإلا فلا داعي لطباعتها.
+> - **الإعدادات:** سماكة الطبقة 0.2 مم، 4 جدران محيطية (بسماكة إجمالية حوالي 1.6 مم)، تعبئة 35%، أي لون.
 >   اتجاه الطباعة لكل ملف موضح في ملف `print_order.md` المرفق (الألواح مسطحة والأعمدة عمودية).
 >   بعض القطع تحتاج دعامات صغيرة فقط (موضحة في `printability.md`).
+> - **الطلبات:** الطلب (أ) ملف واحد هو قطعة الاختبار، تُطبع وحدها أولاً. الطلب (ب) قطع رجل واحدة:
+>   نسخة واحدة من كل ملف من الملفات التسعة المرفقة، مع نسخة احتياطية من `coxa_bracket` ومن `foot`.
+>   الكميات في `print_order.md` للروبوت كاملاً (ست أرجل)، أرجو تسعيرها كمؤشر للطلب (ج) لاحقاً.
 > - **المقاس:** أكبر قطعة 190 × 80 × 4 مم، وأطولها 50 مم. يكفي حجم طباعة 200 × 200 × 80 مم.
 > - **الدقة مهمة:** يجب أن تخرج الثقوب والتجاويف بالمقاس المصمم. أرجو عدم تفعيل تعويض الثقوب
 >   أو تغيير المقياس. سأطلب أولاً قطعة اختبار صغيرة لقياس دقة الطابعة قبل طلب القطع الفعلية.
-> - **الملفات:** مرفقة بصيغة STL. الكميات لكل ملف موجودة في `print_order.md`.
+> - **الملفات:** مرفقة بصيغة STL.
 >
-> أرجو إفادتي بالسعر لكل طلب (أ ثم ب)، ومدة التسليم، وسماكة الطبقة وقطر الفوهة المستخدمين،
+> أرجو إفادتي بسعر الطلب (أ) والطلب (ب)، ومدة التسليم، وسماكة الطبقة وقطر الفوهة المستخدمين،
 > وهل تتوفر الطباعة بخامة TPU. شكراً لكم.
 
 ## After the quotes arrive

@@ -76,7 +76,6 @@ class Part:
     windows: tuple[Window, ...] = ()
     face_outlines: dict[str, tuple[float, float, float, float]] = field(default_factory=dict)
     polygon: tuple[tuple[float, float], ...] = ()  # exact outline when it is not a rectangle
-    print_flipped: bool = False  # print with the flat face down: turn the part over
     family: str = ""  # parts printed as copies of one file share a family (default: the name)
 
 
@@ -440,7 +439,6 @@ def build_leg(
             "z",
             "tibia",
             material="TPU",
-            print_flipped=True,
         ),
     )
     # screws: stack = plate + boss (horn screws) or plate + spacer (case screws) + engagement

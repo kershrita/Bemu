@@ -261,8 +261,8 @@ stand) never touches any body part or the screw heads under the support plates. 
 `robot_params.yaml` are unchanged; neighbouring legs are not checked against each other, and the limits
 alone do allow folded-under poses that no gait reaches. **Mass:** printed body 251 g (estimate), six coxa
 servos 330 g, electronics placeholders 575 g (Pi 75, battery 350, regulator and wiring 120, fasteners 30):
-1.156 kg against the chassis budget of 1.242 kg, a margin of 86 g: most of the 300 g add-on reserve is
-gone, and the electronics trays, hard stops and cable slots are still to come (1.5c).
+1.156 kg against the chassis budget of 1.242 kg, a margin of 85 g: most of the 300 g add-on reserve is
+gone, and the electronics trays, hard stops and cable slots are still to come (version 2, once the parts are bought and measured).
 
 **The same design in the simulator.** `python3 tools/generate_cad.py` also writes visual meshes of every part
 (and the three servos as envelopes) into `ros2_ws/src/bemu_description/meshes/` with a manifest
@@ -370,7 +370,7 @@ current parameter file.
 `python3 tools/generate_cad.py` writes `cad/export/printability.md` next to the print order. It is
 computed from the CAD, not typed: for every printed part the size in its print orientation, the
 direction along its print axis that needs less support, the area of surfaces facing down steeper than
-45 degrees above the first layer, whether that needs supports ("small" is under about 25 mm²), the
+45 degrees above the first layer, whether that needs supports (over about 25 mm² of overhang), the
 mass of one part at 60% fill (an estimate), and the material for the whole robot. The `print_order.md`
 table shows the same orientation and a Supports column per file.
 
@@ -379,8 +379,8 @@ Results at version 1.5c (200 × 200 mm bed assumed):
 | Question | Answer |
 |---|---|
 | Does every part fit a 200 × 200 mm bed? | Yes. The largest footprint is 190 × 80 mm (the centre plates); the plates are split at x = ±40 mm for this. The tallest part is the 50 mm post |
-| Which parts need supports? | A few small ones: the coxa bracket (about 200 mm²), the tibia plates, the foot bridge and the foot. All plates, posts, spacers and splices print without |
-| How much material? | PETG about 664 g and TPU about 7 g for the robot; about 764 g of PETG with 14% for supports, purge and a failed print: one 1 kg spool |
+| Which parts need supports? | A few, with small overhangs: the coxa bracket (about 195 mm²), the tibia plates (about 40 mm² each), the foot bridge (about 40) and the foot's dome (about 100). The foot is printed as modelled, dome down, stem up. All plates, posts, spacers and splices print without |
+| How much material? | PETG about 664 g and TPU about 7 g for the robot; about 764 g of PETG with 15% for supports, purge and a failed print: one 1 kg spool |
 | What must the service offer? | 200 × 200 × 80 mm build volume, PETG (or ABS/ASA/nylon), 0.2 mm layers; TPU optional (rubber tips can replace it) |
 
 The first order is the tolerance coupon alone. `docs/reports/v1_5-print-quote-request.md` is the
@@ -389,7 +389,7 @@ is the priced draft of everything to buy, with the import notes and the arrival 
 
 Left for later (version 2): electronics trays, hard stops and cable slots, because the Pi, battery and
 regulator must be bought and measured first. The battery that was looked up (Ovonic 3S 5000 mAh) is
-listed at 359 g and 138 × 42 × 28 mm, which is 9 g over the 350 g placeholder and fits the bay.
+listed at 359 g and 138 × 42 × 28 mm, which is 9 g over the 350 g placeholder. Whether it fits has not been checked: there is no battery-bay geometry yet, and the pack is 42 mm wide against 28 mm between the centre posts, so the bay must be designed around it.
 
 ## Fasteners
 

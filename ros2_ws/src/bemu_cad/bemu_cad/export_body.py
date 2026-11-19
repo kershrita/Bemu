@@ -8,6 +8,7 @@ from bemu_cad.body import BodyParts
 from bemu_cad.export import part_mass_properties
 from bemu_cad.leg import LegParts, Part
 from bemu_cad.masses import DESIGN_MASS, link_masses
+from bemu_cad.printability import support_label
 
 
 def families(body: BodyParts) -> dict[str, list[Part]]:
@@ -38,7 +39,7 @@ def order_rows(body: BodyParts, analyses: dict | None = None) -> list[str]:
         orientation = "upright" if family.startswith("post") else "flat, large face down"
         if found:
             orientation += f" ({'+' if found.up_sign > 0 else '-'}{first.print_axes} up)"
-        supports = "-" if found is None else ("yes, small" if found.supports else "no")
+        supports = "-" if found is None else support_label(found)
         cells = (f"{family}.stl", first.material, len(parts), orientation, supports, "body")
         rows.append("| " + " | ".join(str(c) for c in cells) + " |")
     return rows

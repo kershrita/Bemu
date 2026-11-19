@@ -148,7 +148,7 @@ estimate from [08 — Mechanical design](08-mechanical-design.md): **design peak
 simulated walks give a worst peak of 1.26 N·m, 43% of the STS3215's stall torque, with a worst
 RMS of 0.43 N·m against the 0.98 N·m rated torque, across every gait, direction and mass in the
 matrix (`docs/reports/v1-torque-report.md`); with the CAD-derived masses of version 1.5b the worst peak
-is 1.27 N·m (43%) and the worst RMS 0.44 N·m (45%) (`docs/reports/v1_5-torque-report.md`). The STS3215 12 V passes
+is 1.26 N·m (43%) and the worst RMS 0.42 N·m (43%) (`docs/reports/v1_5-torque-report.md`). The STS3215 12 V passes
 on these numbers, with two cautions. First, the peaks barely change with total mass (the worst
 peak is the same at 2.0, 2.2 and 2.5 kg) and come from swing and start-up transients of the
 simulated position loop (kp 20, kv 0.5), not from carrying the body, so a real servo's stiffer

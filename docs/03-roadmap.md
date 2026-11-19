@@ -122,7 +122,7 @@ rather than buying a stronger servo first.
 
 - [x] Changing one leg length in `robot_params.yaml` regenerates the parts, the
       model and the maths with no manual editing (a longer femur is tested in `bemu_cad`).
-- [x] The simulation with CAD-derived masses still passes the version 1 exit test (all version 1 tests pass; 48 of 48 torque-report rows pass; worst peak 1.27 N·m, 43% of stall).
+- [x] The simulation with CAD-derived masses still passes the version 1 exit test (all version 1 tests pass; 48 of 48 torque-report rows pass; worst peak 1.26 N·m, 43% of stall).
 - [ ] Every part fits the print service's build size (they fit the assumed 200 × 200 mm bed; the service is not chosen yet).
 - [x] The print order is written down: files, material, settings, quantities (`cad/export/print_order.md`; it says NOT READY TO ORDER until the coupon and first servo are measured).
 - [ ] The component list is priced and the first purchase is approved (priced draft: `docs/reports/v1_5-purchase-list.md`; approval is the owner's).
