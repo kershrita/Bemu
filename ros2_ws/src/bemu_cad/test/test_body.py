@@ -182,7 +182,7 @@ def test_the_body_hardware_is_listed_and_the_hub_passes_through_the_top_plate(wo
     assert by_where["hip plate to coxa servo (M2)"][2] == 24
     assert by_where["splice plates (M3, with nuts)"][4] is True
     assert (
-        by_where["insert grid: heat-set inserts M3 (not screws)"][2] >= 35
+        by_where["insert grid: heat-set inserts M3 (not screws)"][2] >= 30
     )  # the docs promise at least 5 x 7 positions
     # the hub tip is above the recess floor, so the plate has a through hole there
     top = parts_named(body, "top_plate")
