@@ -30,12 +30,17 @@ def canonical_solid(body: BodyParts, part: Part):
     return part.solid
 
 
-def order_rows(body: BodyParts) -> list[str]:
+def order_rows(body: BodyParts, analyses: dict | None = None) -> list[str]:
     rows = []
     for family, parts in families(body).items():
         first = parts[0]
+        found = (analyses or {}).get(family)
         orientation = "upright" if family.startswith("post") else "flat, large face down"
-        rows.append(f"| {family}.stl | {first.material} | {len(parts)} | {orientation} | body |")
+        if found:
+            orientation += f" ({'+' if found.up_sign > 0 else '-'}{first.print_axes} up)"
+        supports = "-" if found is None else ("yes, small" if found.supports else "no")
+        cells = (f"{family}.stl", first.material, len(parts), orientation, supports, "body")
+        rows.append("| " + " | ".join(str(c) for c in cells) + " |")
     return rows
 
 
@@ -69,7 +74,8 @@ def mass_json(body: BodyParts, leg: LegParts, components) -> dict:
         "margin_kg": budget - body.mass_kg,
         "design_mass_kg": DESIGN_MASS,
         "note": "Printed masses are estimates; the Pi, battery, regulator and wiring are "
-        "placeholders until version 1.5c picks them. Weigh the parts and the robot (version 3).",
+        "placeholders until the chosen parts are bought and measured. Weigh the parts and the "
+        "robot (version 3).",
         "parts": {
             name: part_mass_properties(p[0]) | {"count": len(p)}
             for name, p in families(body).items()

@@ -91,12 +91,19 @@ Steps 1.4 to 1.6 are done headless (version 1b-1, `docs/superpowers/specs/2026-1
 | 1.5.6 | Printability review: part sizes, overhangs, split lines, fastener access. Choose the print service and confirm its build size and materials |
 | 1.5.7 | Final component list with current prices and suppliers |
 
+Progress (2026-11-19): version 1.5c (printing and buying) is written: the printability review
+(`cad/export/printability.md`: every part fits a 200 × 200 mm bed, a few small supports, about 764 g of
+PETG for the robot), the print order, a print quote request in English and Arabic, and a priced
+draft purchase list with import notes (`docs/reports/v1_5-purchase-list.md`, decision record 0011).
+What remains is the owner's: print and measure the tolerance coupon, caliper the first servo, choose a
+print service from quotes, and approve the first purchase. The CAD parts also appear in the simulator
+and RViz (the same meshes), with masses and inertias from the CAD.
+
 Progress (2026-11-19): version 1.5b (CAD masses in the model, the body plates and coxa mounts) is done too:
 the version 1 tests and the 48-row torque report pass on the CAD masses and the CAD body thickness.
 Version 1.5a is done: the component library, verified servo hole table,
 printed-leg generators with fit checks, tolerance coupon, and the first print order (not ready to
-order until the coupon is measured). Next: 1.5c
-(printing and buying). See `docs/08-mechanical-design.md`.
+order until the coupon is measured). See `docs/08-mechanical-design.md`.
 
 **Servo decision rule**
 
@@ -113,12 +120,12 @@ rather than buying a stronger servo first.
 
 **Exit test**
 
-- [ ] Changing one leg length in `robot_params.yaml` regenerates the parts, the
-      model and the maths with no manual editing.
+- [x] Changing one leg length in `robot_params.yaml` regenerates the parts, the
+      model and the maths with no manual editing (a longer femur is tested in `bemu_cad`).
 - [x] The simulation with CAD-derived masses still passes the version 1 exit test (all version 1 tests pass; 48 of 48 torque-report rows pass; worst peak 1.27 N·m, 43% of stall).
-- [ ] Every part fits the print service's build size.
-- [ ] The print order is written down: files, material, settings, quantities.
-- [ ] The component list is priced and the first purchase is approved.
+- [ ] Every part fits the print service's build size (they fit the assumed 200 × 200 mm bed; the service is not chosen yet).
+- [x] The print order is written down: files, material, settings, quantities (`cad/export/print_order.md`; it says NOT READY TO ORDER until the coupon and first servo are measured).
+- [ ] The component list is priced and the first purchase is approved (priced draft: `docs/reports/v1_5-purchase-list.md`; approval is the owner's).
 
 **Spending:** none. **Purchase gate 1** opens when this version passes.
 

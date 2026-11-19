@@ -267,7 +267,7 @@
     "chassis_budget_kg": 1.2417326175430055,
     "margin_kg": 0.08537676454727228,
     "design_mass_kg": 2.5,
-    "note": "Printed masses are estimates; the Pi, battery, regulator and wiring are placeholders until version 1.5c picks them. Weigh the parts and the robot (version 3).",
+    "note": "Printed masses are estimates; the Pi, battery, regulator and wiring are placeholders until the chosen parts are bought and measured. Weigh the parts and the robot (version 3).",
     "parts": {
       "top_plate_rear": {
         "mass_kg": 0.03129746158251657,

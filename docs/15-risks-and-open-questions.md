@@ -26,6 +26,11 @@ and 1.
 
 **Default:** 200 × 200 mm bed; PETG or tough PLA; bought rubber foot tips.
 
+**Progress (version 1.5c):** the parts were checked against that bed (largest footprint
+190 mm) and the print requirements are written; the quote request, in English and
+Arabic, is [`reports/v1_5-print-quote-request.md`](reports/v1_5-print-quote-request.md). Still open
+until a service quotes.
+
 ---
 
 ## Risks
@@ -84,7 +89,7 @@ Things taken as true without confirmation. If one is wrong, the design is revisi
 | Final servo model | End of version 1.5 |
 | Final leg lengths and body size | Version 1.5 |
 | Which community servo driver, or a custom one | Version 2 |
-| Which print service; its build size and materials | Step 1.5.6 |
+| Which print service; its build size and materials | When the quotes arrive (version 1.5c request) |
 | First perception sensor | Start of version 6 |
 | Training framework and hardware | Start of version 7 |
 | Order of the version 8+ capabilities | After version 6 |

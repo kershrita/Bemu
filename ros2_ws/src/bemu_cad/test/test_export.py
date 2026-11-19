@@ -139,3 +139,12 @@ def test_the_body_is_exported_with_counts_and_a_mass_budget(exported):
         assert (exported / f"{name}.stl").stat().st_size > 500, name
     text = (exported / "print_order.md").read_text()
     assert "| top_plate_rear.stl |" in text and "| post_hip.stl | PETG | 12 |" in text
+
+
+def test_the_printability_report_is_exported_and_fits_the_bed(exported):
+    text = (exported / "printability.md").read_text()
+    assert "Printability review" in text
+    assert "Fits a 200 × 200 mm bed: yes" in text
+    order = (exported / "print_order.md").read_text()
+    assert "Supports" in order and "up)" in order
+    assert "(no supports)" not in order

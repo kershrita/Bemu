@@ -115,9 +115,9 @@ nut_m3:
   across_flats: {value: 5.5, source: ISO 4032, status: standard}
   thickness: {value: 2.4, source: ISO 4032, status: standard}
 
-insert_m3:  # heat-set insert; supplier not chosen until version 1.5c
+insert_m3:  # heat-set insert; chosen in the purchase list (docs/reports/v1_5-purchase-list.md)
   hole_diameter: {value: 4.1, source: typical 4.0-4.2 mm; the coupon decides, status: unverified}
-  length: {value: 5.7, source: typical short M3 insert; choose supplier in 1.5c, status: unverified}
+  length: {value: 4.0, source: top plates are 4 mm thick so the insert must be no longer; the M3 x 4 short insert is common (check the chosen listing), status: unverified}
 
 bearing_623:
   bore: {value: 3, source: ISO 15 (623), status: standard}

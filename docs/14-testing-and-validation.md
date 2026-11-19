@@ -94,6 +94,8 @@ with every mesh non-colliding; the URDF visuals point at installed files; the co
 CAD (a change to the CAD without regenerating fails); and at zero joint angles the meshes sit where the CAD
 assembly has them (checked on the left-front and right-rear legs and a body plate, to 0.05 mm).
 
+Version 1.5c's tests add: the printability analysis (a plain block needs no supports and reports its size; an overhanging shelf needs them in the worse direction only) and the exported `printability.md` and `print_order.md` (the bed fits, the Supports column, no contradicting orientation text).
+
 Version 1.5b's tests add: link masses from the CAD and the guard that keeps `robot_params.yaml` equal to
 them (and to the CAD body thickness and the 2.5 kg design mass), the coxa mount, and the body (coverage,
 bed fit, real-STEP seating at both faces, no contact with a real coxa servo, swinging-leg sweeps,

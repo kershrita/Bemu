@@ -16,7 +16,7 @@ lies in the z = 0 plane at zero angle, and the femur and knee axes run along y):
   relief for the stock centre screw's head.
 
 Parts that must not move relative to each other form three groups (fixed, femur, tibia) used by the
-checks. Hard stops and cable slots are deferred (version 1.5c).
+checks. Hard stops and cable slots are deferred until the first leg is built (version 2).
 """
 
 from __future__ import annotations

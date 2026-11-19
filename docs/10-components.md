@@ -10,7 +10,10 @@ roadmap. A stage is bought only after the gate before it has passed.
 - Servo prices were checked against online listings on 2026-11-13; sources are in
   [References](references.md).
 - All other prices are rough figures from general knowledge and are **not
-  verified**. Step 1.5.7 of the roadmap re-prices everything with real suppliers.
+  verified**. Version 1.5c re-priced the first purchase from listings found on
+  2026-11-19: see [the purchase list](reports/v1_5-purchase-list.md), which also
+  gives the exact variant to buy, where, the import notes and what to check on
+  arrival. Those prices are listing snapshots, not quotes.
 - Shipping, import duty and local availability are not included and can change the
   totals substantially.
 - Printing is not priced. Parts are made by a print service, and the cost needs a

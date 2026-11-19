@@ -17,6 +17,7 @@ considered, and what follows from it.
 | [0008](0008-wsl2-development.md) | Develop under WSL 2 on the Windows PC | Accepted | Owner, with the design approval |
 | [0009](0009-printing-by-service.md) | Parts are printed by a service | Accepted | Owner |
 | [0010](0010-generate-mjcf-directly.md) | Generate the MuJoCo model directly from the parameter file | Accepted | Designer |
+| [0011](0011-first-purchase-sourcing.md) | Where the first purchase comes from | Proposed | Designer, owner approves at Purchase gate 1 |
 
 ## Status values
 

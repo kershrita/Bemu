@@ -8,7 +8,8 @@ its horn-side shelf against a small support plate that stands on posts from the 
 the servo is held at both faces against the tilt moment of a loaded leg.
 
 Electronics trays are not here: the Raspberry Pi, battery and regulator dimensions are not verified
-yet (docs/08, version 1.5c); their masses are placeholders in the mass budget.
+yet (docs/08, deferred until the parts are bought and measured); their masses are placeholders
+in the mass budget.
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 # Version 1.5: Printable design, exact component fit, and the first purchase list
 
-**Status:** draft for the owner's approval (2026-11-19)
+**Status:** approved by the owner; plans 1.5a, 1.5b and 1.5c are executed (2026-11-19). Open: the owner's measurements, a print-service quote and the purchase approval.
 
 ## 1. Intent
 

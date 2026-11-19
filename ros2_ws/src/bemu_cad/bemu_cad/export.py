@@ -100,6 +100,7 @@ def _print_order(
     components: Components,
     body_rows: list[str] | None = None,
     body_hardware: list[str] | None = None,
+    analyses: dict | None = None,
 ) -> str:
     unverified = unverified_fields(components)
     blockers = release_blockers(components)
@@ -126,10 +127,11 @@ def _print_order(
         + ".",
         "",
         f"Settings for every part unless stated: {SETTINGS}. Quantities are for six legs plus "
-        "spares; the body rows are the whole body. The electronics trays come in version 1.5c.",
+        "spares; the body rows are the whole body. The electronics trays are designed after the "
+        "first parts arrive and are measured (docs/08).",
         "",
-        "| File | Material | Quantity | Orientation | Note |",
-        "|---|---|---|---|---|",
+        "| File | Material | Quantity | Orientation | Supports | Note |",
+        "|---|---|---|---|---|---|",
         "| tolerance_coupon.stl | PETG | 1 | base down | print this first, alone |",
     ]
     for part in leg.parts:
@@ -137,8 +139,16 @@ def _print_order(
         note = "rubber tips may replace the printed foot" if part.name == "foot" else ""
         orientation = ORIENTATION[part.print_axes]
         if part.print_flipped:
-            orientation = "turn the part over: flat face down, stem up (no supports)"
-        lines.append(f"| {part.name}.stl | {part.material} | {quantity} | {orientation} | {note} |")
+            orientation = "turn the part over: flat face down, stem up"
+        found = (analyses or {}).get(part.name)
+        up = ""
+        if found:
+            up = f" ({'+' if found.up_sign > 0 else '-'}{part.print_axes} up)"
+        supports = "-" if found is None else ("yes, small" if found.supports else "no")
+        lines.append(
+            f"| {part.name}.stl | {part.material} | {quantity} | {orientation}{up} | "
+            f"{supports} | {note} |"
+        )
     lines += body_rows or []
     lines += [
         "",
@@ -186,6 +196,7 @@ def export_all(
         mass_json,
         order_rows,
     )
+    from bemu_cad.export_printability import part_analyses, printability_report
 
     body = build_body(params, components, leg)
     written = {}
@@ -203,8 +214,14 @@ def export_all(
     data["body"] = mass_json(body, leg, components)
     mass.write_text(json.dumps(data, indent=2) + "\n")
     order = out_dir / "print_order.md"
-    order.write_text(_print_order(leg, components, order_rows(body), hardware_rows(body)))
+    analyses = part_analyses(leg, body)
+    order.write_text(
+        _print_order(leg, components, order_rows(body, analyses), hardware_rows(body), analyses)
+    )
     written["mass_properties.json"], written["print_order.md"] = mass, order
+    review = out_dir / "printability.md"
+    review.write_text(printability_report(leg, body, components))
+    written["printability.md"] = review
     return written
 
 

@@ -6,31 +6,31 @@ Two steps come first (docs/08): print `tolerance_coupon` alone and measure it, a
 
 All values still marked unverified in `config/components.yaml` (12): `servo.rear_idler_z_range`, `servo.horn_disc_diameter`, `servo.horn_z_range`, `servo.case_hole_thread`, `printing.pocket_allowance`, `insert_m3.hole_diameter`, `insert_m3.length`, `raspberry_pi_5.board`, `raspberry_pi_5.hole_pattern`, `raspberry_pi_5.hole_diameter`, `battery.size`, `battery.mass`.
 
-Settings for every part unless stated: 0.2 mm layers, 4 perimeters, 35% infill (docs/08). Quantities are for six legs plus spares; the body rows are the whole body. The electronics trays come in version 1.5c.
+Settings for every part unless stated: 0.2 mm layers, 4 perimeters, 35% infill (docs/08). Quantities are for six legs plus spares; the body rows are the whole body. The electronics trays are designed after the first parts arrive and are measured (docs/08).
 
-| File | Material | Quantity | Orientation | Note |
-|---|---|---|---|---|
+| File | Material | Quantity | Orientation | Supports | Note |
+|---|---|---|---|---|---|
 | tolerance_coupon.stl | PETG | 1 | base down | print this first, alone |
-| coxa_bracket.stl | PETG | 7 | base plate down (the leg's vertical axis points up) |  |
-| femur_plate_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) |  |
-| femur_plate_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) |  |
-| knee_spacer_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) |  |
-| knee_spacer_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) |  |
-| tibia_plate_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) |  |
-| tibia_plate_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) |  |
-| foot_bridge.stl | PETG | 6 | base plate down (the leg's vertical axis points up) |  |
-| foot.stl | TPU | 8 | turn the part over: flat face down, stem up (no supports) | rubber tips may replace the printed foot |
-| top_plate_rear.stl | PETG | 1 | flat, large face down | body |
-| top_plate_centre.stl | PETG | 1 | flat, large face down | body |
-| top_plate_front.stl | PETG | 1 | flat, large face down | body |
-| bottom_plate_rear.stl | PETG | 1 | flat, large face down | body |
-| bottom_plate_centre.stl | PETG | 1 | flat, large face down | body |
-| bottom_plate_front.stl | PETG | 1 | flat, large face down | body |
-| hip_plate.stl | PETG | 6 | flat, large face down | body |
-| post_main.stl | PETG | 8 | upright | body |
-| post_hip.stl | PETG | 12 | upright | body |
-| splice_top.stl | PETG | 4 | flat, large face down | body |
-| splice_bottom.stl | PETG | 4 | flat, large face down | body |
+| coxa_bracket.stl | PETG | 7 | base plate down (the leg's vertical axis points up) (+z up) | yes, small |  |
+| femur_plate_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (-y up) | no |  |
+| femur_plate_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (+y up) | no |  |
+| knee_spacer_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (-y up) | no |  |
+| knee_spacer_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (+y up) | no |  |
+| tibia_plate_horn.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (-y up) | yes, small |  |
+| tibia_plate_back.stl | PETG | 6 | lie flat on the large face (the leg's lateral axis points up) (+y up) | yes, small |  |
+| foot_bridge.stl | PETG | 6 | base plate down (the leg's vertical axis points up) (-z up) | yes, small |  |
+| foot.stl | TPU | 8 | turn the part over: flat face down, stem up (+z up) | yes, small | rubber tips may replace the printed foot |
+| top_plate_rear.stl | PETG | 1 | flat, large face down (-z up) | no | body |
+| top_plate_centre.stl | PETG | 1 | flat, large face down (-z up) | no | body |
+| top_plate_front.stl | PETG | 1 | flat, large face down (-z up) | no | body |
+| bottom_plate_rear.stl | PETG | 1 | flat, large face down (+z up) | no | body |
+| bottom_plate_centre.stl | PETG | 1 | flat, large face down (+z up) | no | body |
+| bottom_plate_front.stl | PETG | 1 | flat, large face down (+z up) | no | body |
+| hip_plate.stl | PETG | 6 | flat, large face down (+z up) | no | body |
+| post_main.stl | PETG | 8 | upright (+z up) | no | body |
+| post_hip.stl | PETG | 12 | upright (+z up) | no | body |
+| splice_top.stl | PETG | 4 | flat, large face down (+z up) | no | body |
+| splice_bottom.stl | PETG | 4 | flat, large face down (+z up) | no | body |
 
 ## Hardware (buy with the parts)
 
