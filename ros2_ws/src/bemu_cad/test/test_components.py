@@ -52,6 +52,7 @@ def test_unverified_fields_are_reported():
     fields = unverified_fields(load_components(COMPONENTS))
     assert "insert_m3.hole_diameter" in fields
     assert "servo.size" not in fields
+    assert "servo.case_hole_thread" in fields  # the screw thread is not in the datasheet
 
 
 def write(tmp_path, text):

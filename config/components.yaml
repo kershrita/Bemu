@@ -41,13 +41,24 @@ servo:
       - {x: 0, y: -7, diameter: 2.5, thread: M3}
     source: docs/reference/sts3215/waveshare-ST3215.step
     status: cad
-  case_holes:  # candidates for the external bracket holes: 20.7 x 20.5 pattern (task 2 decides)
+  case_holes:  # the bracket holes in the two case faces: 4 per face (pilot hole, 3.5 mm counterbore)
+    # horn face: 20.7 (x) by 20.5 (y); back face: 24.45 by 20.5, as dimensioned on the drawing.
+    # Depths are from Feetech's own model (the Waveshare model draws them shallower).
     value:
-      - {x: 8.3, y: 10.25, diameter: 2.5, thread: unknown}
-      - {x: 8.3, y: -10.25, diameter: 2.5, thread: unknown}
-      - {x: 29.0, y: 10.25, diameter: 2.5, thread: unknown}
-      - {x: 29.0, y: -10.25, diameter: 2.5, thread: unknown}
-    source: docs/reference/sts3215/waveshare-ST3215.step
+      - {side: horn, x: 8.3, y: 10.25, diameter: 1.6, counterbore: 3.5, depth: 3.9, thread: unknown}
+      - {side: horn, x: 8.3, y: -10.25, diameter: 1.6, counterbore: 3.5, depth: 3.9, thread: unknown}
+      - {side: horn, x: 29.0, y: 10.25, diameter: 1.6, counterbore: 3.5, depth: 3.9, thread: unknown}
+      - {side: horn, x: 29.0, y: -10.25, diameter: 1.6, counterbore: 3.5, depth: 3.9, thread: unknown}
+      - {side: back, x: 8.3, y: 10.25, diameter: 1.6, counterbore: 3.5, depth: 4.8, thread: unknown}
+      - {side: back, x: 8.3, y: -10.25, diameter: 1.6, counterbore: 3.5, depth: 4.8, thread: unknown}
+      - {side: back, x: 32.75, y: 10.25, diameter: 1.6, counterbore: 3.5, depth: 4.8, thread: unknown}
+      - {side: back, x: 32.75, y: -10.25, diameter: 1.6, counterbore: 3.5, depth: 4.8, thread: unknown}
+    source: docs/reference/sts3215/feetech-ST3215-20200328.stp
+    status: cad
+  case_hole_thread:  # the datasheet does not say; a 1.6 mm pilot suggests M2. Check the screws
+    # that ship with the servo, and the tolerance coupon rows, before ordering fasteners.
+    value: unknown (pilot 1.6 mm, counterbore 3.5 mm)
+    source: not given in the datasheet or the drawing
     status: unverified
   mass:
     value: 55

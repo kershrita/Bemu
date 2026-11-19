@@ -37,6 +37,9 @@ class Hole:
     y: float
     diameter: float
     thread: str
+    side: str = ""  # "horn" or "back" for the bracket holes in the case faces
+    counterbore: float = 0.0
+    depth: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -50,6 +53,7 @@ class ServoSpec:
     horn_screw: str
     horn_holes: tuple[Hole, ...]
     case_holes: tuple[Hole, ...]
+    case_hole_thread: str
     mass: float  # kg
     sources: dict[str, str]
     status: dict[str, str]
@@ -99,7 +103,15 @@ def _parse(raw: dict) -> dict[str, dict[str, Field]]:
 def _holes(field: Field, where: str) -> tuple[Hole, ...]:
     try:
         return tuple(
-            Hole(h["x"] * MM, h["y"] * MM, h["diameter"] * MM, str(h["thread"]))
+            Hole(
+                h["x"] * MM,
+                h["y"] * MM,
+                h["diameter"] * MM,
+                str(h["thread"]),
+                str(h.get("side", "")),
+                h.get("counterbore", 0.0) * MM,
+                h.get("depth", 0.0) * MM,
+            )
             for h in field.value
         )
     except (KeyError, TypeError) as exc:
@@ -120,6 +132,7 @@ def _servo(fields: dict[str, dict[str, Field]]) -> ServoSpec:
         "horn_screw",
         "horn_holes",
         "case_holes",
+        "case_hole_thread",
         "mass",
     )
     for name in needed:
@@ -139,6 +152,7 @@ def _servo(fields: dict[str, dict[str, Field]]) -> ServoSpec:
         horn_screw=str(body["horn_screw"].value),
         horn_holes=_holes(body["horn_holes"], "servo.horn_holes"),
         case_holes=_holes(body["case_holes"], "servo.case_holes"),
+        case_hole_thread=str(body["case_hole_thread"].value),
         mass=body["mass"].value * G,
         sources={k: v.source for k, v in body.items()},
         status={k: v.status for k, v in body.items()},
