@@ -26,10 +26,10 @@ Computed from the CAD (`bemu_cad.printability`). The support estimate counts sur
 | post_hip | 12 | 8 × 8 × 15 | +z up | no | 0.5 |
 | splice_top | 4 | 30 × 12 × 3 | +z up | no | 0.8 |
 | splice_bottom | 4 | 30 × 12 × 3 | +z up | no | 0.8 |
-| battery_tray | 1 | 142 × 68 × 15 | +z up | no | 20.3 |
+| battery_tray | 1 | 142 × 68 × 15 | +z up | yes (1224 mm²) | 18.5 |
 | pi_plate | 1 | 96 × 66 × 9 | +z up | no | 14.0 |
 
-Material for the whole robot: PETG 752 g, TPU 7 g; with 15% for supports, purge and a failed print: PETG 864 g (one 1 kg spool is enough), TPU 8 g (or buy rubber tips).
+Material for the whole robot: PETG 750 g, TPU 7 g; with 15% for supports, purge and a failed print: PETG 862 g (one 1 kg spool is enough), TPU 8 g (or buy rubber tips).
 
 Orientation: "+y up" means the part is placed so that the +y axis of its file points up; plates lie flat, the coxa bracket and the bridge sit on their base. Where a direction is given as minus, flip the part about a horizontal axis (the better side up). The foot is printed as modelled: dome down on a small support, stem up (rubber tips can replace it). Every part fits with its large face on the bed.
 
@@ -42,6 +42,6 @@ Orientation: "+y up" means the part is placed so that the +y axis of its file po
 
 ## Parts to ask about
 
-- Parts that need supports (over 25 mm² of overhang): `coxa_bracket` (195 mm²), `tibia_plate_horn` (36 mm²), `tibia_plate_back` (45 mm²), `foot_bridge` (40 mm²), `foot` (99 mm²). Everything else prints without.
+- Parts that need supports (over 25 mm² of overhang): `coxa_bracket` (195 mm²), `tibia_plate_horn` (36 mm²), `tibia_plate_back` (45 mm²), `foot_bridge` (40 mm²), `foot` (99 mm²), `battery_tray` (1224 mm²). Everything else prints without.
 - The posts are 8 mm wide and 50 mm tall: if they wobble on the bed, ask for a brim.
 - The 3 mm plates are thinner than four perimeters side by side are wide, so they print solid (the walls fill the thickness).

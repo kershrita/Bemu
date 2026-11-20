@@ -260,12 +260,12 @@
     "note": "Printed masses are estimates; weigh the printed parts and the finished robot (version 3) and replace them."
   },
   "body": {
-    "printed_kg": 0.2851777479822082,
+    "printed_kg": 0.28340381198220815,
     "coxa_servos_kg": 0.33,
     "electronics_placeholders_kg": 0.5840000000000001,
-    "total_kg": 1.1991777479822083,
+    "total_kg": 1.1974038119822081,
     "chassis_budget_kg": 1.2417326175430055,
-    "margin_kg": 0.042554869560797126,
+    "margin_kg": 0.044328805560797324,
     "design_mass_kg": 2.5,
     "note": "Printed masses are estimates; the Pi, battery, regulator and wiring are placeholders until the chosen parts are bought and measured. Weigh the parts and the robot (version 3).",
     "parts": {
@@ -578,28 +578,28 @@
         "count": 4
       },
       "battery_tray": {
-        "mass_kg": 0.020308099769881398,
+        "mass_kg": 0.018534163769881387,
         "center_m": [
-          -2.7300829545019263e-19,
-          6.846536159336862e-19,
-          -0.022689451883941527
+          -2.767030003636365e-18,
+          -3.6640069489663326e-19,
+          -0.022557721855377973
         ],
         "frame": "leg frame at zero joint angles (x outward from the hip axis, y lateral, z up)",
         "inertia_kg_m2": [
           [
-            6.009612217080745e-06,
-            -7.48477759771049e-23,
-            -1.1493876639319682e-21
+            5.686434023151536e-06,
+            -1.8519158959673374e-22,
+            2.132656682061727e-21
           ],
           [
-            -7.48477759771049e-23,
-            3.6362013836197225e-05,
-            -3.702242173469508e-22
+            -1.8519158959673374e-22,
+            3.378195013826801e-05,
+            -2.7834646710561974e-22
           ],
           [
-            -1.1493876639319682e-21,
-            -3.702242173469508e-22,
-            4.2139136710058026e-05
+            2.132656682061727e-21,
+            -2.7834646710561974e-22,
+            3.9244316998058044e-05
           ]
         ],
         "material": "PETG",
