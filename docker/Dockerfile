@@ -44,9 +44,12 @@ RUN pip install mujoco
 # CAD tools: build123d needs a Python it has wheels for, so it gets its own Python 3.13
 # virtualenv at /opt/cad. `/opt/cad/bin/python` runs the same pytest as the CI "python" job.
 COPY requirements-dev.txt /tmp/requirements-dev.txt
+# uv puts its Python under /root by default, which the development user cannot read: keep it in /opt.
+ENV UV_PYTHON_INSTALL_DIR=/opt/uv-python
 RUN pip install uv \
  && uv venv --python 3.13 /opt/cad \
  && uv pip install --python /opt/cad/bin/python -r /tmp/requirements-dev.txt matplotlib \
+ && chmod -R a+rX /opt/uv-python /opt/cad \
  && rm /tmp/requirements-dev.txt
 
 # A user with the host's UID/GID, so files written into the mounted repository stay yours.
