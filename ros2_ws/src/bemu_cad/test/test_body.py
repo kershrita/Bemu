@@ -226,12 +226,14 @@ def test_the_battery_tray_clears_the_posts_and_the_pi_clears_everything(world):
     assert {
         p.name: round(_gap(tray.solid, p.solid), 2)
         for p in posts
-        if _gap(tray.solid, p.solid) < 0.4
+        if _gap(tray.solid, p.solid) < 1.0
     } == {}
     pi = next(h for h in body.hardware if h.name == "pi_board")
     for code, t in body.hip_transforms.items():
         assert _gap(pi.solid, t * leg.servo_solids["coxa_servo"]) > 1.0, code
-    assert all(_gap(pi.solid, p.solid) > 0.0 for p in body.parts if p.name.startswith("top_plate"))
+    assert all(_gap(pi.solid, p.solid) > 5.0 for p in body.parts if p.name.startswith("top_plate"))
+    hips = [p for p in body.parts if p.name.startswith("hip_plate")]
+    assert [p.name for p in hips if _gap(tray.solid, p.solid) < 1.0] == []
 
 
 def test_the_tray_screws_land_on_inserts_in_the_plates(world):
@@ -297,3 +299,37 @@ def test_neighbouring_legs_do_touch_at_a_combined_60_degrees(world):
 
     _, _, leg, body = world
     assert neighbour_collisions(leg, body.hip_transforms, [(30.0, 30.0), (45.0, 15.0)], POSES)
+
+
+def test_the_strap_slots_connect_through_a_channel_under_the_tray(world):
+    from bemu_cad.trays import SLOT_GROOVE, SLOT_X, SLOT_Y
+
+    _, _, _, body = world
+    tray = next(p for p in body.parts if p.name == "battery_tray")
+    z0 = tray.solid.bounding_box().min.Z
+    for sx in (-1, 1):
+        assert not tray.solid.is_inside(Vector(sx * SLOT_X, SLOT_Y, z0 + 1.5))  # the slot
+        assert not tray.solid.is_inside(
+            Vector(sx * SLOT_X, 0.0, z0 + SLOT_GROOVE / 2)
+        )  # the channel
+        assert tray.solid.is_inside(Vector(sx * SLOT_X, 0.0, z0 + SLOT_GROOVE + 0.5))  # base above
+
+
+def test_the_pi_screws_fit_the_standoffs_and_the_board_hangs_past_the_pattern(world):
+    from bemu_cad.trays import PI_STANDOFF
+
+    _, components, _, body = world
+    pi = components.fields["raspberry_pi_5"]
+    rows = {row[0]: row for row in body.screws}
+    length = rows["Raspberry Pi 5 to the plate (M2.5, self-tapping)"][3]
+    board_thickness = 1.6  # a Pi's circuit board
+    assert length - board_thickness <= 5.0 <= PI_STANDOFF[1]  # the 5 mm pilot takes the screw
+    for name in (
+        "battery tray to the bottom plate (M3)",
+        "Pi plate to the top deck (M3, into the grid inserts)",
+    ):
+        assert rows[name][3] <= 3.0 + 4.0 - 1.0  # 3 mm part + 4 mm plate: nothing sticks through
+    box = next(h for h in body.hardware if h.name == "pi_board").solid.bounding_box()
+    centre = (box.min.X + box.max.X) / 2
+    expected = 85 / 2 - pi["hole_inset"].value - pi["hole_pattern"].value[0] / 2
+    assert centre == pytest.approx(expected, abs=0.01)

@@ -361,9 +361,9 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
             0,
             False,
         ),
-        ("battery tray to the bottom plate (M3)", "M3", 4, 8.0, False),
-        ("Pi plate to the top deck (M3, into the grid inserts)", "M3", 4, 8.0, False),
-        ("Raspberry Pi 5 to the plate (M2.5, self-tapping)", "M2.5", 4, 8.0, False),
+        ("battery tray to the bottom plate (M3)", "M3", 4, 6.0, False),
+        ("Pi plate to the top deck (M3, into the grid inserts)", "M3", 4, 6.0, False),
+        ("Raspberry Pi 5 to the plate (M2.5, self-tapping)", "M2.5", 4, 6.0, False),
     )
     return BodyParts(
         parts=tuple(parts),

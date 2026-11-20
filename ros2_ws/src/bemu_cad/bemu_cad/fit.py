@@ -198,10 +198,7 @@ def _grid(limits: tuple[float, float], steps: int) -> list[float]:
     return [lo + (hi - lo) * i / (steps - 1) for i in range(steps)]
 
 
-# (leg a, leg b, sign): b is the next leg round the body; sign is +1 on the left side and -1 on the
-# right, so that a positive "toward" angle swings a leg toward its neighbour on either side.
-NEIGHBOURS = (("lf", "lm", 1), ("lm", "lr", 1), ("rf", "rm", -1), ("rm", "rr", -1))
-FREE_TOWARD_SUM = 45.0  # degrees: the largest sum of the two toward angles verified free (docs/08)
+from bemu_cad.neighbours import FREE_TOWARD_SUM, NEIGHBOURS  # noqa: E402,F401
 
 
 def _box(solid) -> tuple:

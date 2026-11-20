@@ -12,7 +12,7 @@ estimates are in `cad/export/printability.md`.
 |---|---|---|
 | **A: tolerance coupon** | `tolerance_coupon.stl` × 1 | now, alone |
 | **B: one leg** | the 9 leg files, **one of each** (coxa bracket, femur plate horn and back, knee spacer horn and back, tibia plate horn and back, foot bridge, foot), plus one spare of every part (and a third foot) | after the coupon is measured |
-| **C: body and five more legs** | body plates (3 + 3 pieces), hip plates, posts, splice plates, and the leg files × 5 | after version 2 passes |
+| **C: body and five more legs** | body plates (3 + 3 pieces), hip plates, posts, splice plates, battery tray, Pi plate, and the leg files × 5 | after version 2 passes |
 
 ## English
 

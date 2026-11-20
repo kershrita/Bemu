@@ -133,6 +133,7 @@ raspberry_pi_5:
   board: {value: [85, 56], source: "Raspberry Pi 5 mechanical drawing, datasheets.raspberrypi.com/rpi5/raspberry-pi-5-mechanical-drawing.pdf (text lists 85 and 56; the owner has a board: caliper it)", status: unverified}
   hole_pattern: {value: [58, 49], source: "same drawing and Raspberry Pi forum thread 357946 (58 x 49 mm hole spacing); caliper the board", status: unverified}
   hole_diameter: {value: 2.7, source: "same drawing (dia 2.7 for M2.5 screws); caliper the board", status: unverified}
+  hole_inset: {value: 3.5, source: "distance from a short board edge to the nearest hole centre, Raspberry Pi 5 mechanical drawing (the board hangs 23.5 mm past the far holes at the connector end); caliper the board", status: unverified}
   height: {value: 17, source: "assumed height of the tallest connectors above the board; measure the board", status: unverified}
   pilot_diameter: {value: 2.1, source: "assumed pilot hole for M2.5 self-tapping screws in PETG; the coupon decides", status: unverified}
 

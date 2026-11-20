@@ -25,9 +25,10 @@ END_WALL_HALF_WIDTH = 17.0  # the end walls stop short of the hip posts
 END_WALL_HEIGHT = 12.0  # above the base
 LIP_HEIGHT = 8.0
 FLANGE_Y = 34.0  # strap flange half width
-FLANGE_X = (30.0, 56.0)  # |x| range of the flange (slots then screw holes)
-SLOT = (8.0, 3.0)  # strap slot size (along x, along y)
-SLOT_X = 36.0
+FLANGE_X = (28.0, 56.0)  # |x| range of the flange (slots then screw holes)
+SLOT = (12.0, 3.0)  # strap slot size (along x, along y): fits a 10 mm strap
+SLOT_GROOVE = 2.0  # mm deep channel under the base joining each slot pair, for the strap
+SLOT_X = 37.0
 SLOT_Y = 27.0
 MOUNT_X = 50.0
 MOUNT_Y = 28.0
@@ -87,21 +88,38 @@ def battery_tray(components, z0: float, m3: float) -> Part:
                 z0 - 1,
                 top + 1,
             )
+        solid -= _box(  # the channel under the base that joins the two slots of one side pair
+            sx * SLOT_X - SLOT[0] / 2,
+            sx * SLOT_X + SLOT[0] / 2,
+            -SLOT_Y - SLOT[1] / 2,
+            SLOT_Y + SLOT[1] / 2,
+            z0 - 1,
+            z0 + SLOT_GROOVE,
+        )
     for x, y in BATTERY_MOUNTS:
         solid -= _cyl(x, y, m3, z0 - 1, top + 1)
         holes.append(HoleSpec(x, y, m3))
+    f0, f1 = FLANGE_X
     polygon = (
         (-outer_l, -outer_w),
-        (-FLANGE_X[1], -outer_w),
-        (-FLANGE_X[1], -FLANGE_Y),
-        (FLANGE_X[1], -FLANGE_Y),
-        (FLANGE_X[1], -outer_w),
+        (-f1, -outer_w),
+        (-f1, -FLANGE_Y),
+        (-f0, -FLANGE_Y),
+        (-f0, -outer_w),
+        (f0, -outer_w),
+        (f0, -FLANGE_Y),
+        (f1, -FLANGE_Y),
+        (f1, -outer_w),
         (outer_l, -outer_w),
         (outer_l, outer_w),
-        (FLANGE_X[1], outer_w),
-        (FLANGE_X[1], FLANGE_Y),
-        (-FLANGE_X[1], FLANGE_Y),
-        (-FLANGE_X[1], outer_w),
+        (f1, outer_w),
+        (f1, FLANGE_Y),
+        (f0, FLANGE_Y),
+        (f0, outer_w),
+        (-f0, outer_w),
+        (-f0, FLANGE_Y),
+        (-f1, FLANGE_Y),
+        (-f1, outer_w),
         (-outer_l, outer_w),
     )
     return Part(
@@ -119,11 +137,20 @@ def battery_tray(components, z0: float, m3: float) -> Part:
 
 
 def pi_box(components, z_top: float):
-    """The Raspberry Pi 5 board with its tallest connectors, centred on the top deck."""
-    length, width = components.fields["raspberry_pi_5"]["board"].value
-    height = components.fields["raspberry_pi_5"]["height"].value
+    """The Raspberry Pi 5 board with its tallest connectors on the top deck. The standoffs (the hole
+    pattern) are at the centre of the plate; the board hangs further past the hole pattern at its
+    connector end, which is turned toward +x."""
+    pi = components.fields["raspberry_pi_5"]
+    length, width = pi["board"].value
+    pitch_x = pi["hole_pattern"].value[0]
+    offset = (
+        length / 2 - pi["hole_inset"].value - pitch_x / 2
+    )  # board centre past the pattern centre
+    height = pi["height"].value
     base = z_top + PI_PLATE[2] + PI_STANDOFF[1]
-    return _box(-length / 2, length / 2, -width / 2, width / 2, base, base + height)
+    return _box(
+        offset - length / 2, offset + length / 2, -width / 2, width / 2, base, base + height
+    )
 
 
 def pi_plate(components, z_top: float, m3: float) -> Part:

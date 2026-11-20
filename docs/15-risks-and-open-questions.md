@@ -56,6 +56,7 @@ Likelihood and impact are rated low, medium or high.
 | R15 | 3D viewers under WSL fall back to slow software rendering instead of the NVIDIA card | Medium | Low | Checked in step 0.2; dual-boot Ubuntu as the fallback. **Occurred and resolved 2026-11-18:** Mesa defaulted to `llvmpipe`, then to the Intel integrated graphics; fixed with `GALLIUM_DRIVER=d3d12` and `MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA` ([13](13-dev-environment.md)) |
 | R16 | ROS 2 on the PC (inside WSL) and on the Pi cannot find each other across WSL's virtual network | Medium | Low | Change WSL's networking mode; tested in version 2; dual-boot Ubuntu as the fallback |
 | R17 | Ordering prints makes each design iteration slow, and a wrong part costs a re-order | High | Medium | Tolerance test piece first; fit checked in CAD; complete batches; spares of small loaded parts; a written print specification with every order |
+| R18 | The battery cannot be swapped without opening the body (posts block every exit; the top plate is solid) | High | Low | Known in version 1.5d; a hatch over the pack or an open end is added when the body is built (version 3); charge in place or open the body meanwhile |
 
 ## Assumptions
 

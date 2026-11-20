@@ -264,21 +264,22 @@ servos 330 g, electronics 584 g (Pi 75, battery 359 from the listing, regulator 
 almost gone. Hard stops and cable slots are still to come (version 2, once the first leg exists).
 
 **Trays and neighbour check (version 1.5d).** `bemu_cad.trays` adds a **battery tray** (PETG, 142 × 68 × 15 mm:
-a base, two end walls with a lead notch, two side lips, strap flanges with four 8 × 3 mm slots, four M3
+a base, two end walls with a lead notch, two side lips, strap flanges with four 12 × 3 mm slots joined by a 2 mm channel under the base (a 10 mm strap passes through), four M3 × 6
 screws into four heat-set inserts in the bottom plate) around the pack, which lies along x between the
 posts (the Ovonic 3S 5000 mAh listing: 138 × 42 × 28 mm, 359 g, unverified until a pack is bought), and a
 **Pi plate** on the top deck (96 × 66 × 3 mm, four 6 mm standoffs at the board's 58 × 49 mm hole pattern, four M3
 screws into grid inserts, notches to keep the post screws reachable). The Pi (85 × 56 mm, 17 mm assumed
-height) is drawn on the top deck, the pack in the bay. Tests check that the pack clears every post, hip
+height, hanging 10 mm past the hole pattern toward its connector end, which points forward) is drawn on the top deck, the pack in the bay. Tests check that the pack clears every post, hip
 plate and coxa servo by at least 1 mm, that the tray clears the posts, that the Pi board clears the coxa
 servos and top plates, that tray and plate screws land on insert holes, that every plate piece has two
 posts under it, and that the Pi standoffs sit on the hole pattern. **Neighbouring legs:** with both legs
 in the same femur and knee pose (stand, sit, two extended poses and one mid pose), two neighbours do not touch
 while the sum of the angles they swing toward each other is 45° or less (checked on a 15° grid); at a sum of
 60° they do. The gaits stay inside this (the largest sum is about 43° for the wave gait at top speed), and a
-test keeps them there. The per-joint coxa limit stays ±45°, because body shifts and yaw move all legs
-together and do not bring neighbours closer; a future change that lets two neighbours swing toward each other by more than 45° in sum must widen the check first. **The splice plates moved to y = ±50 mm** to free the battery
+test keeps them there. The per-joint coxa limit stays ±45°: body shifts and yaw change the neighbours' angles unequally and can bring them together, but with the gaits at top speed over shifted and yawed poses the sum peaked at 42.8°, and the gait test (including gait changes and body poses) keeps it under 45°. A new gait or pose command that could exceed that must widen the CAD check first. **The splice plates moved to y = ±50 mm** to free the battery
 tray's strap flanges.
+
+**Known limitation: swapping the battery.** The pack is 138 × 42 mm and posts block every way out: the front and rear post pairs leave 22 mm, the hip posts 41 mm, the centre posts 34 mm, and the top plate is solid. Taking the pack out means opening the body (the tray screws are under the top plate). Version 3, when the body is built, should add a hatch in the top plate over the pack (the Pi plate would move to other grid holes) or an open end; until then plan to charge the pack in place or open the body.
 
 **The same design in the simulator.** `python3 tools/generate_cad.py` also writes visual meshes of every part
 (and the three servos as envelopes) into `ros2_ws/src/bemu_description/meshes/` with a manifest

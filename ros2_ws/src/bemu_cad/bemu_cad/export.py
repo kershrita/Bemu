@@ -137,8 +137,8 @@ def _print_order(
         + ".",
         "",
         f"Settings for every part unless stated: {SETTINGS}. Quantities are for six legs plus "
-        "spares; the body rows are the whole body. The electronics trays are designed after the "
-        "first parts arrive and are measured (docs/08).",
+        "spares; the body rows (plates, posts, battery tray, Pi plate) are the whole body. Hard "
+        "stops and cable slots come with the first leg (version 2).",
         "",
         "| File | Material | Quantity | Orientation | Supports | Note |",
         "|---|---|---|---|---|---|",
