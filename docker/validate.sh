@@ -7,7 +7,7 @@
 #                               the simulated launch tests of bemu_bringup (headless simulator)
 #
 # The log of every step is in /tmp/bemu-validate/. Exit status 0 only if every step passed.
-set -uo pipefail
+set -o pipefail  # not -u: the ROS setup scripts read unset variables
 MODE="${1:-quick}"
 case "$MODE" in quick|full) ;; *) echo "usage: $0 [quick|full]" >&2; exit 2 ;; esac
 
