@@ -11,7 +11,7 @@ estimates are in `cad/export/printability.md`.
 | Order | Files | When |
 |---|---|---|
 | **A: tolerance coupon** | `tolerance_coupon.stl` × 1 | now, alone |
-| **B: one leg** | the 9 leg files, **one of each** (coxa bracket, femur plate horn and back, knee spacer horn and back, tibia plate horn and back, foot bridge, foot), plus 1 spare coxa bracket and 1 spare foot | after the coupon is measured |
+| **B: one leg** | the 9 leg files, **one of each** (coxa bracket, femur plate horn and back, knee spacer horn and back, tibia plate horn and back, foot bridge, foot), plus one spare of every part (and a third foot) | after the coupon is measured |
 | **C: body and five more legs** | body plates (3 + 3 pieces), hip plates, posts, splice plates, and the leg files × 5 | after version 2 passes |
 
 ## English
@@ -29,7 +29,7 @@ estimates are in `cad/export/printability.md`.
 >   enable "hole compensation" or scaling. I am ordering a small test coupon first so I can
 >   measure your printer's accuracy before ordering the real parts.
 > - **Orders:** order A is one file, the test coupon, printed alone and first. Order B is one leg:
->   one each of the 9 attached leg files, plus a spare of `coxa_bracket` and of `foot`. The
+>   two each of the 9 attached leg files (one leg plus one spare of every part), and three of `foot`. The
 >   quantities in `print_order.md` are for the whole robot (six legs); please quote those
 >   as an indication of the later order C.
 > - **Files:** attached (STL).
@@ -48,7 +48,7 @@ estimates are in `cad/export/printability.md`.
 >   اتجاه الطباعة لكل ملف موضح في ملف `print_order.md` المرفق (الألواح مسطحة والأعمدة عمودية).
 >   بعض القطع تحتاج دعامات صغيرة فقط (موضحة في `printability.md`).
 > - **الطلبات:** الطلب (أ) ملف واحد هو قطعة الاختبار، تُطبع وحدها أولاً. الطلب (ب) قطع رجل واحدة:
->   نسخة واحدة من كل ملف من الملفات التسعة المرفقة، مع نسخة احتياطية من `coxa_bracket` ومن `foot`.
+>   نسختان من كل ملف من الملفات التسعة المرفقة (رجل واحدة مع نسخة احتياطية من كل قطعة)، وثلاث نسخ من `foot`.
 >   الكميات في `print_order.md` للروبوت كاملاً (ست أرجل)، أرجو تسعيرها كمؤشر للطلب (ج) لاحقاً.
 > - **المقاس:** أكبر قطعة 190 × 80 × 4 مم، وأطولها 50 مم. يكفي حجم طباعة 200 × 200 × 80 مم.
 > - **الدقة مهمة:** يجب أن تخرج الثقوب والتجاويف بالمقاس المصمم. أرجو عدم تفعيل تعويض الثقوب

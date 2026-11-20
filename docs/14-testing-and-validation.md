@@ -94,6 +94,8 @@ with every mesh non-colliding; the URDF visuals point at installed files; the co
 CAD (a change to the CAD without regenerating fails); and at zero joint angles the meshes sit where the CAD
 assembly has them (checked on the left-front and right-rear legs and a body plate, to 0.05 mm).
 
+Version 1.5d's tests add: the battery pack clears every post, hip plate and coxa servo; the tray clears the posts; the Pi board clears the coxa servos; tray and plate screws land on insert holes; every plate piece has two posts; the Pi standoffs sit on the hole pattern; neighbouring legs are collision-free up to a combined 45° toward each other and do collide at 60° (so the limit is real); the gaits stay inside 45° (`test_neighbours.py`); the quantities include one spare of every leg part; and the bed-fit check includes a margin and the height.
+
 Version 1.5c's tests add: the printability analysis (a plain block needs no supports and reports its size; an overhanging shelf needs them in the worse direction only) and the exported `printability.md` and `print_order.md` (the bed fits, the Supports column, no contradicting orientation text).
 
 Version 1.5b's tests add: link masses from the CAD and the guard that keeps `robot_params.yaml` equal to

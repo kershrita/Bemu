@@ -21,6 +21,7 @@ COLORS = {
     "plate": [0.78, 0.80, 0.84, 1.0],
     "servo": [0.12, 0.12, 0.13, 1.0],
     "foot": [0.95, 0.62, 0.12, 1.0],
+    "component": [0.16, 0.55, 0.30, 1.0],  # the battery pack and the Pi board (boxes, unverified)
 }
 LINK_OF_GROUP = {"fixed": "coxa", "femur": "femur", "tibia": "tibia"}
 SERVO_LINK = {"femur_servo": "coxa", "knee_servo": "femur"}
@@ -69,5 +70,8 @@ def build_visuals(leg: LegParts, body: BodyParts) -> tuple[dict, dict]:
             )
         else:
             add("body", part.name, part.solid, COLORS["plate"])
+    for item in body.hardware:  # the pack and the board, drawn as boxes of their listed size
+        if item.name in ("battery_pack", "pi_board"):
+            add("body", item.name, item.solid, COLORS["component"])
     manifest = {"links": links, "per_leg_body": per_leg, "unit": "mm"}
     return meshes, manifest

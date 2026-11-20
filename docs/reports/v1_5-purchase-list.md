@@ -50,7 +50,7 @@ import charges are extra.
 | # | Item | Qty | What to buy | Rough price (a guess unless Evidence says *listed*) | Evidence |
 |---|---|---|---|---|---|
 | 8 | Servos, same model | 16 (15 + 1 spare) | As item 1; with item 1 this makes 20: 18 in the robot, 2 spares | $22–39 each, **$352–624** | listed (as item 1) |
-| 9 | Battery, 3S LiPo, 5000 mAh, 40–50C, XT60 | 1 | e.g. Ovonic or GENS ACE 3S 5000 mAh. Ovonic's 5000 mAh pack is listed at **359 g, 138 × 42 × 28 mm** (the body's placeholder is 350 g; whether it fits has not been checked, because the battery bay is not designed yet). | $45–85 | reference: GENS ACE 3S 5000 mAh 50C AED 305 excl. VAT (about $83) at a UAE shop; Ovonic 5000 mAh not priced |
+| 9 | Battery, 3S LiPo, 5000 mAh, 40–50C, XT60 | 1 | e.g. Ovonic or GENS ACE 3S 5000 mAh. Ovonic's 5000 mAh pack is listed at **359 g, 138 × 42 × 28 mm** (the body's mass budget now uses 359 g; the battery tray is drawn around these dimensions, which stay unverified until a pack is bought). | $45–85 | reference: GENS ACE 3S 5000 mAh 50C AED 305 excl. VAT (about $83) at a UAE shop; Ovonic 5000 mAh not priced |
 | 10 | Balance charger for 3S LiPo, and a fire-resistant charging bag | 1 + 1 | Any reputable 3S charger with a balance port | $30–60 | not priced (rough estimate from docs/10, unverified) |
 | 11 | Step-down converter, 12 V to 5.1 V, 5 A or more, with a **USB-C connector that identifies itself to the Pi 5 as a 5 A supply** | 1 | See the caution below | $8–20 | not priced (no listing price found; 27 W wall adapters are $13–18, which is not what is needed; $8–20 is a guess) |
 | 12 | Main switch, fuse holder, 20 A fuses, silicone wire (14/16/20 AWG), XT60 connectors, bulk capacitor (1000 µF, 25 V) | 1 set | | $20–35 | not priced (rough estimate from docs/10, unverified) |
@@ -73,7 +73,7 @@ based**: send the same request to two or three services and compare. The request
 English and Arabic, is `docs/reports/v1_5-print-quote-request.md`.
 
 Material for the robot (computed from the CAD, 60% fill estimate, `cad/export/printability.md`):
-**PETG about 664 g, TPU about 7 g**; about 764 g of PETG with a 15% allowance for supports, purge
+**PETG about 752 g, TPU about 7 g** (including one spare of every leg part); about 864 g of PETG with a 15% allowance for supports, purge
 and one failed print. One 1 kg spool is enough. Largest footprint is 190 mm, so the parts fit a
 200 × 200 mm bed.
 

@@ -196,3 +196,75 @@ def _grid(limits: tuple[float, float], steps: int) -> list[float]:
     if steps < 2:
         return [lo]
     return [lo + (hi - lo) * i / (steps - 1) for i in range(steps)]
+
+
+# (leg a, leg b, sign): b is the next leg round the body; sign is +1 on the left side and -1 on the
+# right, so that a positive "toward" angle swings a leg toward its neighbour on either side.
+NEIGHBOURS = (("lf", "lm", 1), ("lm", "lr", 1), ("rf", "rm", -1), ("rm", "rr", -1))
+FREE_TOWARD_SUM = 45.0  # degrees: the largest sum of the two toward angles verified free (docs/08)
+
+
+def _box(solid) -> tuple:
+    b = solid.bounding_box()
+    return (b.min.X, b.max.X, b.min.Y, b.max.Y, b.min.Z, b.max.Z)
+
+
+def _touch(a: tuple, b: tuple) -> bool:
+    return (
+        a[0] <= b[1]
+        and b[0] <= a[1]
+        and a[2] <= b[3]
+        and b[2] <= a[3]
+        and a[4] <= b[5]
+        and b[4] <= a[5]
+    )
+
+
+def _moved(cache: dict, posed: dict, hip_transforms: dict, code: str, angle: float) -> dict:
+    """Every solid of one leg swung by `angle` degrees about its coxa axis and placed on the body,
+    with its bounding box; kept in `cache` per (leg, angle)."""
+    key = (code, angle)
+    if key not in cache:
+        t = hip_transforms[code]
+        swing = Rot(Z=angle)
+        items = {
+            name: t * (swing * solid if name != "coxa_servo" else solid)
+            for name, (_, solid) in posed.items()
+        }
+        cache[key] = {name: (solid, _box(solid)) for name, solid in items.items()}
+    return cache[key]
+
+
+def neighbour_collisions(
+    leg: LegParts,
+    hip_transforms: dict,
+    toward_pairs,
+    poses: list[tuple[float, float]],
+    pairs: tuple = NEIGHBOURS,
+) -> list[str]:
+    """Part-to-part intersections between two neighbouring legs for every (a, b) in `toward_pairs`
+    (degrees each leg swings toward the other; negative swings away) and every femur and knee pose
+    (both legs in the same pose: the worst case is two legs reaching for the same spot). The coxa
+    servo is part of the body, so it stays put. Parts whose boxes do not touch are skipped."""
+    found = []
+    for femur, knee in poses:
+        posed = _posed(leg, femur, knee)
+        cache: dict = {}
+
+        for a, b, sign in pairs:
+            for toward_a, toward_b in toward_pairs:
+                set_a = _moved(cache, posed, hip_transforms, a, sign * toward_a)
+                set_b = _moved(cache, posed, hip_transforms, b, -sign * toward_b)
+                for name_a, (solid_a, box_a) in set_a.items():
+                    for name_b, (solid_b, box_b) in set_b.items():
+                        if not _touch(box_a, box_b):
+                            continue
+                        overlap = solid_a & solid_b
+                        volume = float(overlap.volume) if overlap else 0.0
+                        if volume > CONTACT_VOLUME:
+                            found.append(
+                                f"{a}.{name_a}|{b}.{name_b}: {volume:.1f} mm^3 with the legs "
+                                f"{toward_a:.0f} and {toward_b:.0f} deg toward each other, femur "
+                                f"{math.degrees(femur):.0f}, knee {math.degrees(knee):.0f} deg"
+                            )
+    return found

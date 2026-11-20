@@ -30,12 +30,20 @@ DENSITY_G_PER_MM3 = {"PETG": 1.27e-3, "TPU": 1.21e-3}
 FILL_FACTOR = 0.6  # perimeters plus 35% infill: an estimate until the printed parts are weighed
 # screw mass model, grams (steel): M2 0.2 g + 0.025 g/mm, M3 0.5 g + 0.055 g/mm (head plus shank)
 SCREW_G = {"M2": (0.2, 0.025), "M3": (0.5, 0.055)}
-SPARES = {"coxa_bracket": 1, "foot": 2}  # the most loaded part, and the part that wears
+SPARE_COPIES = (
+    1  # one extra of every leg part (spec section 5.4: a failed part means another order)
+)
+SPARES = {"foot": 2}  # the part that wears: two extra
 SETTINGS = "0.2 mm layers, 4 perimeters, 35% infill (docs/08)"
 ORIENTATION = {
     "y": "lie flat on the large face (the leg's lateral axis points up)",
     "z": "base plate down (the leg's vertical axis points up)",
 }
+
+
+def spares(name: str) -> int:
+    """Spare copies of one leg part in the order."""
+    return SPARES.get(name, SPARE_COPIES)
 
 
 def part_mass_properties(part: Part) -> dict:
@@ -137,7 +145,7 @@ def _print_order(
         "| tolerance_coupon.stl | PETG | 1 | base down | print this first, alone |",
     ]
     for part in leg.parts:
-        quantity = LEGS * part.count + SPARES.get(part.name, 0)
+        quantity = LEGS * part.count + spares(part.name)
         note = "rubber tips may replace the printed foot" if part.name == "foot" else ""
         orientation = ORIENTATION[part.print_axes]
         if part.name == "foot":

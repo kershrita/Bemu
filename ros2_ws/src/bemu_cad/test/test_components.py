@@ -104,3 +104,16 @@ def test_an_unknown_status_is_rejected(tmp_path):
 def test_a_file_that_does_not_exist_is_one_clear_error(tmp_path):
     with pytest.raises(ComponentsError, match="cannot read"):
         load_components(tmp_path / "nope.yaml")
+
+
+def test_the_battery_and_pi_entries_come_from_their_sources_and_stay_unverified():
+    components = load_components(COMPONENTS)
+    battery = components.fields["battery"]
+    assert battery["size"].value == [138, 42, 28]
+    assert battery["mass"].value == 359
+    pi = components.fields["raspberry_pi_5"]
+    assert pi["board"].value == [85, 56] and pi["hole_pattern"].value == [58, 49]
+    assert pi["height"].value > 0 and pi["pilot_diameter"].value > 0
+    unverified = unverified_fields(components)
+    for name in ("battery.size", "battery.mass", "raspberry_pi_5.height", "raspberry_pi_5.board"):
+        assert name in unverified

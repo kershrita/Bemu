@@ -6,18 +6,19 @@ import dataclasses
 
 from bemu_cad.body import BodyParts
 from bemu_cad.components import Components
-from bemu_cad.export import LEGS, SPARES
+from bemu_cad.export import LEGS, spares
 from bemu_cad.export_body import canonical_solid, families
 from bemu_cad.leg import LegParts, Part
 from bemu_cad.printability import SUPPORT_AREA, PrintAnalysis, analyze, support_label
 
-BED = (200.0, 200.0, 200.0)
+BED = (200.0, 200.0, 80.0)  # assumed build volume; the height is what the print order asks for
+BED_MARGIN = 3.0  # mm kept free on each side of the footprint for a skirt
 SHRINK_ALLOWANCE = 1.15  # +15% for supports, purge and a failed print
 
 
 def _canonical_parts(leg: LegParts, body: BodyParts) -> list[tuple[Part, int]]:
     """(part in its own frame, copies in the robot) for every printed file except the coupon."""
-    result = [(p, LEGS * p.count + SPARES.get(p.name, 0)) for p in leg.parts]
+    result = [(p, LEGS * p.count + spares(p.name)) for p in leg.parts]
     for members in families(body).values():
         first = members[0]
         result.append(
@@ -58,7 +59,8 @@ def printability_report(
             needing.append(f"`{name}` ({a.overhang_mm2:.0f} mm²)")
         grams[part.material] += a.mass_g * copies
         largest = max(largest, a.size_mm[0], a.size_mm[1])
-    fits = largest <= BED[0]
+    tallest = max(a.size_mm[2] for a in analyses.values())
+    fits = largest + 2 * BED_MARGIN <= BED[0] and tallest <= BED[2]
     lines = [
         "# Printability review",
         "",
@@ -68,9 +70,10 @@ def printability_report(
         f"{SUPPORT_AREA:.0f} mm²; the column gives the area. Masses use 60% fill (an estimate). "
         "Sizes are footprint × height in the print orientation.",
         "",
-        f"**Largest footprint: {largest:.0f} mm. Fits a 200 × 200 mm bed: "
-        f"{'yes' if fits else 'NO'}** (the plates are split at x = ±40 mm for this; a bigger bed "
-        "would allow fewer pieces).",
+        f"**Largest footprint: {largest:.0f} mm, tallest part {tallest:.0f} mm. Fits a "
+        f"{BED[0]:.0f} × {BED[1]:.0f} × {BED[2]:.0f} mm bed with {BED_MARGIN:.0f} mm free on each "
+        f"side: {'yes' if fits else 'NO'}** (the plates are split at x = ±40 mm for this; a "
+        "bigger bed would allow fewer pieces).",
         "",
         "| Part | Copies | Size (mm) | Orientation | Supports (overhang) | One part (g) |",
         "|---|---|---|---|---|---|",

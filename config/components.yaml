@@ -130,10 +130,12 @@ bearing_683:
   width: {value: 3, source: ISO 15 (683), status: standard}
 
 raspberry_pi_5:
-  board: {value: [85, 56], source: Raspberry Pi 5 mechanical drawing (fetch in 1.5b), status: unverified}
-  hole_pattern: {value: [58, 49], source: Raspberry Pi 5 mechanical drawing (fetch in 1.5b), status: unverified}
-  hole_diameter: {value: 2.7, source: Raspberry Pi 5 mechanical drawing (fetch in 1.5b), status: unverified}
+  board: {value: [85, 56], source: "Raspberry Pi 5 mechanical drawing, datasheets.raspberrypi.com/rpi5/raspberry-pi-5-mechanical-drawing.pdf (text lists 85 and 56; the owner has a board: caliper it)", status: unverified}
+  hole_pattern: {value: [58, 49], source: "same drawing and Raspberry Pi forum thread 357946 (58 x 49 mm hole spacing); caliper the board", status: unverified}
+  hole_diameter: {value: 2.7, source: "same drawing (dia 2.7 for M2.5 screws); caliper the board", status: unverified}
+  height: {value: 17, source: "assumed height of the tallest connectors above the board; measure the board", status: unverified}
+  pilot_diameter: {value: 2.1, source: "assumed pilot hole for M2.5 self-tapping screws in PETG; the coupon decides", status: unverified}
 
-battery:  # chosen in 1.5c with shipping to Saudi Arabia in mind
-  size: {value: [100, 35, 30], source: placeholder until a pack is chosen, status: unverified}
-  mass: {value: 350, source: placeholder until a pack is chosen, status: unverified}
+battery:  # Ovonic 3S 5000 mAh 50C XT60 listing seen 2026-11-19 (rcdrone.top); buy locally; confirm against the pack received
+  size: {value: [138, 42, 28], source: "rcdrone.top Ovonic 3S 5000 mAh 50C listing 2026-11-19 (138 x 42 x 28 mm); measure the pack bought", status: unverified}
+  mass: {value: 359, source: "same listing (net weight 359 g); weigh the pack bought", status: unverified}

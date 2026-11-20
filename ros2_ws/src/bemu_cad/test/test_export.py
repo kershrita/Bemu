@@ -69,7 +69,8 @@ def test_the_print_order_lists_every_file_with_quantities(exported):
     assert "NOT READY TO ORDER" in text  # until the coupon and the servo measurement are done
     rows = {line.split("|")[1].strip(): line for line in text.splitlines() if line.startswith("| ")}
     assert "| 7 |" in rows["coxa_bracket.stl"]  # 6 legs + 1 spare
-    assert "| 6 |" in rows["tibia_plate_horn.stl"]
+    assert "| 7 |" in rows["tibia_plate_horn.stl"]  # one spare of every leg part
+    assert "| 8 |" in rows["foot.stl"]  # six legs and two spares
     assert "TPU" in rows["foot.stl"]
 
 
@@ -144,7 +145,7 @@ def test_the_body_is_exported_with_counts_and_a_mass_budget(exported):
 def test_the_printability_report_is_exported_and_fits_the_bed(exported):
     text = (exported / "printability.md").read_text()
     assert "Printability review" in text
-    assert "Fits a 200 × 200 mm bed: yes" in text
+    assert "200 × 200 × 80 mm bed with 3 mm free on each side: yes" in text
     order = (exported / "print_order.md").read_text()
     assert "Supports" in order and "up)" in order
     assert "(no supports)" not in order

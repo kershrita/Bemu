@@ -91,9 +91,15 @@ Steps 1.4 to 1.6 are done headless (version 1b-1, `docs/superpowers/specs/2026-1
 | 1.5.6 | Printability review: part sizes, overhangs, split lines, fastener access. Choose the print service and confirm its build size and materials |
 | 1.5.7 | Final component list with current prices and suppliers |
 
+Progress (2026-11-20): version 1.5d finishes the scope the first three left open: the battery tray and
+the Raspberry Pi plate (step 1.5.3's electronics and battery bay), a neighbouring-leg collision check
+(two neighbours are free up to a combined 45° toward each other, and the gaits stay under it), one
+spare of every leg part, and a bed-fit check with a margin. Hard stops and cable slots are left for
+version 2, because they depend on the real servo and the first leg.
+
 Progress (2026-11-19): version 1.5c (printing and buying) is written: the printability review
-(`cad/export/printability.md`: every part fits a 200 × 200 mm bed, a few small supports, about 764 g of
-PETG for the robot), the print order, a print quote request in English and Arabic, and a priced
+(`cad/export/printability.md`: every part fits a 200 × 200 mm bed, a few small supports, about 864 g of
+PETG for the robot with spares), the print order, a print quote request in English and Arabic, and a priced
 draft purchase list with import notes (`docs/reports/v1_5-purchase-list.md`, decision record 0011).
 What remains is the owner's: print and measure the tolerance coupon, caliper the first servo, choose a
 print service from quotes, and approve the first purchase. The CAD parts also appear in the simulator

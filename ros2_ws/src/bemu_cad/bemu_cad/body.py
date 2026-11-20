@@ -7,9 +7,9 @@ coxa servo hangs horn-down: its back shelf seats against the top plate (idler an
 its horn-side shelf against a small support plate that stands on posts from the bottom plate, so
 the servo is held at both faces against the tilt moment of a loaded leg.
 
-Electronics trays are not here: the Raspberry Pi, battery and regulator dimensions are not verified
-yet (docs/08, deferred until the parts are bought and measured); their masses are placeholders
-in the mass budget.
+Battery tray and Raspberry Pi plate (trays.py): the pack lies along x on the bottom plate between
+the posts, the Pi sits on the top deck. Their dimensions are unverified listings until the parts are
+bought and measured (components.yaml); the regulator and wiring are a placeholder mass.
 """
 
 from __future__ import annotations
@@ -23,19 +23,28 @@ from bemu_cad.components import Components
 from bemu_cad.export import part_mass_properties
 from bemu_cad.leg import PLATE, Hardware, HoleSpec, LegParts, Part, Window
 from bemu_cad.servo import M_TO_MM, servo_pocket
+from bemu_cad.trays import (
+    BATTERY_MOUNTS,
+    PI_MOUNTS,
+    battery_box,
+    battery_tray,
+    pi_box,
+    pi_plate,
+)
 from bemu_params import LEG_CODES, RobotParams
 
 TOP_THICKNESS = 4.0  # mm: the idler recess leaves 1.75 mm of floor; the hub goes through a hole
 BOTTOM_THICKNESS = 4.0
 JOINT_X = (-40.0, 40.0)  # where the plates are split
-SPLICE = {"length": 30.0, "width": 12.0, "y": (-30.0, 30.0), "pitch": 8.0}
+SPLICE = {"length": 30.0, "width": 12.0, "y": (-50.0, 50.0), "pitch": 8.0}
 POST_DIAMETER = 8.0
 POST_PILOT = (2.5, 10.0)  # mm diameter and depth of the screw pilots in the post ends
-MAIN_POSTS = [(-70.0, -15.0), (-70.0, 15.0), (70.0, -15.0), (70.0, 15.0)] + [
-    (-15.0, -18.0),
-    (-15.0, 18.0),
-    (15.0, -18.0),
-    (15.0, 18.0),
+# The posts stay out of the 50 mm wide battery channel along x (|y| < 25) and out of the hip plates.
+MAIN_POSTS = [(-88.0, -15.0), (-88.0, 15.0), (88.0, -15.0), (88.0, 15.0)] + [
+    (-21.0, -29.0),
+    (-21.0, 29.0),
+    (21.0, -29.0),
+    (21.0, 29.0),
 ]
 HIP_POSTS_LEG = [(-42.0, -8.0), (-42.0, 8.0)]  # in each leg frame
 HIP_PLATE = (-48.0, 14.0, -14.0, 14.0)  # x0, x1, y0, y1 in the leg frame
@@ -44,7 +53,8 @@ GRID_PITCH = 20.0
 GRID_X = tuple(-90.0 + 20.0 * i for i in range(10))
 GRID_Y = (-60.0, -40.0, -20.0, 0.0, 20.0, 40.0, 60.0)
 INSERT_HOLE = 4.1  # mm, from the unverified insert entry; the coupon decides
-ELECTRONICS_KG = 0.075 + 0.350 + 0.120  # Pi 5, battery, regulator and wiring: placeholders
+PI_KG = 0.075  # placeholder until the board is weighed
+REGULATOR_WIRING_KG = 0.120  # placeholder
 FASTENERS_KG = 0.030  # body screws and inserts: an estimate
 DECAGON = [
     (120.0, -40.0),
@@ -153,6 +163,8 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
     for x, y in MAIN_POSTS:
         top = drill(top, top_holes, x, y, m3, *z_top)
         bottom = drill(bottom, bottom_holes, x, y, m3, *z_bot)
+    for x, y in BATTERY_MOUNTS:  # heat-set inserts for the battery tray screws
+        bottom = drill(bottom, bottom_holes, x, y, INSERT_HOLE, *z_bot)
     hip_post_xy = {}
     for code, t in hip_t.items():
         for x, y in HIP_POSTS_LEG:
@@ -190,6 +202,12 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
                 continue
             top = drill(top, top_holes, gx, gy, INSERT_HOLE, *z_top)
     del footprints
+    for x, y in PI_MOUNTS:  # the Pi plate's screws go into these grid inserts
+        if not any(
+            abs(h.a - x) < 1e-6 and abs(h.b - y) < 1e-6 and h.diameter == INSERT_HOLE
+            for h in top_holes
+        ):
+            top = drill(top, top_holes, x, y, INSERT_HOLE, *z_top)
 
     def split(solid, holes, name, z, prefix):
         pieces = []
@@ -313,7 +331,14 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
                 )
                 index += 1
 
+    # ---- battery tray and Pi plate ----------------------------------------------------------
+    parts.append(battery_tray(components, z_bot[1], m3))
+    parts.append(pi_plate(components, z_top[1], m3))
+    hardware.append(Hardware("battery_pack", "body", battery_box(components, z_bot[1])))
+    hardware.append(Hardware("pi_board", "body", pi_box(components, z_top[1])))
+
     printed = sum(part_mass_properties(p)["mass_kg"] for p in parts)
+    battery_kg = components.fields["battery"]["mass"].value / 1000.0
     seat = len(seat_holes)
     posts = len(MAIN_POSTS) + 2 * 6
     grid = sum(
@@ -329,6 +354,16 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
         ("post ends into the plates and hip plates (M3)", "M3", 2 * posts, 10.0, False),
         ("splice plates (M3, with nuts)", "M3", 4 * 2 * 4, 12.0, True),
         ("insert grid: heat-set inserts M3 (not screws)", "insert", grid, 0.0, False),
+        (
+            "battery tray to the bottom plate: heat-set inserts M3 (not screws)",
+            "insert",
+            4,
+            0,
+            False,
+        ),
+        ("battery tray to the bottom plate (M3)", "M3", 4, 8.0, False),
+        ("Pi plate to the top deck (M3, into the grid inserts)", "M3", 4, 8.0, False),
+        ("Raspberry Pi 5 to the plate (M2.5, self-tapping)", "M2.5", 4, 8.0, False),
     )
     return BodyParts(
         parts=tuple(parts),
@@ -341,7 +376,7 @@ def build_body(params: RobotParams, components: Components, leg: LegParts) -> Bo
             "half_height": z_top[1],
         },
         printed_mass_kg=printed,
-        electronics_mass_kg=ELECTRONICS_KG + FASTENERS_KG,
+        electronics_mass_kg=PI_KG + battery_kg + REGULATOR_WIRING_KG + FASTENERS_KG,
         coxa_servo_kg=servo.mass,
         hardware=tuple(hardware),
         screws=screws,

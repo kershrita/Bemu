@@ -194,3 +194,106 @@ def test_the_body_hardware_is_listed_and_the_hub_passes_through_the_top_plate(wo
             p.solid.is_inside(Vector(hub.X, hub.Y, body.layout_mm["top_plate_z"][1] - 0.3))
             for p in top
         )
+
+
+def _gap(a, b):
+    """The smallest distance (mm) between two solids; 0 when they touch or overlap."""
+    return float(a.distance_to(b))
+
+
+def test_the_battery_pack_clears_every_post_plate_and_coxa_servo(world):
+    _, _, leg, body = world
+    pack = next(h for h in body.hardware if h.name == "battery_pack")
+    obstacles = {p.name: p.solid for p in body.parts if p.name != "battery_tray"}
+    obstacles |= {
+        h.name: h.solid for h in body.hardware if h.name not in ("battery_pack", "pi_board")
+    }
+    servo = leg.servo_solids["coxa_servo"]
+    obstacles |= {f"coxa_servo_{c}": t * servo for c, t in body.hip_transforms.items()}
+    # the pack stands on its tray, 3 mm above the bottom plate: that plate is not an obstacle
+    near = {
+        name: round(_gap(pack.solid, solid), 2)
+        for name, solid in obstacles.items()
+        if not name.startswith("bottom_plate") and _gap(pack.solid, solid) < 1.0
+    }
+    assert near == {}
+
+
+def test_the_battery_tray_clears_the_posts_and_the_pi_clears_everything(world):
+    _, _, leg, body = world
+    tray = next(p for p in body.parts if p.name == "battery_tray")
+    posts = [p for p in body.parts if p.name.startswith("post")]
+    assert {
+        p.name: round(_gap(tray.solid, p.solid), 2)
+        for p in posts
+        if _gap(tray.solid, p.solid) < 0.4
+    } == {}
+    pi = next(h for h in body.hardware if h.name == "pi_board")
+    for code, t in body.hip_transforms.items():
+        assert _gap(pi.solid, t * leg.servo_solids["coxa_servo"]) > 1.0, code
+    assert all(_gap(pi.solid, p.solid) > 0.0 for p in body.parts if p.name.startswith("top_plate"))
+
+
+def test_the_tray_screws_land_on_inserts_in_the_plates(world):
+    _, _, _, body = world
+    tray = next(p for p in body.parts if p.name == "battery_tray")
+    plate = next(p for p in body.parts if p.name == "pi_plate")
+    bottom = [h for p in parts_named(body, "bottom_plate") for h in p.holes]
+    top = [h for p in parts_named(body, "top_plate") for h in p.holes]
+    for h in tray.holes:
+        assert any(
+            abs(i.a - h.a) < 1e-6 and abs(i.b - h.b) < 1e-6 and abs(i.diameter - 4.1) < 1e-6
+            for i in bottom
+        ), h
+    for h in plate.holes:
+        assert any(
+            abs(i.a - h.a) < 1e-6 and abs(i.b - h.b) < 1e-6 and abs(i.diameter - 4.1) < 1e-6
+            for i in top
+        ), h
+
+
+def test_every_plate_piece_has_at_least_two_posts_under_it(world):
+    _, _, _, body = world
+    for family in ("top_plate", "bottom_plate"):
+        for piece in parts_named(body, family):
+            box = piece.solid.bounding_box()
+            posts = [
+                p
+                for p in body.parts
+                if p.name.startswith("post_main")
+                and box.min.X <= p.solid.bounding_box().min.X
+                and p.solid.bounding_box().max.X <= box.max.X
+            ]
+            assert len(posts) >= 2, piece.name
+
+
+def test_the_pi_standoffs_sit_at_the_boards_hole_pattern(world):
+    _, components, _, body = world
+    plate = next(p for p in body.parts if p.name == "pi_plate")
+    pitch_x, pitch_y = components.fields["raspberry_pi_5"]["hole_pattern"].value
+    z = plate.solid.bounding_box().max.Z - 1.0
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            assert plate.solid.is_inside(Vector(sx * (pitch_x / 2 + 2.2), sy * pitch_y / 2, z))
+            # the pilot hole is empty at the very centre
+            assert not plate.solid.is_inside(Vector(sx * pitch_x / 2, sy * pitch_y / 2, z))
+
+
+POSES = [STAND, SIT, (0.0, -1.5), (1.57, -0.35), (0.5, -1.0)]
+TOWARD = (-45.0, -30.0, -15.0, 0.0, 15.0, 30.0, 45.0)
+
+
+def test_neighbouring_legs_do_not_touch_up_to_a_combined_45_degrees_toward_each_other(world):
+    from bemu_cad.fit import FREE_TOWARD_SUM, neighbour_collisions
+
+    _, _, leg, body = world
+    free = [(a, b) for a in TOWARD for b in TOWARD if a + b <= FREE_TOWARD_SUM]
+    assert neighbour_collisions(leg, body.hip_transforms, free, POSES) == []
+
+
+def test_neighbouring_legs_do_touch_at_a_combined_60_degrees(world):
+    """The limit is real: 15 degrees more than the free sum collides in this pose set."""
+    from bemu_cad.fit import neighbour_collisions
+
+    _, _, leg, body = world
+    assert neighbour_collisions(leg, body.hip_transforms, [(30.0, 30.0), (45.0, 15.0)], POSES)

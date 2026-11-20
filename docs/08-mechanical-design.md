@@ -57,7 +57,7 @@ at rest (angle from straight ahead, counter-clockwise positive).
 
 | Joint | Range | Limited by |
 |---|---|---|
-| Coxa | ±45° | Neighbouring legs colliding |
+| Coxa | ±45° | Neighbouring legs: free while the angles toward each other sum to 45° or less (checked in CAD; the gaits peak at about 43°) |
 | Femur | −60° to +90° | Body and bracket interference |
 | Tibia | −150° to −20° | Tibia folding into the femur; knee over-extension |
 
@@ -69,13 +69,13 @@ parameter file.
 | Item | Mass (g) | Basis |
 |---|---|---|
 | 18 servos at 55 g | 990 | Datasheet |
-| Printed parts: six legs 405 g, body 251 g | 656 | CAD volume, PETG at 60% fill: an estimate until weighed |
-| Battery | 350 | Estimate for a 3-cell pack of 4000–5000 mAh |
+| Printed parts: six legs 405 g, body and trays 285 g | 690 | CAD volume, PETG at 60% fill: an estimate until weighed |
+| Battery | 359 | Ovonic 3S 5000 mAh listing (unverified until weighed) |
 | Pi 5 with cooler | 75 | Estimate |
 | Power electronics and wiring | 120 | Estimate |
 | Fasteners (legs 193 g, body 30 g), inserts | 223 | Screw model from the CAD; body is an estimate |
-| **Robot (version 1.5b estimate)** | **about 2,414** | |
-| Left of the 300 g add-on reserve | 86 | The reserve is almost used up before the electronics trays, hard stops and cable slots exist |
+| **Robot (version 1.5d estimate)** | **about 2,457** | |
+| Left of the 300 g add-on reserve | 43 | The reserve is almost used up; hard stops and cable slots are still to come |
 | **Design mass** | **2,500** | Used for all sizing |
 
 ## Sizing the servos: the torque estimate
@@ -252,17 +252,33 @@ footprint of each coxa servo (about 246 mm long). Each coxa servo hangs horn-dow
 faces: its back shelf seats against the top plate (recess for the idler and hub, four M2 holes aligned
 with the servo's pilot holes), its horn-side shelf against a 3 mm support plate per leg that stands on
 two 15 mm posts from the bottom plate; the horn passes through the support plate's window and the coxa bracket's base
-plate, with its 2.4 mm boss, turns below it with 0.6 mm to spare. Eight 50 mm posts join the plates; the top
-plate carries a 20 mm grid of 34 M3 insert holes (Ø4.1), and the coxa servo's hub passes through a hole in it. The body is 58.08 mm thick (the simulation's body box now uses it: the sit height is
+plate, with its 2.4 mm boss, turns below it with 0.6 mm to spare. Eight 50 mm posts join the plates (they stand at x = ±88, y = ±15 and x = ±21, y = ±29 so that a 50 mm wide channel along x stays free for the battery); the top
+plate carries a 20 mm grid of 42 M3 insert holes (Ø4.1), and the coxa servo's hub passes through a hole in it. The body is 58.08 mm thick (the simulation's body box now uses it: the sit height is
 29.04 mm). Checked in tests: plates cover every hip and servo footprint; pieces fit the bed; the coxa
 servo seats on the real pilot holes at both faces; no body part touches a real coxa servo (both STEP
 models); a swinging left-front and left-middle leg (coxa ±45° and 0, five femur/knee poses including sit and
-stand) never touches any body part or the screw heads under the support plates. The joint limits in
-`robot_params.yaml` are unchanged; neighbouring legs are not checked against each other, and the limits
-alone do allow folded-under poses that no gait reaches. **Mass:** printed body 251 g (estimate), six coxa
-servos 330 g, electronics placeholders 575 g (Pi 75, battery 350, regulator and wiring 120, fasteners 30):
-1.156 kg against the chassis budget of 1.242 kg, a margin of 85 g: most of the 300 g add-on reserve is
-gone, and the electronics trays, hard stops and cable slots are still to come (version 2, once the parts are bought and measured).
+stand) never touches any body part or the screw heads under the support plates. Neighbouring legs are
+checked against each other in version 1.5d (below); the limits alone do allow folded-under poses that no gait reaches. **Mass (version 1.5d):** printed body 285 g (estimate, including the two trays), six coxa
+servos 330 g, electronics 584 g (Pi 75, battery 359 from the listing, regulator and wiring 120, fasteners 30):
+1.199 kg against the chassis budget of 1.242 kg, a margin of 43 g: the 300 g add-on reserve is
+almost gone. Hard stops and cable slots are still to come (version 2, once the first leg exists).
+
+**Trays and neighbour check (version 1.5d).** `bemu_cad.trays` adds a **battery tray** (PETG, 142 × 68 × 15 mm:
+a base, two end walls with a lead notch, two side lips, strap flanges with four 8 × 3 mm slots, four M3
+screws into four heat-set inserts in the bottom plate) around the pack, which lies along x between the
+posts (the Ovonic 3S 5000 mAh listing: 138 × 42 × 28 mm, 359 g, unverified until a pack is bought), and a
+**Pi plate** on the top deck (96 × 66 × 3 mm, four 6 mm standoffs at the board's 58 × 49 mm hole pattern, four M3
+screws into grid inserts, notches to keep the post screws reachable). The Pi (85 × 56 mm, 17 mm assumed
+height) is drawn on the top deck, the pack in the bay. Tests check that the pack clears every post, hip
+plate and coxa servo by at least 1 mm, that the tray clears the posts, that the Pi board clears the coxa
+servos and top plates, that tray and plate screws land on insert holes, that every plate piece has two
+posts under it, and that the Pi standoffs sit on the hole pattern. **Neighbouring legs:** with both legs
+in the same femur and knee pose (stand, sit, two extended poses and one mid pose), two neighbours do not touch
+while the sum of the angles they swing toward each other is 45° or less (checked on a 15° grid); at a sum of
+60° they do. The gaits stay inside this (the largest sum is about 43° for the wave gait at top speed), and a
+test keeps them there. The per-joint coxa limit stays ±45°, because body shifts and yaw move all legs
+together and do not bring neighbours closer; a future change that lets two neighbours swing toward each other by more than 45° in sum must widen the check first. **The splice plates moved to y = ±50 mm** to free the battery
+tray's strap flanges.
 
 **The same design in the simulator.** `python3 tools/generate_cad.py` also writes visual meshes of every part
 (and the three servos as envelopes) into `ros2_ws/src/bemu_description/meshes/` with a manifest
@@ -362,7 +378,7 @@ current parameter file.
 |---|---|---|
 | 1 | Tolerance test piece | 2.4 |
 | 2 | One leg, a leg stand, the zero-position jig | 2.4 |
-| 3 | Body, five more legs, trays, spares | 3.2 |
+| 3 | Body (including the battery tray and the Pi plate), five more legs, spares | 3.2 |
 | Later | One adapter plate per new module | Each version |
 
 ## Printability and the first order (version 1.5c)
@@ -380,16 +396,15 @@ Results at version 1.5c (200 × 200 mm bed assumed):
 |---|---|
 | Does every part fit a 200 × 200 mm bed? | Yes. The largest footprint is 190 × 80 mm (the centre plates); the plates are split at x = ±40 mm for this. The tallest part is the 50 mm post |
 | Which parts need supports? | A few, with small overhangs: the coxa bracket (about 195 mm²), the tibia plates (about 40 mm² each), the foot bridge (about 40) and the foot's dome (about 100). The foot is printed as modelled, dome down, stem up. All plates, posts, spacers and splices print without |
-| How much material? | PETG about 664 g and TPU about 7 g for the robot; about 764 g of PETG with 15% for supports, purge and a failed print: one 1 kg spool |
+| How much material? | PETG about 752 g and TPU about 7 g for the robot (with one spare of every leg part); about 864 g of PETG with 15% for supports, purge and a failed print: one 1 kg spool |
 | What must the service offer? | 200 × 200 × 80 mm build volume, PETG (or ABS/ASA/nylon), 0.2 mm layers; TPU optional (rubber tips can replace it) |
 
 The first order is the tolerance coupon alone. `docs/reports/v1_5-print-quote-request.md` is the
 request to send to two or three services (English and Arabic); `docs/reports/v1_5-purchase-list.md`
 is the priced draft of everything to buy, with the import notes and the arrival checks.
 
-Left for later (version 2): electronics trays, hard stops and cable slots, because the Pi, battery and
-regulator must be bought and measured first. The battery that was looked up (Ovonic 3S 5000 mAh) is
-listed at 359 g and 138 × 42 × 28 mm, which is 9 g over the 350 g placeholder. Whether it fits has not been checked: there is no battery-bay geometry yet, and the pack is 42 mm wide against 28 mm between the centre posts, so the bay must be designed around it.
+The battery tray and the Pi plate are drawn for the listed dimensions of the Ovonic pack and the Pi (see above); both must be re-checked against the parts when they arrive (the library entries are `unverified`).
+Left for version 2: hard stops and cable slots, because the servo's wire exit is not in the verified data and the stops need the first real leg.
 
 ## Fasteners
 
