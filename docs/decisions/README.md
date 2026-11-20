@@ -18,6 +18,7 @@ considered, and what follows from it.
 | [0009](0009-printing-by-service.md) | Parts are printed by a service | Accepted | Owner |
 | [0010](0010-generate-mjcf-directly.md) | Generate the MuJoCo model directly from the parameter file | Accepted | Designer |
 | [0011](0011-first-purchase-sourcing.md) | Where the first purchase comes from | Proposed | Designer, owner approves at Purchase gate 1 |
+| [0012](0012-docker-dev-container.md) | A Docker container for development and validation inside WSL 2 | Accepted | Owner |
 
 ## Status values
 

@@ -37,7 +37,7 @@ Read in this order the first time. After that, each document stands on its own.
 | 14 | [Testing and validation](14-testing-and-validation.md) | How each layer is tested |
 | 15 | [Risks and open questions](15-risks-and-open-questions.md) | What could go wrong, what is undecided |
 | — | [Version 1 release notes](releases/v1.md), [torque report](reports/v1-torque-report.md) | What version 1 delivers, its known limitations, and the servo evidence |
-| — | [Version 1.5 release notes](releases/v1_5.md), [torque report](reports/v1_5-torque-report.md), [purchase list](reports/v1_5-purchase-list.md), [print quote request](reports/v1_5-print-quote-request.md) | What version 1.5 delivers, the evidence on CAD masses, and the first purchase |
+| — | [Version 1.5 release notes](releases/v1_5.md), [torque report](reports/v1_5-torque-report.md), [purchase list](reports/v1_5-purchase-list.md), [print quote request](reports/v1_5-print-quote-request.md), [PC validation guide (WSL, Docker)](reports/v1_5-pc-validation.md) | What version 1.5 delivers, the evidence on CAD masses, and the first purchase |
 | — | [Glossary](glossary.md) | Terms used in these documents |
 | — | [References](references.md) | External sources, with the date each was checked |
 | — | [Decision records](decisions/README.md) | Why each significant choice was made |

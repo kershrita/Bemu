@@ -115,6 +115,31 @@ under WSL 2). Everything after step 1 runs inside Ubuntu.
    colcon test && colcon test-result --verbose
    ```
 
+## Docker development container (recommended from version 1.5)
+
+Instead of installing ROS, MuJoCo and the CAD library in Ubuntu, the project can run in one Docker
+container inside WSL 2 (decision [0012](decisions/0012-docker-dev-container.md)). The image
+(`docker/Dockerfile`) starts from `ros:lyrical-ros-base`, the image CI already builds in, and adds the
+control stack, the MuJoCo bridge, RViz, MuJoCo and a Python 3.13 virtualenv with build123d. The repository
+is mounted into the container; the ROS `build/`, `install/` and `log/` folders live in Docker volumes.
+Windows shows the windows (MuJoCo viewer, RViz) through WSLg; the GPU is optional.
+
+| Command | What it does |
+|---|---|
+| `docker/dev build` | builds the image (first time 10–20 minutes) |
+| `docker/dev up` / `down` | starts / stops the container; `docker/dev clean` also deletes the build volumes |
+| `docker/dev shell` | a shell in the container (run it again for a second terminal) |
+| `docker/dev validate quick` / `full` | the automated checks (`docker/validate.sh`): build, ROS tests, headless walk, CAD regeneration; `full` adds the CI Python tests and the simulated launch tests |
+| `docker/dev launch`, `teleop`, `rviz` | the robot, keyboard control and RViz |
+| `docker/dev --gpu up` | the same with the Windows GPU for rendering (`docker/compose.gpu.yaml`) |
+| `docker/dev exec <command>` | one command in the container, for example `docker/dev exec /opt/cad/bin/python tools/generate_cad.py` |
+
+Inside the container `python3` is the system Python used by ROS and `/opt/cad/bin/python` (alias
+`cadpy`) is the Python 3.13 with build123d, which runs the CAD tools and the same pytest as the CI
+"python" job. CI builds the image on every push and runs the quick validation in it. The steps to
+validate version 1.5 on the PC, with the checks to tick and what to send back, are in
+[the PC validation guide](reports/v1_5-pc-validation.md).
+
 ### Things that went wrong, and how to recognise them
 
 | Symptom | Cause | Fix |

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Wrapper around docker compose for the Bemu development container.
+#
+#   docker/dev build              build the image (first time, and after dependency changes)
+#   docker/dev up                 start the container in the background
+#   docker/dev shell              open a shell in it (run again for a second terminal)
+#   docker/dev validate [quick|full]   run the automated checks (docker/validate.sh)
+#   docker/dev launch [args]      colcon build if needed, then ros2 launch bemu_bringup robot.launch.py
+#   docker/dev teleop             keyboard control (needs `launch` running in another terminal)
+#   docker/dev rviz               RViz2
+#   docker/dev down               stop and remove the container (the build volumes stay)
+#   docker/dev clean              also delete the build volumes
+#   docker/dev --gpu up           any command with the GPU override (WSL 2 + NVIDIA)
+set -euo pipefail
+cd "$(dirname "$0")/.."
+export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
+files=(-f docker/compose.yaml)
+if [ "${1:-}" = "--gpu" ]; then
+  files+=(-f docker/compose.gpu.yaml)
+  shift
+fi
+compose() { docker compose "${files[@]}" "$@"; }
+in_container() { compose exec dev bash -lc "$*"; }
+ensure_up() { compose up -d dev >/dev/null; }
+
+case "${1:-help}" in
+  build) compose build ;;
+  up) compose up -d dev ;;
+  shell) ensure_up; compose exec dev bash ;;
+  exec) shift; ensure_up; compose exec dev "$@" ;;
+  validate) ensure_up; compose exec dev /workspace/bemu/docker/validate.sh "${2:-quick}" ;;
+  build-ws) ensure_up; in_container 'cd ros2_ws && colcon build --symlink-install' ;;
+  launch)
+    shift; ensure_up
+    in_container "cd ros2_ws && { [ -f install/setup.bash ] || colcon build --symlink-install; } \
+      && source install/setup.bash && ros2 launch bemu_bringup robot.launch.py $*" ;;
+  teleop) ensure_up; in_container 'source ros2_ws/install/setup.bash && ros2 run bemu_teleop keyboard' ;;
+  rviz) ensure_up; in_container 'source ros2_ws/install/setup.bash && rviz2' ;;
+  down) compose down ;;
+  clean) compose down -v ;;
+  help|-h|--help) sed -n '2,15p' "$0" ;;
+  *) echo "unknown command: $1 (try: docker/dev help)" >&2; exit 2 ;;
+esac
