@@ -15,19 +15,35 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
 files=(-f docker/compose.yaml)
+gpu=0
 if [ "${1:-}" = "--gpu" ]; then
   files+=(-f docker/compose.gpu.yaml)
+  gpu=1
   shift
 fi
 compose() { docker compose "${files[@]}" "$@"; }
-in_container() { compose exec dev bash -lc "$*"; }
-ensure_up() { compose up -d dev >/dev/null; }
+in_container() { compose exec dev /usr/local/bin/bemu-entrypoint bash -c "$*"; }
+ensure_up() {
+  local state
+  state="$(docker inspect -f '{{.State.Running}} {{range .HostConfig.Devices}}{{.PathOnHost}}{{end}}' bemu-dev 2>/dev/null || true)"
+  if [ "$gpu" -eq 1 ]; then
+    [[ "$state" == "true /dev/dxg"* ]] || compose up -d dev >/dev/null
+  else
+    [[ "$state" == "true "* ]] || compose up -d dev >/dev/null
+  fi
+}
 
 case "${1:-help}" in
   build) compose build ;;
   up) compose up -d dev ;;
   shell) ensure_up; compose exec dev bash ;;
-  exec) shift; ensure_up; compose exec dev "$@" ;;
+  exec)
+    shift; ensure_up
+    if [[ "${1:-}" == /opt/cad/* ]]; then
+      compose exec dev "$@"
+    else
+      compose exec dev /usr/local/bin/bemu-entrypoint "$@"
+    fi ;;
   validate) ensure_up; compose exec dev /workspace/bemu/docker/validate.sh "${2:-quick}" ;;
   build-ws) ensure_up; in_container 'cd ros2_ws && colcon build --symlink-install' ;;
   launch)
@@ -35,7 +51,7 @@ case "${1:-help}" in
     in_container "cd ros2_ws && { [ -f install/setup.bash ] || colcon build --symlink-install; } \
       && source install/setup.bash && ros2 launch bemu_bringup robot.launch.py $*" ;;
   teleop) ensure_up; in_container 'source ros2_ws/install/setup.bash && ros2 run bemu_teleop keyboard' ;;
-  rviz) ensure_up; in_container 'source ros2_ws/install/setup.bash && rviz2' ;;
+  rviz) ensure_up; in_container 'export QT_QPA_PLATFORM=xcb && source ros2_ws/install/setup.bash && rviz2' ;;
   down) compose down ;;
   clean) compose down -v ;;
   help|-h|--help) sed -n '2,15p' "$0" ;;

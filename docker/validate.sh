@@ -40,8 +40,9 @@ check_env() {
   [ -f "$BEMU_PARAMS" ] || { echo "BEMU_PARAMS not found: $BEMU_PARAMS"; return 1; }
   command -v ros2 >/dev/null || { echo "ros2 not on PATH"; return 1; }
   python3 -c "import mujoco, numpy, yaml; print('mujoco', mujoco.__version__)" || return 1
-  "$CADPY" -c "import build123d, mujoco; print('build123d', build123d.__version__)" || return 1
-  ros2 pkg list | grep -q '^mujoco_ros2_control$' || { echo "mujoco_ros2_control missing"; return 1; }
+  "$CADPY" --version >/dev/null || { echo "CADPY not found: $CADPY"; return 1; }
+  env -u PYTHONPATH "$CADPY" -c "import build123d, mujoco; print('build123d', build123d.__version__)" || return 1
+  ros2 pkg prefix mujoco_ros2_control >/dev/null || { echo "mujoco_ros2_control missing"; return 1; }
 }
 
 build_ws() { (cd ros2_ws && colcon build --symlink-install); }
@@ -55,7 +56,7 @@ test_ws() {
 sim_launch_tests() {
   (cd ros2_ws && source install/setup.bash \
     && colcon test --packages-select bemu_bringup --pytest-args -m sim_launch \
-    && colcon test-result --verbose)
+    && colcon test-result --test-result-base build/bemu_bringup --verbose)
 }
 
 headless_walk() {
@@ -65,7 +66,7 @@ headless_walk() {
 cad_smoke() {  # regenerate into a scratch folder and compare with the committed outputs
   local out="$LOG/cad"
   rm -rf "$out"
-  "$CADPY" tools/generate_cad.py --out "$out" --no-meshes || return 1
+  env -u PYTHONPATH "$CADPY" tools/generate_cad.py --out "$out" --no-meshes || return 1
   local f rc=0
   for f in print_order.md printability.md; do
     if ! diff -q "$out/$f" "cad/export/$f" >/dev/null; then
@@ -74,7 +75,7 @@ cad_smoke() {  # regenerate into a scratch folder and compare with the committed
       rc=1
     fi
   done
-  "$CADPY" - "$out/mass_properties.json" cad/export/mass_properties.json <<'PY' || rc=1
+  env -u PYTHONPATH "$CADPY" - "$out/mass_properties.json" cad/export/mass_properties.json <<'PY' || rc=1
 import json, math, sys
 a, b = (json.load(open(p)) for p in sys.argv[1:3])
 def same(x, y, path=""):
@@ -93,7 +94,7 @@ PY
   return $rc
 }
 
-python_tests() { "$CADPY" -m pytest -m "not sim_launch" -q -p no:cacheprovider; }
+python_tests() { env -u PYTHONPATH "$CADPY" -m pytest -m "not sim_launch" -q -p no:cacheprovider; }
 
 step "environment" check_env
 step "colcon build" build_ws

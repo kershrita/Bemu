@@ -65,7 +65,7 @@ RUN chmod +x /usr/local/bin/bemu-entrypoint \
  && printf '%s\n' \
       'source /opt/ros/lyrical/setup.bash' \
       '[ -f /workspace/bemu/ros2_ws/install/setup.bash ] && source /workspace/bemu/ros2_ws/install/setup.bash' \
-      'alias cadpy=/opt/cad/bin/python' \
+      'alias cadpy="env -u PYTHONPATH /opt/cad/bin/python"' \
       >> /home/${USERNAME}/.bashrc
 
 USER ${USERNAME}

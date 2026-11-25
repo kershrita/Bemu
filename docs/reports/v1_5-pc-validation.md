@@ -6,11 +6,12 @@ recommended way is the **Docker container** (`docker/dev`): one image holds ROS 
 and the CAD tools, so nothing has to be installed in Ubuntu. The native WSL route (part 5) still
 works and is the fallback.
 
-**Status:** written 2026-11-20. The cloud session that wrote this cannot run Docker or WSLg, so the
-container has **not yet run on your PC**; GitHub Actions builds the same image and runs the quick
-validation on every push (the `docker` job), which proves the image builds and the checks pass
-headlessly. The window (GUI) and GPU parts are untested until you run them. Part 6 lists what to send
-back.
+**Status:** updated 2026-11-25 after validating on the development PC (WSL 2, Ubuntu 26.04,
+NVIDIA GeForce RTX 5060 Ti). Automated validation (`docker/dev validate full`), WSLg windowing
+(`xeyes`, `rviz2`, MuJoCo viewer), and GPU rendering (`D3D12 (NVIDIA GeForce RTX 5060 Ti)`) all
+pass. See the validation results recorded at the end of this document. Four container/script issues
+found during PC validation were fixed (`docker/validate.sh`, `docker/dev`, `docker/compose.yaml`,
+`docker/Dockerfile`).
 
 ## 1. What you need (once)
 
@@ -27,13 +28,13 @@ back.
 ```bash
 cd ~/bemu
 git fetch origin
-git checkout claude/exciting-tesla-694elw
+git checkout main
 git pull
 git log --oneline -3
 ```
 
-The top commit should match the latest commit shown on the pull request page. If you have local
-edits, `git status` shows them first.
+Version 1.5 (pull request 3, from `claude/exciting-tesla-694elw`) is merged into `main` and tagged
+`v1.5`. If you have local edits, `git status` shows them first.
 
 ## 3. Automated checks in the container
 
@@ -71,14 +72,14 @@ edits, `git status` shows them first.
    | headless walk | the walker drives the CAD-mass robot for 8 s in the simulator |
    | CAD regenerates | the CAD code gives the same print order, printability report and masses that are committed |
 
-4. **Full validation** (about 25 minutes; run it once, for example while you do something else):
+4. **Full validation** (about 7 minutes on the i9 PC; up to 25 minutes on slower hardware):
 
    ```bash
    docker/dev validate full
    ```
 
-   It adds the whole CI Python test suite (about 570 tests) and the simulated launch tests of
-   `bemu_bringup` (controllers active, robot stands, walks and stops, headless). Expect
+   It adds the whole CI Python test suite (577 tests) and the simulated launch tests of
+   `bemu_bringup` (2 tests: controllers active, robot stands, walks and stops, headless). Expect
    `ALL PASSED`. Logs of every step are in `/tmp/bemu-validate/` inside the container.
 
 If a step says FAIL, the last lines of its log are printed; copy them (part 6).
@@ -93,10 +94,10 @@ If a step says FAIL, the last lines of its log are printed; copy them (part 6).
 
    Close it. If nothing opens, see part 7.
 
-2. **Optional, GPU rendering:** `docker/dev down`, then `docker/dev --gpu up`, then
-   `docker/dev exec glxinfo -B`. A line `OpenGL renderer string: D3D12 (NVIDIA GeForce RTX 5060 Ti)`
-   means the GPU is used; `llvmpipe` means software rendering, which also works but is slower. Use
-   `docker/dev --gpu …` for the later commands if you want it.
+2. **Optional, GPU rendering:** `docker/dev --gpu up`, then `docker/dev exec glxinfo -B`. A line
+   `OpenGL renderer string: D3D12 (NVIDIA GeForce RTX 5060 Ti)` means the GPU is used; `llvmpipe`
+   means software rendering, which also works but is slower. Once started with `docker/dev --gpu up`,
+   later commands (`launch`, `teleop`, `rviz`, `exec`) keep using that GPU container.
 
 3. **Launch the robot** (first time it builds the workspace, a few minutes):
 
@@ -140,24 +141,49 @@ source /opt/ros/lyrical/setup.bash
 export BEMU_PARAMS=~/bemu/config/robot_params.yaml
 cd ~/bemu/ros2_ws && colcon build --symlink-install && source install/setup.bash
 colcon test --pytest-args -m "not sim_launch" && colcon test-result --verbose
-cd ~/bemu && pip install --user --break-system-packages -r requirements-dev.txt
-python3 -m pytest -m "not sim_launch" -q          # about 10 minutes
 ros2 launch bemu_bringup robot.launch.py           # then part 4, step 3 and on
 ros2 run bemu_teleop keyboard                       # in a second terminal
 ```
 
+Note: Ubuntu 26.04 ships Python 3.14, for which `build123d` does not have wheels yet, so
+`pip install -r requirements-dev.txt` and the CAD pytest suite require a Python 3.13 environment
+(already set up at `/opt/cad` inside the Docker container).
+
 Use `~/bemu` as the folder (lower case), as the earlier setup did. A native build and the container's
 build do not clash: the container keeps its `build/`, `install/` and `log/` in Docker volumes.
 
-## 6. What to send back
+## 6. Validation results (2026-11-25, WSL 2 PC)
 
-- The summary block printed by `docker/dev validate quick` (and `full` if you ran it): the lines from
-  `== Bemu validation ==` to `ALL PASSED`/`SOME STEPS FAILED`.
-- For any FAIL: the log lines printed under it (or `/tmp/bemu-validate/<step>.log`).
-- The screenshot of the walking robot, and your answers to the checkboxes in part 4.
-- Whether `glxinfo -B` said D3D12 or llvmpipe.
+- **Environment:** WSL 2 (Ubuntu 26.04), Docker Engine `29.10.1`, Docker Compose `v5.8.0`,
+  NVIDIA GeForce RTX 5060 Ti (driver `620.70.03`), WSLg `DISPLAY=:0`.
+- **GPU check (`glxinfo -B`):** `D3D12 (NVIDIA GeForce RTX 5060 Ti)` with `docker/dev --gpu up`
+  (`llvmpipe` without `--gpu`).
+- **GUI smoke checks:** `xeyes` opens under WSLg; `docker/dev launch` starts the MuJoCo window with
+  the CAD meshes and all controllers active (`locomotion_node`, `robot_state_publisher`,
+  `leg_position_controller`, `joint_state_broadcaster`) and executes `tripod`, `ripple`, and `wave`
+  gaits; `docker/dev rviz` opens cleanly with `QT_QPA_PLATFORM=xcb`.
+- **Automated validation (`docker/dev validate full`):**
 
-If all of it passes, merge pull request 3 and tag `v1.5`.
+```text
+== Bemu validation (full) ==
+PASS  environment (5 s)
+PASS  colcon build (4 s)
+PASS  ROS package tests (no simulated launch) (47 s)
+PASS  headless walk (tools/walk.py, 8 s) (0 s)
+PASS  CAD regenerates to the committed outputs (10 s)
+PASS  CI python tests (build123d, MuJoCo) (321 s)
+PASS  simulated launch tests (bemu_bringup) (29 s)
+ALL PASSED
+```
+
+  Counts from the logs: 446 ROS package tests passed (1 skipped), 577 CI Python/CAD/MuJoCo tests
+  passed (5 skipped), 2 simulated launch tests passed (`test_leg_trace_launch.py` and
+  `test_robot_launch.py`), `tools/walk.py` walked 0.573 m forward with 77.6 mm min stability margin
+  and 0.900 N·m peak torque, and regenerated `print_order.md`, `printability.md`, and
+  `mass_properties.json` matched the committed files.
+
+- **Owner visual sign-off:** launch `docker/dev --gpu up && docker/dev launch` and `docker/dev teleop`
+  to visually inspect the checkboxes in part 4 and capture a screenshot if desired.
 
 ## 7. Troubleshooting
 
@@ -173,5 +199,6 @@ If all of it passes, merge pull request 3 and tag `v1.5`.
 | Files in the repo owned by root | the image was built with another user id | `docker/dev down`, then `docker/dev build` again (it uses your `id -u`) |
 | `colcon build` fails right after a branch change | stale build volume | `docker/dev clean` (deletes only the Docker build volumes), then `docker/dev validate quick` |
 | Very slow builds and tests | the project folder is under `/mnt/c` | move it to the Linux home (`~/bemu`) |
-| `ros2` in Windows PowerShell or native Ubuntu does not see the container's topics | the container has its own network | run `ros2` commands with `docker/dev exec bash -lc '…'` or `docker/dev shell` |
+| `ros2` in Windows PowerShell or native Ubuntu does not see the container's topics | the container has its own network | run `ros2` commands with `docker/dev exec ros2 …` or `docker/dev shell` |
+| `rviz2` crashes with `Invalid parentWindowHandle ... GLXWindow::create` | Qt picked Wayland while OGRE uses GLX (X11) | set `QT_QPA_PLATFORM=xcb` (set automatically in `docker/compose.yaml` and `docker/dev rviz`; run `docker/dev --gpu up` to recreate the container with it) |
 | CAD step says "differs from the committed cad/export/…" | the branch is behind, or the CAD code changed without regenerating | `git pull`; if it persists, send the diff lines |

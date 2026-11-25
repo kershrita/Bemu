@@ -41,8 +41,8 @@ Ubuntu on the PC means one environment instead of two.
 | ROS 2 networking between WSL and the Pi is unreliable | Dual-boot Ubuntu, or run the visualiser on the Pi's side through a web tool |
 | Training under WSL is troublesome | Dual-boot Ubuntu, or a rented cloud machine |
 
-The repository has no `Dockerfile`. The GitHub check for the ROS packages runs in the
-official ROS image (`ros:lyrical-ros-base`) instead.
+The repository includes a development container (`docker/Dockerfile`, see below), and GitHub
+Actions builds and validates it on every push alongside the `ros:lyrical-ros-base` job.
 
 ## Software on the PC
 
@@ -175,7 +175,8 @@ Recorded on 2026-11-18, on the development PC.
 | mujoco_ros2_control | 0.1.2 | 2026-11-18 |
 | Python | 3.14.4 | 2026-11-18 |
 | ruff | 0.17.x (pinned) | 2026-11-18 |
-| build123d | Not used until version 1.5 | |
+| build123d | 0.13.0 (Python 3.13.18 in `/opt/cad` inside `bemu-dev:lyrical`) | 2026-11-25 |
+| Docker Engine / Compose | 29.10.1 / v5.8.0 (WSL 2) | 2026-11-25 |
 
 ## The Raspberry Pi 5 (from version 2)
 

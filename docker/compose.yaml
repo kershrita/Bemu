@@ -21,6 +21,7 @@ services:
     environment:
       DISPLAY: ${DISPLAY:-:0}
       WAYLAND_DISPLAY: ${WAYLAND_DISPLAY:-wayland-0}
+      QT_QPA_PLATFORM: xcb
       XDG_RUNTIME_DIR: /mnt/wslg/runtime-dir
       PULSE_SERVER: /mnt/wslg/PulseServer
       BEMU_PARAMS: /workspace/bemu/config/robot_params.yaml
