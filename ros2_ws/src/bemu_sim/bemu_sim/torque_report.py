@@ -194,7 +194,7 @@ def run_scenario(
     )
 
 
-PLACEHOLDERS = ["stall_current_a", "idle_current_a", "supply_voltage_v"]
+PLACEHOLDERS = ["supply_voltage_v"]  # stall and idle current are datasheet values
 
 
 def _label(scenario: Scenario) -> str:
@@ -237,10 +237,11 @@ def render_markdown(
     commit: str,
     date: str,
     quick: bool = False,
+    label: str = "Version 1",
 ) -> str:
     servo = params.servo
     out = [
-        "# Version 1 torque report" + (" (quick smoke run, not the report)" if quick else ""),
+        f"# {label} torque report" + (" (quick smoke run, not the report)" if quick else ""),
         "",
         f"Generated {date} at commit `{commit}` by `tools/torque_report.py`.",
         "",
@@ -258,10 +259,13 @@ def render_markdown(
         f"and its worst RMS is under the rated torque ({servo.rated_torque:.2f} N·m). "
         "`UNSTABLE` marks a stability margin of 15 mm or less.",
         "",
-        "Placeholder constants (not datasheet values, to be confirmed on the real servo): "
-        f"`stall_current_a` = {servo.stall_current} A, `idle_current_a` = {servo.idle_current} A, "
-        f"`supply_voltage_v` = {servo.supply_voltage} V. They only feed the power estimate; "
-        "torque, speed and the verdicts do not depend on them.",
+        "Power estimate inputs: `stall_current_a` = "
+        f"{servo.stall_current} A and `idle_current_a` = {servo.idle_current} A are from the "
+        "Feetech ST-3215-C047 (12 V) datasheet; `supply_voltage_v` = "
+        f"{servo.supply_voltage} V is a placeholder (the servo's nominal voltage; the real battery "
+        "voltage will move the figures). The estimate assumes supply current equals winding "
+        "current, so it is an upper bound. Torque, speed and the verdicts do not depend on any of "
+        "these.",
         "",
     ]
     passing = sum(1 for r in results if _status(r, servo) == "PASS")

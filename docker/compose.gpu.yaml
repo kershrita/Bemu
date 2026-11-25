@@ -1,0 +1,14 @@
+# Optional: use the Windows GPU for 3D rendering inside the container (WSL 2 only).
+#   docker/dev --gpu up
+# It passes the WSL GPU device and driver libraries through and selects Mesa's D3D12 driver, the
+# same setting docs/13 uses for native WSL. Not yet run on the owner's PC.
+services:
+  dev:
+    devices:
+      - /dev/dxg:/dev/dxg
+    volumes:
+      - /usr/lib/wsl:/usr/lib/wsl
+    environment:
+      LD_LIBRARY_PATH: /usr/lib/wsl/lib
+      GALLIUM_DRIVER: d3d12
+      MESA_D3D12_DEFAULT_ADAPTER_NAME: NVIDIA

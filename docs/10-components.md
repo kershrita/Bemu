@@ -10,7 +10,10 @@ roadmap. A stage is bought only after the gate before it has passed.
 - Servo prices were checked against online listings on 2026-11-13; sources are in
   [References](references.md).
 - All other prices are rough figures from general knowledge and are **not
-  verified**. Step 1.5.7 of the roadmap re-prices everything with real suppliers.
+  verified**. Version 1.5c re-priced the first purchase from listings found on
+  2026-11-19: see [the purchase list](reports/v1_5-purchase-list.md), which also
+  gives the exact variant to buy, where, the import notes and what to check on
+  arrival. Those prices are listing snapshots, not quotes.
 - Shipping, import duty and local availability are not included and can change the
   totals substantially.
 - Printing is not priced. Parts are made by a print service, and the cost needs a
@@ -144,17 +147,27 @@ estimate from [08 — Mechanical design](08-mechanical-design.md): **design peak
 **Simulated check (version 1 torque report).** The hand estimate above is 1.2 N·m peak. The
 simulated walks give a worst peak of 1.26 N·m, 43% of the STS3215's stall torque, with a worst
 RMS of 0.43 N·m against the 0.98 N·m rated torque, across every gait, direction and mass in the
-matrix (`docs/reports/v1-torque-report.md`). The STS3215 12 V passes
+matrix (`docs/reports/v1-torque-report.md`); with the CAD-derived masses of version 1.5b the worst peak
+is 1.26 N·m (43%) and the worst RMS 0.42 N·m (43%) (`docs/reports/v1_5-torque-report.md`). The STS3215 12 V passes
 on these numbers, with two cautions. First, the peaks barely change with total mass (the worst
 peak is the same at 2.0, 2.2 and 2.5 kg) and come from swing and start-up transients of the
 simulated position loop (kp 20, kv 0.5), not from carrying the body, so a real servo's stiffer
 internal loop could peak differently; version 2's one-leg measurement checks this. Second, joint
 speed reaches 83% of the 4.7 rad/s *no-load* speed (wave sideways) and 73% for ripple, and the
 loaded speed is lower and unknown, so tracking headroom is thin. The report's power figures
-(about 36–54 W for 18 servos) use **placeholder** `stall_current_a` (2.7 A), `idle_current_a`
-(0.1 A) and `supply_voltage_v` (12 V) in `config/robot_params.yaml`: confirm them against the
-datasheet or a bench measurement before sizing the battery and wiring from them. The estimate assumes supply current equals
-winding current, so it is an upper bound.
+(about 21–39 W for 18 servos while standing and walking) use the Feetech ST-3215-C047 (12 V)
+datasheet's stall current (2.7 A) and idle current (30 mA); the 12 V supply is the servo's
+nominal voltage, so the real battery voltage will move them. The estimate assumes supply current
+equals winding current, so it is an upper bound. Size the battery and wiring for the stall
+current as well (18 × 2.7 A is the worst case if every servo stalls), not only for the walking
+average. Datasheet values, same source: no-load running current 180 mA, rated current 900 mA,
+winding resistance 1.0 Ω, Kt 11 kg·cm/A, operating voltage 4–14 V, mass 55 g ± 1 g.
+
+**Verified dimensions (version 1.5a).** The 12 V STS3215's body, horn and bracket-hole pattern are
+in `docs/08-mechanical-design.md` and `config/components.yaml`, from the datasheet, the drawing
+and the manufacturer's STEP. Buy the **12 V, 30 kg·cm** model (datasheet ST-3215-C047, listed by
+shops as C018). The 7.4 V, 19.5 kg·cm model (C001) has the same body but is the wrong servo for
+this design; one Saudi reseller listing found while planning sold only that version.
 
 ### Reading the table
 

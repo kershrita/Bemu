@@ -10,8 +10,7 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
-# Generated CAD exports and recordings
-cad/export/
+# Recordings (the generated CAD in cad/export/ is committed: it is the deliverable)
 *.bag
 *.mcap
 rosbag2_*/

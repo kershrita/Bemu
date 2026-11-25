@@ -1,6 +1,6 @@
 # Version 1 torque report
 
-Generated 2026-11-19 at commit `1657afd` by `tools/torque_report.py`.
+Generated 2026-11-19 at commit `6dc5811` by `tools/torque_report.py`.
 
 ## Method
 
@@ -8,7 +8,7 @@ Each scenario runs the full MuJoCo robot with the walker, with the actuator torq
 
 Rule: a row passes when its worst peak is under 50% of stall (1.47 N·m) and its worst RMS is under the rated torque (0.98 N·m). `UNSTABLE` marks a stability margin of 15 mm or less.
 
-Placeholder constants (not datasheet values, to be confirmed on the real servo): `stall_current_a` = 2.7 A, `idle_current_a` = 0.1 A, `supply_voltage_v` = 12.0 V. They only feed the power estimate; torque, speed and the verdicts do not depend on them.
+Power estimate inputs: `stall_current_a` = 2.7 A and `idle_current_a` = 0.03 A are from the Feetech ST-3215-C047 (12 V) datasheet; `supply_voltage_v` = 12.0 V is a placeholder (the servo's nominal voltage; the real battery voltage will move the figures). The estimate assumes supply current equals winding current, so it is an upper bound. Torque, speed and the verdicts do not depend on any of these.
 
 ## Summary
 
@@ -22,64 +22,64 @@ Placeholder constants (not datasheet values, to be confirmed on the real servo):
 
 | Scenario | Speed | Peak (joint) | Peak % stall | RMS (joint) | RMS % rated | Max speed % | Power W | Steps at limit | Min margin mm | Slip mm | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| stand | 0 | 0.57 N·m (lm_femur_joint) | 19% | 0.19 N·m (rm_femur_joint) | 19% | 22% | 36 | 0 | - | - | PASS |
-| tripod forward 25% | 30 mm/s | 0.52 N·m (lm_femur_joint) | 18% | 0.31 N·m (rm_femur_joint) | 32% | 24% | 42 | 0 | 89 | 2.6 | PASS |
-| tripod forward 50% | 60 mm/s | 0.82 N·m (lf_femur_joint) | 28% | 0.33 N·m (rm_femur_joint) | 34% | 49% | 46 | 0 | 83 | 2.8 | PASS |
-| tripod forward 100% | 120 mm/s | 0.90 N·m (lf_tibia_joint) | 31% | 0.34 N·m (lm_femur_joint) | 34% | 58% | 51 | 0 | 70 | 3.4 | PASS |
-| tripod sideways | 120 mm/s | 1.06 N·m (lm_tibia_joint) | 36% | 0.35 N·m (lm_femur_joint) | 36% | 69% | 50 | 0 | 81 | 5.4 | PASS |
-| tripod turn | 0.51 rad/s | 0.91 N·m (rf_femur_joint) | 31% | 0.33 N·m (lm_femur_joint) | 34% | 52% | 49 | 0 | 94 | 2.7 | PASS |
-| ripple forward 25% | 15 mm/s | 0.46 N·m (rr_femur_joint) | 16% | 0.24 N·m (lr_femur_joint) | 24% | 24% | 41 | 0 | 92 | 2.1 | PASS |
-| ripple forward 50% | 30 mm/s | 0.84 N·m (rf_femur_joint) | 28% | 0.26 N·m (rr_femur_joint) | 26% | 49% | 43 | 0 | 88 | 2.7 | PASS |
-| ripple forward 100% | 60 mm/s | 0.94 N·m (lr_tibia_joint) | 32% | 0.26 N·m (lf_femur_joint) | 27% | 61% | 47 | 0 | 82 | 3.7 | PASS |
-| ripple sideways | 60 mm/s | 1.11 N·m (rm_tibia_joint) | 38% | 0.27 N·m (lm_femur_joint) | 28% | 73% | 46 | 0 | 87 | 4.7 | PASS |
-| ripple turn | 0.26 rad/s | 1.21 N·m (rf_femur_joint) | 41% | 0.26 N·m (lm_femur_joint) | 26% | 63% | 46 | 0 | 83 | 2.2 | PASS |
-| wave forward 25% | 6 mm/s | 0.83 N·m (lr_femur_joint) | 28% | 0.22 N·m (lm_femur_joint) | 23% | 37% | 39 | 0 | 97 | 2.6 | PASS |
-| wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.24 N·m (lm_femur_joint) | 24% | 56% | 40 | 0 | 98 | 3.0 | PASS |
-| wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.24 N·m (lm_femur_joint) | 24% | 68% | 41 | 0 | 102 | 3.5 | PASS |
-| wave sideways | 24 mm/s | 1.26 N·m (rm_tibia_joint) | 43% | 0.25 N·m (rf_femur_joint) | 26% | 83% | 42 | 0 | 86 | 5.1 | PASS |
-| wave turn | 0.10 rad/s | 1.00 N·m (lr_femur_joint) | 34% | 0.25 N·m (lm_femur_joint) | 26% | 52% | 42 | 0 | 87 | 3.0 | PASS |
+| stand | 0 | 0.57 N·m (lm_femur_joint) | 19% | 0.19 N·m (rm_femur_joint) | 19% | 22% | 21 | 0 | - | - | PASS |
+| tripod forward 25% | 30 mm/s | 0.52 N·m (lm_femur_joint) | 18% | 0.31 N·m (rm_femur_joint) | 32% | 24% | 26 | 0 | 89 | 2.6 | PASS |
+| tripod forward 50% | 60 mm/s | 0.82 N·m (lf_femur_joint) | 28% | 0.33 N·m (rm_femur_joint) | 34% | 49% | 31 | 0 | 83 | 2.8 | PASS |
+| tripod forward 100% | 120 mm/s | 0.90 N·m (lf_tibia_joint) | 31% | 0.34 N·m (lm_femur_joint) | 34% | 58% | 36 | 0 | 70 | 3.4 | PASS |
+| tripod sideways | 120 mm/s | 1.06 N·m (lm_tibia_joint) | 36% | 0.35 N·m (lm_femur_joint) | 36% | 69% | 35 | 0 | 81 | 5.4 | PASS |
+| tripod turn | 0.51 rad/s | 0.91 N·m (rf_femur_joint) | 31% | 0.33 N·m (lm_femur_joint) | 34% | 52% | 34 | 0 | 94 | 2.7 | PASS |
+| ripple forward 25% | 15 mm/s | 0.46 N·m (rr_femur_joint) | 16% | 0.24 N·m (lr_femur_joint) | 24% | 24% | 26 | 0 | 92 | 2.1 | PASS |
+| ripple forward 50% | 30 mm/s | 0.84 N·m (rf_femur_joint) | 28% | 0.26 N·m (rr_femur_joint) | 26% | 49% | 28 | 0 | 88 | 2.7 | PASS |
+| ripple forward 100% | 60 mm/s | 0.94 N·m (lr_tibia_joint) | 32% | 0.26 N·m (lf_femur_joint) | 27% | 61% | 32 | 0 | 82 | 3.7 | PASS |
+| ripple sideways | 60 mm/s | 1.11 N·m (rm_tibia_joint) | 38% | 0.27 N·m (lm_femur_joint) | 28% | 73% | 31 | 0 | 87 | 4.7 | PASS |
+| ripple turn | 0.26 rad/s | 1.21 N·m (rf_femur_joint) | 41% | 0.26 N·m (lm_femur_joint) | 26% | 63% | 31 | 0 | 83 | 2.2 | PASS |
+| wave forward 25% | 6 mm/s | 0.83 N·m (lr_femur_joint) | 28% | 0.22 N·m (lm_femur_joint) | 23% | 37% | 24 | 0 | 97 | 2.6 | PASS |
+| wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.24 N·m (lm_femur_joint) | 24% | 56% | 25 | 0 | 98 | 3.0 | PASS |
+| wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.24 N·m (lm_femur_joint) | 24% | 68% | 26 | 0 | 102 | 3.5 | PASS |
+| wave sideways | 24 mm/s | 1.26 N·m (rm_tibia_joint) | 43% | 0.25 N·m (rf_femur_joint) | 26% | 83% | 27 | 0 | 86 | 5.1 | PASS |
+| wave turn | 0.10 rad/s | 1.00 N·m (lr_femur_joint) | 34% | 0.25 N·m (lm_femur_joint) | 26% | 52% | 27 | 0 | 87 | 3.0 | PASS |
 
 ## 2.2 kg
 
 | Scenario | Speed | Peak (joint) | Peak % stall | RMS (joint) | RMS % rated | Max speed % | Power W | Steps at limit | Min margin mm | Slip mm | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| stand | 0 | 0.59 N·m (lm_femur_joint) | 20% | 0.21 N·m (lm_femur_joint) | 22% | 22% | 38 | 0 | - | - | PASS |
-| tripod forward 25% | 30 mm/s | 0.58 N·m (lm_femur_joint) | 20% | 0.34 N·m (rm_femur_joint) | 35% | 24% | 43 | 0 | 89 | 2.8 | PASS |
-| tripod forward 50% | 60 mm/s | 0.82 N·m (lf_femur_joint) | 28% | 0.36 N·m (rm_femur_joint) | 37% | 49% | 47 | 0 | 83 | 3.0 | PASS |
-| tripod forward 100% | 120 mm/s | 0.90 N·m (lf_tibia_joint) | 31% | 0.37 N·m (lm_femur_joint) | 37% | 58% | 52 | 0 | 70 | 3.6 | PASS |
-| tripod sideways | 120 mm/s | 1.06 N·m (lm_tibia_joint) | 36% | 0.38 N·m (lm_femur_joint) | 39% | 69% | 52 | 0 | 81 | 5.6 | PASS |
-| tripod turn | 0.51 rad/s | 0.91 N·m (rf_femur_joint) | 31% | 0.36 N·m (lm_femur_joint) | 37% | 52% | 50 | 0 | 94 | 3.1 | PASS |
-| ripple forward 25% | 15 mm/s | 0.46 N·m (rr_tibia_joint) | 16% | 0.26 N·m (rr_femur_joint) | 27% | 24% | 42 | 0 | 92 | 2.3 | PASS |
-| ripple forward 50% | 30 mm/s | 0.83 N·m (lf_femur_joint) | 28% | 0.28 N·m (rr_femur_joint) | 29% | 49% | 45 | 0 | 88 | 2.9 | PASS |
-| ripple forward 100% | 60 mm/s | 0.94 N·m (lr_tibia_joint) | 32% | 0.29 N·m (lf_femur_joint) | 29% | 61% | 48 | 0 | 82 | 3.9 | PASS |
-| ripple sideways | 60 mm/s | 1.11 N·m (rm_tibia_joint) | 38% | 0.30 N·m (lm_femur_joint) | 30% | 73% | 48 | 0 | 87 | 4.8 | PASS |
-| ripple turn | 0.26 rad/s | 1.21 N·m (rf_femur_joint) | 41% | 0.28 N·m (rm_femur_joint) | 29% | 63% | 47 | 0 | 83 | 2.4 | PASS |
-| wave forward 25% | 6 mm/s | 0.83 N·m (lr_femur_joint) | 28% | 0.25 N·m (lm_femur_joint) | 26% | 37% | 41 | 0 | 97 | 2.8 | PASS |
-| wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.26 N·m (lm_femur_joint) | 27% | 56% | 42 | 0 | 98 | 3.3 | PASS |
-| wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.26 N·m (lm_femur_joint) | 27% | 68% | 43 | 0 | 102 | 3.8 | PASS |
-| wave sideways | 24 mm/s | 1.26 N·m (rm_tibia_joint) | 43% | 0.28 N·m (rf_femur_joint) | 28% | 83% | 44 | 0 | 86 | 5.3 | PASS |
-| wave turn | 0.10 rad/s | 0.99 N·m (lr_femur_joint) | 34% | 0.28 N·m (lm_femur_joint) | 28% | 52% | 44 | 0 | 87 | 3.3 | PASS |
+| stand | 0 | 0.59 N·m (lm_femur_joint) | 20% | 0.21 N·m (lm_femur_joint) | 22% | 22% | 23 | 0 | - | - | PASS |
+| tripod forward 25% | 30 mm/s | 0.58 N·m (lm_femur_joint) | 20% | 0.34 N·m (rm_femur_joint) | 35% | 24% | 28 | 0 | 89 | 2.8 | PASS |
+| tripod forward 50% | 60 mm/s | 0.82 N·m (lf_femur_joint) | 28% | 0.36 N·m (rm_femur_joint) | 37% | 49% | 32 | 0 | 83 | 3.0 | PASS |
+| tripod forward 100% | 120 mm/s | 0.90 N·m (lf_tibia_joint) | 31% | 0.37 N·m (lm_femur_joint) | 37% | 58% | 37 | 0 | 70 | 3.6 | PASS |
+| tripod sideways | 120 mm/s | 1.06 N·m (lm_tibia_joint) | 36% | 0.38 N·m (lm_femur_joint) | 39% | 69% | 37 | 0 | 81 | 5.6 | PASS |
+| tripod turn | 0.51 rad/s | 0.91 N·m (rf_femur_joint) | 31% | 0.36 N·m (lm_femur_joint) | 37% | 52% | 35 | 0 | 94 | 3.1 | PASS |
+| ripple forward 25% | 15 mm/s | 0.46 N·m (rr_tibia_joint) | 16% | 0.26 N·m (rr_femur_joint) | 27% | 24% | 27 | 0 | 92 | 2.3 | PASS |
+| ripple forward 50% | 30 mm/s | 0.83 N·m (lf_femur_joint) | 28% | 0.28 N·m (rr_femur_joint) | 29% | 49% | 30 | 0 | 88 | 2.9 | PASS |
+| ripple forward 100% | 60 mm/s | 0.94 N·m (lr_tibia_joint) | 32% | 0.29 N·m (lf_femur_joint) | 29% | 61% | 33 | 0 | 82 | 3.9 | PASS |
+| ripple sideways | 60 mm/s | 1.11 N·m (rm_tibia_joint) | 38% | 0.30 N·m (lm_femur_joint) | 30% | 73% | 33 | 0 | 87 | 4.8 | PASS |
+| ripple turn | 0.26 rad/s | 1.21 N·m (rf_femur_joint) | 41% | 0.28 N·m (rm_femur_joint) | 29% | 63% | 32 | 0 | 83 | 2.4 | PASS |
+| wave forward 25% | 6 mm/s | 0.83 N·m (lr_femur_joint) | 28% | 0.25 N·m (lm_femur_joint) | 26% | 37% | 25 | 0 | 97 | 2.8 | PASS |
+| wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.26 N·m (lm_femur_joint) | 27% | 56% | 27 | 0 | 98 | 3.3 | PASS |
+| wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.26 N·m (lm_femur_joint) | 27% | 68% | 28 | 0 | 102 | 3.8 | PASS |
+| wave sideways | 24 mm/s | 1.26 N·m (rm_tibia_joint) | 43% | 0.28 N·m (rf_femur_joint) | 28% | 83% | 28 | 0 | 86 | 5.3 | PASS |
+| wave turn | 0.10 rad/s | 0.99 N·m (lr_femur_joint) | 34% | 0.28 N·m (lm_femur_joint) | 28% | 52% | 29 | 0 | 87 | 3.3 | PASS |
 
 ## 2.5 kg
 
 | Scenario | Speed | Peak (joint) | Peak % stall | RMS (joint) | RMS % rated | Max speed % | Power W | Steps at limit | Min margin mm | Slip mm | Verdict |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| stand | 0 | 0.63 N·m (lm_femur_joint) | 21% | 0.25 N·m (rm_femur_joint) | 25% | 22% | 42 | 0 | - | - | PASS |
-| tripod forward 25% | 30 mm/s | 0.67 N·m (lm_femur_joint) | 23% | 0.39 N·m (rm_femur_joint) | 40% | 24% | 45 | 0 | 89 | 3.1 | PASS |
-| tripod forward 50% | 60 mm/s | 0.88 N·m (rm_tibia_joint) | 30% | 0.41 N·m (rm_femur_joint) | 42% | 49% | 49 | 0 | 83 | 3.3 | PASS |
-| tripod forward 100% | 120 mm/s | 0.92 N·m (rm_tibia_joint) | 31% | 0.41 N·m (lm_femur_joint) | 42% | 58% | 54 | 0 | 70 | 3.9 | PASS |
-| tripod sideways | 120 mm/s | 1.06 N·m (lm_tibia_joint) | 36% | 0.43 N·m (lm_femur_joint) | 44% | 70% | 54 | 0 | 81 | 5.9 | PASS |
-| tripod turn | 0.51 rad/s | 0.91 N·m (rf_femur_joint) | 31% | 0.41 N·m (lm_femur_joint) | 42% | 52% | 53 | 0 | 94 | 3.5 | PASS |
-| ripple forward 25% | 15 mm/s | 0.48 N·m (rr_tibia_joint) | 16% | 0.30 N·m (rr_femur_joint) | 30% | 24% | 45 | 0 | 92 | 2.5 | PASS |
-| ripple forward 50% | 30 mm/s | 0.83 N·m (lf_femur_joint) | 28% | 0.32 N·m (lm_femur_joint) | 32% | 49% | 48 | 0 | 89 | 3.1 | PASS |
-| ripple forward 100% | 60 mm/s | 0.94 N·m (lr_tibia_joint) | 32% | 0.33 N·m (lf_femur_joint) | 33% | 61% | 51 | 0 | 82 | 4.1 | PASS |
-| ripple sideways | 60 mm/s | 1.11 N·m (rm_tibia_joint) | 38% | 0.33 N·m (lm_femur_joint) | 34% | 73% | 51 | 0 | 87 | 4.9 | PASS |
-| ripple turn | 0.26 rad/s | 1.21 N·m (rf_femur_joint) | 41% | 0.32 N·m (lm_femur_joint) | 32% | 63% | 50 | 0 | 83 | 2.6 | PASS |
-| wave forward 25% | 6 mm/s | 0.83 N·m (lr_femur_joint) | 28% | 0.29 N·m (lm_femur_joint) | 30% | 36% | 43 | 0 | 97 | 3.1 | PASS |
-| wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.30 N·m (lm_femur_joint) | 31% | 56% | 44 | 0 | 98 | 3.6 | PASS |
-| wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.30 N·m (lm_femur_joint) | 31% | 68% | 46 | 0 | 102 | 4.1 | PASS |
-| wave sideways | 24 mm/s | 1.26 N·m (rm_tibia_joint) | 43% | 0.32 N·m (lr_femur_joint) | 32% | 83% | 46 | 0 | 86 | 5.5 | PASS |
-| wave turn | 0.10 rad/s | 0.99 N·m (lr_femur_joint) | 34% | 0.32 N·m (lm_femur_joint) | 33% | 52% | 47 | 0 | 87 | 3.7 | PASS |
+| stand | 0 | 0.63 N·m (lm_femur_joint) | 21% | 0.25 N·m (rm_femur_joint) | 25% | 22% | 26 | 0 | - | - | PASS |
+| tripod forward 25% | 30 mm/s | 0.67 N·m (lm_femur_joint) | 23% | 0.39 N·m (rm_femur_joint) | 40% | 24% | 30 | 0 | 89 | 3.1 | PASS |
+| tripod forward 50% | 60 mm/s | 0.88 N·m (rm_tibia_joint) | 30% | 0.41 N·m (rm_femur_joint) | 42% | 49% | 34 | 0 | 83 | 3.3 | PASS |
+| tripod forward 100% | 120 mm/s | 0.92 N·m (rm_tibia_joint) | 31% | 0.41 N·m (lm_femur_joint) | 42% | 58% | 39 | 0 | 70 | 3.9 | PASS |
+| tripod sideways | 120 mm/s | 1.06 N·m (lm_tibia_joint) | 36% | 0.43 N·m (lm_femur_joint) | 44% | 70% | 39 | 0 | 81 | 5.9 | PASS |
+| tripod turn | 0.51 rad/s | 0.91 N·m (rf_femur_joint) | 31% | 0.41 N·m (lm_femur_joint) | 42% | 52% | 37 | 0 | 94 | 3.5 | PASS |
+| ripple forward 25% | 15 mm/s | 0.48 N·m (rr_tibia_joint) | 16% | 0.30 N·m (rr_femur_joint) | 30% | 24% | 30 | 0 | 92 | 2.5 | PASS |
+| ripple forward 50% | 30 mm/s | 0.83 N·m (lf_femur_joint) | 28% | 0.32 N·m (lm_femur_joint) | 32% | 49% | 32 | 0 | 89 | 3.1 | PASS |
+| ripple forward 100% | 60 mm/s | 0.94 N·m (lr_tibia_joint) | 32% | 0.33 N·m (lf_femur_joint) | 33% | 61% | 36 | 0 | 82 | 4.1 | PASS |
+| ripple sideways | 60 mm/s | 1.11 N·m (rm_tibia_joint) | 38% | 0.33 N·m (lm_femur_joint) | 34% | 73% | 36 | 0 | 87 | 4.9 | PASS |
+| ripple turn | 0.26 rad/s | 1.21 N·m (rf_femur_joint) | 41% | 0.32 N·m (lm_femur_joint) | 32% | 63% | 35 | 0 | 83 | 2.6 | PASS |
+| wave forward 25% | 6 mm/s | 0.83 N·m (lr_femur_joint) | 28% | 0.29 N·m (lm_femur_joint) | 30% | 36% | 28 | 0 | 97 | 3.1 | PASS |
+| wave forward 50% | 12 mm/s | 0.97 N·m (lr_femur_joint) | 33% | 0.30 N·m (lm_femur_joint) | 31% | 56% | 29 | 0 | 98 | 3.6 | PASS |
+| wave forward 100% | 24 mm/s | 1.06 N·m (rf_tibia_joint) | 36% | 0.30 N·m (lm_femur_joint) | 31% | 68% | 31 | 0 | 102 | 4.1 | PASS |
+| wave sideways | 24 mm/s | 1.26 N·m (rm_tibia_joint) | 43% | 0.32 N·m (lr_femur_joint) | 32% | 83% | 31 | 0 | 86 | 5.5 | PASS |
+| wave turn | 0.10 rad/s | 0.99 N·m (lr_femur_joint) | 34% | 0.32 N·m (lm_femur_joint) | 33% | 52% | 31 | 0 | 87 | 3.7 | PASS |
 
 ## Per-joint torque: tripod forward at top speed, 2.5 kg
 

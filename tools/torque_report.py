@@ -61,6 +61,8 @@ def _commit() -> str:
 def _run() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT, help="output directory")
+    parser.add_argument("--label", default="Version 1", help="report title, e.g. 'Version 1.5'")
+    parser.add_argument("--stem", default="v1-torque-report", help="output file name, no suffix")
     parser.add_argument(
         "--quick", action="store_true", help="three short scenarios, as a smoke check"
     )
@@ -93,10 +95,10 @@ def _run() -> int:
 
     commit, today = _commit(), date.today().isoformat()
     markdown = render_markdown(
-        results, params, actuators, commit=commit, date=today, quick=args.quick
+        results, params, actuators, commit=commit, date=today, quick=args.quick, label=args.label
     )
     data = to_json(results, params, actuators, commit=commit, date=today)
-    stem = "v1-torque-report-quick" if args.quick else "v1-torque-report"  # never the real report
+    stem = f"{args.stem}-quick" if args.quick else args.stem  # never the real report
     (args.out / f"{stem}.json").write_text(json.dumps(data, indent=2) + "\n")
     (args.out / f"{stem}.md").write_text(markdown + "\n")
     print(f"wrote {args.out / stem}.md and .json")

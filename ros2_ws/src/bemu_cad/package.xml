@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>bemu_cad</name>
+  <version>0.1.0</version>
+  <description>Bemu part generators and the component library (build123d; no ROS in the code).</description>
+  <maintainer email="noreply@example.com">Bemu</maintainer>
+  <license>Proprietary</license>
+  <depend>bemu_params</depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

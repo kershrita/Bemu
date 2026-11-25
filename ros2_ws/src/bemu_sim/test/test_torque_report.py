@@ -51,8 +51,8 @@ def test_matrix_has_48_scenarios_in_order(params, gait_params):
 
 
 def test_params_for_mass(params):
-    assert params_for_mass(params, 2.5).body.mass == pytest.approx(1.39, abs=1e-9)
-    assert params_for_mass(params, 2.0).body.mass == pytest.approx(0.89, abs=1e-9)
+    assert params_for_mass(params, 2.5).body.mass == pytest.approx(params.body.mass, abs=1e-9)
+    assert params_for_mass(params, 2.0).body.mass == pytest.approx(params.body.mass - 0.5, abs=1e-9)
     assert params_for_mass(params, 2.5).leg == params.leg
 
 
@@ -72,8 +72,8 @@ def test_report_actuators_clip_at_the_stall_torque(params, actuators):
 def test_electrical_power(params):
     servo = params.servo
     kt = servo.stall_torque / servo.stall_current
-    assert electrical_power(servo, np.full(18, kt)) == pytest.approx(18 * 12 * (0.1 + 1.0))
-    assert electrical_power(servo, np.zeros(18)) == pytest.approx(18 * 12 * 0.1)
+    assert electrical_power(servo, np.full(18, kt)) == pytest.approx(18 * 12 * (0.03 + 1.0))
+    assert electrical_power(servo, np.zeros(18)) == pytest.approx(18 * 12 * 0.03)
     with pytest.raises(ValueError):
         electrical_power(servo, np.zeros(17))
 
@@ -151,7 +151,7 @@ def test_a_walking_scenario_runs(params, actuators, gait_params):
     assert result.min_margin > 0.015
     assert result.max_slip is not None
     assert result.command == pytest.approx((0.06, 0.0, 0.0))
-    assert 21.6 < result.power < 18 * 12 * 2.7
+    assert 18 * 12 * 0.03 < result.power < 18 * 12 * 2.7
 
 
 def test_run_scenario_clips_at_stall_and_counts_the_design_limit(params, actuators, gait_params):

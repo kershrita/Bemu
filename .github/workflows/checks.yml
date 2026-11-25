@@ -35,3 +35,18 @@ jobs:
       - name: Results
         working-directory: ros2_ws
         run: . /opt/ros/lyrical/setup.sh && colcon test-result --verbose
+
+  docker:
+    # Builds the development image (docker/Dockerfile) and runs the quick validation inside it, so the
+    # container the owner uses on the WSL PC is proven to build and to pass the same checks.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the development image
+        run: >
+          docker build -f docker/Dockerfile -t bemu-dev:lyrical
+          --build-arg UID=$(id -u) --build-arg GID=$(id -g) .
+      - name: Quick validation inside the image
+        run: >
+          docker run --rm -v "$PWD":/workspace/bemu bemu-dev:lyrical
+          /workspace/bemu/docker/validate.sh quick

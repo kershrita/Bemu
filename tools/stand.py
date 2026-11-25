@@ -20,6 +20,7 @@ for package in ("bemu_params", "bemu_kinematics", "bemu_description", "bemu_sim"
 
 from bemu_description.actuators import load_actuator_model  # noqa: E402
 from bemu_description.robot_mjcf import build_robot_mjcf  # noqa: E402
+from bemu_description.visuals import load_visuals  # noqa: E402
 from bemu_kinematics import (  # noqa: E402
     BodyPose,
     KinematicsError,
@@ -60,7 +61,9 @@ def _run() -> int:
 
     params = load_params(PARAMS_FILE)
     actuators = load_actuator_model(ACTUATORS_FILE, params.servo)
-    sim = RobotSim(build_robot_mjcf(params, actuators))
+    sim = RobotSim(
+        build_robot_mjcf(params, actuators, visuals=load_visuals() if args.viewer else None)
+    )
 
     stand = stand_height(params)
     steps = list(stand_up_targets(params))

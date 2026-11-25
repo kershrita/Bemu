@@ -1,3 +1,5 @@
+from glob import glob
+
 from setuptools import find_packages, setup
 
 setup(
@@ -7,6 +9,10 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/bemu_description"]),
         ("share/bemu_description", ["package.xml"]),
+        (
+            "share/bemu_description/meshes",
+            glob("meshes/*"),
+        ),  # the CAD meshes (tools/generate_cad.py)
     ],
     install_requires=["setuptools", "pyyaml"],
     extras_require={"test": ["pytest"]},

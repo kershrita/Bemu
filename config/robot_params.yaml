@@ -9,14 +9,19 @@ leg:
     coxa:  [-45, 45]
     femur: [-60, 90]
     tibia: [-150, -20]
-  link_mass:            # estimates until the CAD exists (version 1.5)
-    coxa: 75            # bracket plus the femur servo
-    femur: 25
-    tibia: 85           # knee servo plus the lower leg and foot
+  link_mass:            # from the CAD (tools/generate_cad.py --sync-masses; printed parts estimated)
+    coxa: 75.1            # bracket, femur servo, clevis screws
+    femur: 89.7           # femur plates, spacers, knee servo, screws
+    tibia: 44.9           # tibia plates, foot bridge, foot, screws
+  link_inertia:         # from the CAD (--sync-masses): COM from the joint in mm, inertia
+    # about the COM in g mm^2 (xx yy zz xy xz yz), leg axes at zero joint angle
+    coxa: {com_mm: [54.35, 0.13, -1.65], inertia_g_mm2: [12495, 26385, 29634, 99, -2531, -15]}
+    femur: {com_mm: [70.49, 0.06, 0.00], inertia_g_mm2: [20295, 49337, 60983, -205, 0, 0]}
+    tibia: {com_mm: [72.67, -0.14, 3.87], inertia_g_mm2: [18446, 67457, 83206, -322, -3979, -17]}
 
 body:
-  size: {x: 240, y: 160, z: 56}   # the box the legs hang from; z is the thickness
-  mass: 1390                        # chassis: everything except the six legs
+  size: {x: 240, y: 160, z: 58.08}   # the box the legs hang from; z is the thickness
+  mass: 1241.8                      # chassis budget: design mass 2.5 kg minus six CAD legs (--sync-masses)
   mounts:
     lf: {x: 100,  y: 60,  yaw: 45}
     lm: {x: 0,    y: 80,  yaw: 90}
@@ -35,8 +40,9 @@ servo:
   stall_torque_nm: 2.94
   max_speed_rad_s: 4.7
   rated_torque_nm: 0.98          # continuous (docs/10-components.md)
-  # Placeholders for the torque report's power estimate: confirm against the exact STS3215
-  # sub-model (docs/10-components.md) and replace with measurements in version 2.
+  # Power estimate inputs. Stall and idle current are from the Feetech ST-3215-C047 (12 V)
+  # datasheet, section 5 (docs/reference/sts3215/); the supply voltage is the servo's nominal
+  # 12 V, and the real battery voltage (docs/10) will move the power figures. Version 2 measures.
   supply_voltage_v: 12
   stall_current_a: 2.7
-  idle_current_a: 0.1
+  idle_current_a: 0.03

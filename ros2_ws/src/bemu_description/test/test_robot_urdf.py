@@ -81,3 +81,12 @@ def test_write_robot_models(params, actuators, tmp_path):
     assert urdf.find("ros2_control/hardware/param[@name='mujoco_model']").text == str(files["mjcf"])
     model = mujoco.MjModel.from_xml_path(str(files["mjcf"]))
     assert model.nu == 18
+
+
+def test_urdf_links_carry_the_cad_centre_of_mass(root, params):
+    link = next(x for x in root.findall("link") if x.get("name") == "lf_femur")
+    origin = link.find("inertial/origin")
+    assert float(origin.get("xyz").split()[0]) == pytest.approx(
+        params.leg.link_inertia["femur"].com[0]
+    )
+    assert float(link.find("inertial/mass").get("value")) == pytest.approx(params.leg.femur_mass)

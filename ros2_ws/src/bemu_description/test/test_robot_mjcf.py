@@ -110,3 +110,19 @@ def test_write_robot_mjcf_creates_the_file(tmp_path, params, actuators):
     path = write_robot_mjcf(params, actuators, tmp_path / "out")
     assert path.name == "robot.xml" and path.is_file()
     assert isinstance(np.asarray(mujoco.MjModel.from_xml_path(str(path)).nq), np.ndarray)
+
+
+def test_link_centres_of_mass_and_inertia_come_from_the_cad(params, actuators):
+    import mujoco
+
+    model = mujoco.MjModel.from_xml_string(build_robot_mjcf(params, actuators))
+    for link, joint in (("coxa", "coxa"), ("femur", "femur"), ("tibia", "tibia")):
+        body = model.body(f"lf_{link}")
+        item = params.leg.link_inertia[joint]
+        assert body.mass[0] == pytest.approx(getattr(params.leg, f"{joint}_mass"), rel=1e-6)
+        # MuJoCo reports the principal frame; the offset of the centre of mass is what matters
+        assert abs(body.ipos[0] - item.com[0]) < 1e-9
+        assert abs(body.ipos[2] - item.com[2]) < 1e-9
+        assert sum(body.inertia) == pytest.approx(
+            (item.inertia[0] + item.inertia[1] + item.inertia[2]), rel=1e-6
+        )

@@ -115,6 +115,31 @@ under WSL 2). Everything after step 1 runs inside Ubuntu.
    colcon test && colcon test-result --verbose
    ```
 
+## Docker development container (recommended from version 1.5)
+
+Instead of installing ROS, MuJoCo and the CAD library in Ubuntu, the project can run in one Docker
+container inside WSL 2 (decision [0012](decisions/0012-docker-dev-container.md)). The image
+(`docker/Dockerfile`) starts from `ros:lyrical-ros-base`, the image CI already builds in, and adds the
+control stack, the MuJoCo bridge, RViz, MuJoCo and a Python 3.13 virtualenv with build123d. The repository
+is mounted into the container; the ROS `build/`, `install/` and `log/` folders live in Docker volumes.
+Windows shows the windows (MuJoCo viewer, RViz) through WSLg; the GPU is optional.
+
+| Command | What it does |
+|---|---|
+| `docker/dev build` | builds the image (first time 10–20 minutes) |
+| `docker/dev up` / `down` | starts / stops the container; `docker/dev clean` also deletes the build volumes |
+| `docker/dev shell` | a shell in the container (run it again for a second terminal) |
+| `docker/dev validate quick` / `full` | the automated checks (`docker/validate.sh`): build, ROS tests, headless walk, CAD regeneration; `full` adds the CI Python tests and the simulated launch tests |
+| `docker/dev launch`, `teleop`, `rviz` | the robot, keyboard control and RViz |
+| `docker/dev --gpu up` | the same with the Windows GPU for rendering (`docker/compose.gpu.yaml`) |
+| `docker/dev exec <command>` | one command in the container, for example `docker/dev exec /opt/cad/bin/python tools/generate_cad.py` |
+
+Inside the container `python3` is the system Python used by ROS and `/opt/cad/bin/python` (alias
+`cadpy`) is the Python 3.13 with build123d, which runs the CAD tools and the same pytest as the CI
+"python" job. CI builds the image on every push and runs the quick validation in it. The steps to
+validate version 1.5 on the PC, with the checks to tick and what to send back, are in
+[the PC validation guide](reports/v1_5-pc-validation.md).
+
 ### Things that went wrong, and how to recognise them
 
 | Symptom | Cause | Fix |
@@ -185,6 +210,9 @@ Recorded on 2026-11-18, on the development PC.
 | Stand, sit or pose the whole robot without ROS | `python3 tools/stand.py stand` (or `sit`, or `pose --roll 10 --shift 20 0`; add `--viewer` for a window) |
 | Walk the whole robot without ROS | `python3 tools/walk.py --gait tripod --vx 0.1 --seconds 10` (also `--vy`, `--omega`; add `--viewer` for a window) |
 | Write the full-robot model | `python3 tools/generate_model.py --robot` |
+| Generate the printed parts, the tolerance coupon, masses and the print order | `pip install -r requirements-dev.txt` once (build123d), then `python3 tools/generate_cad.py` (writes `cad/export/`; `--coupon-only` for the first print) |
+| See the CAD robot | `ros2 launch bemu_bringup robot.launch.py` (a window) or `python3 tools/stand.py stand --viewer` draw the CAD parts (blue printed parts, black servos, grey plates); the capsules and box used for collisions are hidden. `python3 tools/render_preview.py` writes pictures to `docs/images/` (needs `pip install matplotlib`). Regenerating the CAD (`python3 tools/generate_cad.py`) also rewrites the meshes in `ros2_ws/src/bemu_description/meshes/`; commit them together |
+| Put the CAD link masses into the parameter file | `python3 tools/generate_cad.py --sync-masses` (also sets the chassis budget so the total stays 2.5 kg) |
 | Run the torque report (about 75 s; `--quick` writes `v1-torque-report-quick.*` as a smoke check) | `python3 tools/torque_report.py` (writes `docs/reports/v1-torque-report.md` and `.json`) |
 | Trace a foot path without ROS | `python3 tools/trace_foot.py --shape square` (add `--viewer` for a window) |
 | Regenerate the printable parts | A script in `cad/` |

@@ -88,6 +88,29 @@ Version 1c's tests: headless, the key and stick mapping (speed steps and limits,
 height limits, deadzone, bad axis values, once-per-press buttons) and the keyboard's refusal
 without a terminal; with ROS, the gamepad node and the `teleop` launch choices.
 
+The CAD meshes in the simulator (`bemu_description/test/test_visuals.py`, `bemu_cad/test/test_visuals.py`):
+the manifest and every STL exist; the model with meshes compiles with the same mass, bodies and joints and
+with every mesh non-colliding; the URDF visuals point at installed files; the committed meshes equal the
+CAD (a change to the CAD without regenerating fails); and at zero joint angles the meshes sit where the CAD
+assembly has them (checked on the left-front and right-rear legs and a body plate, to 0.05 mm).
+
+Version 1.5d's tests add: the battery pack clears every post, hip plate and coxa servo; the tray clears the posts; the Pi board clears the coxa servos; tray and plate screws land on insert holes; every plate piece has two posts; the Pi standoffs sit on the hole pattern; neighbouring legs are collision-free up to a combined 45° toward each other and do collide at 60° (so the limit is real); the gaits stay inside 45° (`test_neighbours.py`); the quantities include one spare of every leg part; and the bed-fit check includes a margin and the height.
+
+Version 1.5c's tests add: the printability analysis (a plain block needs no supports and reports its size; an overhanging shelf needs them in the worse direction only) and the exported `printability.md` and `print_order.md` (the bed fits, the Supports column, no contradicting orientation text).
+
+Version 1.5b's tests add: link masses from the CAD and the guard that keeps `robot_params.yaml` equal to
+them (and to the CAD body thickness and the 2.5 kg design mass), the coxa mount, and the body (coverage,
+bed fit, real-STEP seating at both faces, no contact with a real coxa servo, swinging-leg sweeps,
+splices, the insert grid, the mass budget).
+
+Version 1.5a's tests (`bemu_cad/test`): the component library (every value has a source file
+and a valid status; bad or missing values are rejected naming the field); the STEP probe (the hole
+table equals the library, and the two manufacturer models agree); the servo solid, pocket and mass
+properties; the printed leg (axis distances equal the parameter file, no part penetrates a servo,
+screw-hole edge distances, print-bed fit, joint sweeps, and a longer femur regenerating with all
+checks passing); the tolerance coupon (pockets and holes cut at the stated sizes); and the
+exports and the `generate_cad` tool. They need build123d and are skipped in the ROS image job.
+
 The torque report's tests (`bemu_sim/test/test_robot_stats.py`, `test_torque_report*.py`):
 per-step joint statistics (peak, RMS, speed, steps at the limit); the 48-scenario matrix, the
 mass and scenario validation, the power model and the pass/fail and stability verdict

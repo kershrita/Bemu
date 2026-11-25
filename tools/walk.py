@@ -20,6 +20,7 @@ for package in ("bemu_params", "bemu_kinematics", "bemu_description", "bemu_gait
 
 from bemu_description.actuators import load_actuator_model  # noqa: E402
 from bemu_description.robot_mjcf import build_robot_mjcf  # noqa: E402
+from bemu_description.visuals import load_visuals  # noqa: E402
 from bemu_gait import GAITS, Command, GaitParamsError, Walker, load_gait_params  # noqa: E402
 from bemu_kinematics import KinematicsError  # noqa: E402
 from bemu_params import ParamsError, load_params  # noqa: E402
@@ -69,7 +70,9 @@ def _run() -> int:
     actuators = load_actuator_model(ACTUATORS_FILE, params.servo)
     walker = Walker(params, load_gait_params(), gait=args.gait)
     walker.set_command(Command(vx=args.vx, vy=args.vy, omega=args.omega))  # validates the numbers
-    sim = RobotSim(build_robot_mjcf(params, actuators))
+    sim = RobotSim(
+        build_robot_mjcf(params, actuators, visuals=load_visuals() if args.viewer else None)
+    )
     stand_robot(sim, params)
 
     if args.viewer:

@@ -22,7 +22,7 @@ def same_angles(a, b, tol=1e-9):
 
 
 def test_sit_height_is_half_the_body_thickness(params):
-    assert sit_height(params) == pytest.approx(0.028)
+    assert sit_height(params) == pytest.approx(0.02904)  # half the CAD body thickness (1.5b)
 
 
 def test_ramp_properties():

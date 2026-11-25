@@ -1,0 +1,40 @@
+# One long-lived development container. Open as many shells in it as you need:
+#   docker/dev up ; docker/dev shell ; docker/dev shell   (a second terminal)
+# GUI windows (MuJoCo viewer, RViz) reach Windows through WSLg. The GPU is optional: see
+# compose.gpu.yaml and docs/reports/v1_5-pc-validation.md.
+name: bemu
+services:
+  dev:
+    image: bemu-dev:lyrical
+    container_name: bemu-dev
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        UID: ${HOST_UID:-1000}
+        GID: ${HOST_GID:-1000}
+    init: true
+    tty: true
+    stdin_open: true
+    working_dir: /workspace/bemu
+    command: sleep infinity
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+      WAYLAND_DISPLAY: ${WAYLAND_DISPLAY:-wayland-0}
+      XDG_RUNTIME_DIR: /mnt/wslg/runtime-dir
+      PULSE_SERVER: /mnt/wslg/PulseServer
+      BEMU_PARAMS: /workspace/bemu/config/robot_params.yaml
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}
+    volumes:
+      - ..:/workspace/bemu
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /mnt/wslg:/mnt/wslg
+      # ROS build output lives in volumes, so a native build in ros2_ws/ and the container's build
+      # never share (and break) each other's absolute paths.
+      - bemu-build:/workspace/bemu/ros2_ws/build
+      - bemu-install:/workspace/bemu/ros2_ws/install
+      - bemu-log:/workspace/bemu/ros2_ws/log
+volumes:
+  bemu-build:
+  bemu-install:
+  bemu-log:

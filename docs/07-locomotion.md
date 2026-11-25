@@ -179,6 +179,18 @@ Tripod is the default and the first implemented.
 
 ---
 
+### Neighbouring legs (from the CAD, version 1.5d)
+
+The printed legs collide if two neighbours swing toward each other too far. With both legs in the
+same femur and knee pose, two neighbours are collision-free while the two coxa angles toward each
+other sum to 45° or less and collide at 60° (`bemu_cad`, `test_body.py`). The gaits at top speed reach
+about 43° (wave) and `bemu_cad/test/test_neighbours.py` fails if a gait goes over 45°. The coxa limit
+itself stays ±45°. Body shifts and yaw change each leg's coxa angle by different amounts, so they
+can move neighbours toward each other; measured with the gaits at top speed over ten commands and five
+shifted or yawed poses, the sum peaks at 42.8° (wave) and a body pose adds only about 1°, because the
+reach clamp saturates. A static pose alone reaches about 16°. Nothing in the walker enforces the rule
+at run time; the test covers gait changes and shifted and yawed poses, and the margin is about 2°.
+
 ## 4. Foot paths
 
 All positions here are in the body frame.

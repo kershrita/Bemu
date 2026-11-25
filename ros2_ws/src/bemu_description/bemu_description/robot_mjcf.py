@@ -17,6 +17,7 @@ from bemu_description.mjcf import (
     vec,
 )
 from bemu_description.names import BODY, ROOT_JOINT, joint_order
+from bemu_description.visuals import Visuals, assets_xml, geoms_xml, per_leg_geoms_xml
 from bemu_kinematics import BodyPose, pose_angles, sit_height, stand_height
 from bemu_params import LEG_CODES, RobotParams
 
@@ -47,8 +48,23 @@ def _keyframe(params: RobotParams, name: str, height: float) -> str:
     return f'<key name="{name}" qpos="{qpos}" ctrl="{vec(*joints)}"/>'
 
 
-def build_robot_mjcf(params: RobotParams, actuators: ActuatorModel) -> str:
+def build_robot_mjcf(
+    params: RobotParams, actuators: ActuatorModel, *, visuals: Visuals | None = None
+) -> str:
+    """The full model. With `visuals`, the CAD meshes are drawn and the collision shapes hidden."""
     sx, sy, sz = params.body.size
+    meshdir = f' meshdir="{visuals.directory}"' if visuals else ""
+    assets = assets_xml(visuals) if visuals else ""
+    hide = ' group="3"' if visuals else ""
+    per_leg = ""
+    if visuals:
+        per_leg = "\n      ".join(
+            per_leg_geoms_xml(visuals, vec(m.x, m.y, 0.0), vec(0.0, 0.0, m.yaw))
+            for m in params.mounts.values()
+        )
+        body_visuals = geoms_xml(visuals, "body")
+    else:
+        body_visuals = ""
     legs = "\n    ".join(
         leg_body_xml(
             params,
@@ -56,6 +72,7 @@ def build_robot_mjcf(params: RobotParams, actuators: ActuatorModel) -> str:
             pos=vec(m.x, m.y, 0.0),
             euler=vec(0.0, 0.0, m.yaw),
             foot_contact=_BODY_AND_FEET_CONTACT,
+            visuals=visuals,
         )
         for leg, m in params.mounts.items()
     )
@@ -64,7 +81,8 @@ def build_robot_mjcf(params: RobotParams, actuators: ActuatorModel) -> str:
         joint_order()
     )
     return f"""<mujoco model="bemu_robot">
-  <compiler angle="radian"/>
+  <compiler angle="radian"{meshdir}/>
+  {assets}
   <option timestep="{num(TIMESTEP)}"/>
   <default>
     {joint_defaults_xml(actuators)}
@@ -75,7 +93,9 @@ def build_robot_mjcf(params: RobotParams, actuators: ActuatorModel) -> str:
     <body name="{BODY}" pos="0 0 {num(stand_height(params))}">
       <freejoint name="{ROOT_JOINT}"/>
       <geom name="body_box" type="box" size="{vec(sx / 2, sy / 2, sz / 2)}" \
-mass="{num(params.body.mass)}" {_BODY_AND_FEET_CONTACT}/>
+mass="{num(params.body.mass)}" {_BODY_AND_FEET_CONTACT}{hide}/>
+      {body_visuals}
+      {per_leg}
       {legs}
     </body>
   </worldbody>

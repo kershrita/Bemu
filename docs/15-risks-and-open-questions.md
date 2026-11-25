@@ -26,6 +26,11 @@ and 1.
 
 **Default:** 200 × 200 mm bed; PETG or tough PLA; bought rubber foot tips.
 
+**Progress (version 1.5c):** the parts were checked against that bed (largest footprint
+190 mm) and the print requirements are written; the quote request, in English and
+Arabic, is [`reports/v1_5-print-quote-request.md`](reports/v1_5-print-quote-request.md). Still open
+until a service quotes.
+
 ---
 
 ## Risks
@@ -51,6 +56,7 @@ Likelihood and impact are rated low, medium or high.
 | R15 | 3D viewers under WSL fall back to slow software rendering instead of the NVIDIA card | Medium | Low | Checked in step 0.2; dual-boot Ubuntu as the fallback. **Occurred and resolved 2026-11-18:** Mesa defaulted to `llvmpipe`, then to the Intel integrated graphics; fixed with `GALLIUM_DRIVER=d3d12` and `MESA_D3D12_DEFAULT_ADAPTER_NAME=NVIDIA` ([13](13-dev-environment.md)) |
 | R16 | ROS 2 on the PC (inside WSL) and on the Pi cannot find each other across WSL's virtual network | Medium | Low | Change WSL's networking mode; tested in version 2; dual-boot Ubuntu as the fallback |
 | R17 | Ordering prints makes each design iteration slow, and a wrong part costs a re-order | High | Medium | Tolerance test piece first; fit checked in CAD; complete batches; spares of small loaded parts; a written print specification with every order |
+| R18 | The battery cannot be swapped without opening the body (posts block every exit; the top plate is solid) | High | Low | Known in version 1.5d; a hatch over the pack or an open end is added when the body is built (version 3); charge in place or open the body meanwhile |
 
 ## Assumptions
 
@@ -84,7 +90,7 @@ Things taken as true without confirmation. If one is wrong, the design is revisi
 | Final servo model | End of version 1.5 |
 | Final leg lengths and body size | Version 1.5 |
 | Which community servo driver, or a custom one | Version 2 |
-| Which print service; its build size and materials | Step 1.5.6 |
+| Which print service; its build size and materials | When the quotes arrive (version 1.5c request) |
 | First perception sensor | Start of version 6 |
 | Training framework and hardware | Start of version 7 |
 | Order of the version 8+ capabilities | After version 6 |

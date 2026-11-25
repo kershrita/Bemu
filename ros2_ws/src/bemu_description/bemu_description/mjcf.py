@@ -12,6 +12,7 @@ from xml.sax.saxutils import quoteattr
 
 from bemu_description.actuators import ActuatorModel
 from bemu_description.names import foot_site, hip_site, joint_names
+from bemu_description.visuals import Visuals, geoms_xml
 from bemu_kinematics import inverse
 from bemu_params import RobotParams
 
@@ -42,6 +43,16 @@ def joint_defaults_xml(actuators: ActuatorModel) -> str:
     )
 
 
+def _inertial(leg, joint: str, mass: float) -> str:
+    """The link's centre of mass and inertia from the CAD, when the parameter file has them."""
+    if leg.link_inertia is None:
+        return ""
+    item = leg.link_inertia[joint]
+    return (
+        f'<inertial pos="{vec(*item.com)}" mass="{num(mass)}" fullinertia="{vec(*item.inertia)}"/>'
+    )
+
+
 def leg_body_xml(
     params: RobotParams,
     leg_code: str,
@@ -49,6 +60,7 @@ def leg_body_xml(
     pos: str,
     euler: str | None = None,
     foot_contact: str = "",
+    visuals: Visuals | None = None,
 ) -> str:
     """The nested coxa, femur and tibia bodies of one leg, with its hip and foot sites.
 
@@ -68,22 +80,29 @@ def leg_body_xml(
         )
 
     orientation = f' euler="{euler}"' if euler else ""
+    hide = ' group="3"' if visuals else ""  # the collision geoms are hidden behind the CAD meshes
     return f"""<body name="{leg_code}_coxa" pos="{pos}"{orientation}>
       {joint(coxa, (0, 0, 1), limits[0])}
+      {_inertial(leg, "coxa", leg.coxa_mass)}
       <site name={q(hip_site(leg_code))} pos="0 0 0" size="0.004"/>
       <geom type="capsule" fromto="0 0 0 {vec(leg.coxa_length, 0, 0)}" \
-size="{num(LINK_RADIUS)}" mass="{num(leg.coxa_mass)}"/>
+size="{num(LINK_RADIUS)}" mass="{num(leg.coxa_mass)}"{hide}/>
+      {geoms_xml(visuals, "coxa") if visuals else ""}
       <body name="{leg_code}_femur" pos="{vec(leg.coxa_length, 0, 0)}">
         {joint(femur, (0, -1, 0), limits[1])}
+        {_inertial(leg, "femur", leg.femur_mass)}
         <geom type="capsule" fromto="0 0 0 {vec(leg.femur_length, 0, 0)}" \
-size="{num(LINK_RADIUS)}" mass="{num(leg.femur_mass)}"/>
+size="{num(LINK_RADIUS)}" mass="{num(leg.femur_mass)}"{hide}/>
+        {geoms_xml(visuals, "femur") if visuals else ""}
         <body name="{leg_code}_tibia" pos="{vec(leg.femur_length, 0, 0)}">
           {joint(tibia, (0, -1, 0), limits[2])}
+          {_inertial(leg, "tibia", leg.tibia_mass)}
           <geom type="capsule" fromto="0 0 0 {vec(leg.tibia_length, 0, 0)}" \
-size="{num(LINK_RADIUS)}" mass="{num(leg.tibia_mass)}"/>
+size="{num(LINK_RADIUS)}" mass="{num(leg.tibia_mass)}"{hide}/>
+          {geoms_xml(visuals, "tibia") if visuals else ""}
           <geom name="{leg_code}_foot_tip" type="sphere" pos="{vec(leg.tibia_length, 0, 0)}" \
 size="{num(leg.foot_radius)}" density="0" {foot_contact} \
-friction="{num(FOOT_FRICTION)} 0.005 0.0001"/>
+friction="{num(FOOT_FRICTION)} 0.005 0.0001"{hide}/>
           <site name={q(foot_site(leg_code))} pos="{vec(leg.tibia_length, 0, 0)}" size="0.004"/>
         </body>
       </body>

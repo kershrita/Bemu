@@ -1,5 +1,5 @@
 {
-  "commit": "1657afd",
+  "commit": "6dc5811",
   "date": "2026-11-19",
   "servo": {
     "model": "STS3215-12V",
@@ -7,13 +7,11 @@
     "rated_torque": 0.98,
     "max_speed": 4.7,
     "stall_current_a": 2.7,
-    "idle_current_a": 0.1,
+    "idle_current_a": 0.03,
     "supply_voltage_v": 12.0
   },
   "design_limit_torque": 1.47,
   "placeholders": [
-    "stall_current_a",
-    "idle_current_a",
     "supply_voltage_v"
   ],
   "results": [
@@ -129,7 +127,7 @@
       },
       "min_margin": null,
       "max_slip": null,
-      "power": 36.46972298875493,
+      "power": 21.349722988754927,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -252,7 +250,7 @@
       },
       "min_margin": 0.08871220007933127,
       "max_slip": 0.0025776217404457984,
-      "power": 41.57510156238555,
+      "power": 26.455101562385543,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -375,7 +373,7 @@
       },
       "min_margin": 0.08265073006653585,
       "max_slip": 0.0027833904305218497,
-      "power": 45.723460341102594,
+      "power": 30.603460341102586,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -498,7 +496,7 @@
       },
       "min_margin": 0.06983677029524821,
       "max_slip": 0.0033704429789929405,
-      "power": 50.805485408475505,
+      "power": 35.68548540847551,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -621,7 +619,7 @@
       },
       "min_margin": 0.08134305394700432,
       "max_slip": 0.005394322584020506,
-      "power": 50.437284404031445,
+      "power": 35.31728440403144,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -744,7 +742,7 @@
       },
       "min_margin": 0.0938910379765946,
       "max_slip": 0.002738550351951496,
-      "power": 48.86752287051717,
+      "power": 33.74752287051717,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -867,7 +865,7 @@
       },
       "min_margin": 0.09161375299093437,
       "max_slip": 0.002130077868432843,
-      "power": 40.671387607795985,
+      "power": 25.55138760779598,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -990,7 +988,7 @@
       },
       "min_margin": 0.08827122166616268,
       "max_slip": 0.0027254957097332883,
-      "power": 43.42210317509023,
+      "power": 28.302103175090224,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -1113,7 +1111,7 @@
       },
       "min_margin": 0.08203965514278128,
       "max_slip": 0.0036512130231383276,
-      "power": 46.62434585558849,
+      "power": 31.504345855588497,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -1236,7 +1234,7 @@
       },
       "min_margin": 0.08697029118607331,
       "max_slip": 0.004671760112460004,
-      "power": 46.471732239581804,
+      "power": 31.351732239581793,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -1359,7 +1357,7 @@
       },
       "min_margin": 0.08305137154137716,
       "max_slip": 0.002205506170101529,
-      "power": 45.73390528476191,
+      "power": 30.6139052847619,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -1482,7 +1480,7 @@
       },
       "min_margin": 0.09658539539182691,
       "max_slip": 0.002616512636325916,
-      "power": 38.78410287815741,
+      "power": 23.664102878157408,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -1605,7 +1603,7 @@
       },
       "min_margin": 0.09833534007381906,
       "max_slip": 0.0030288757443726303,
-      "power": 39.936997025079386,
+      "power": 24.816997025079388,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -1728,7 +1726,7 @@
       },
       "min_margin": 0.10166696920802998,
       "max_slip": 0.0035276010265998968,
-      "power": 41.23093622386598,
+      "power": 26.11093622386598,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -1851,7 +1849,7 @@
       },
       "min_margin": 0.08595339234855771,
       "max_slip": 0.005079883956431918,
-      "power": 41.65965665273634,
+      "power": 26.539656652736344,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -1974,7 +1972,7 @@
       },
       "min_margin": 0.08744760581395511,
       "max_slip": 0.0030171235448366294,
-      "power": 41.73245721509121,
+      "power": 26.6124572150912,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -2097,7 +2095,7 @@
       },
       "min_margin": null,
       "max_slip": null,
-      "power": 38.490502266487866,
+      "power": 23.370502266487858,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -2220,7 +2218,7 @@
       },
       "min_margin": 0.08872044299057259,
       "max_slip": 0.0027903375626557097,
-      "power": 43.10091328636842,
+      "power": 27.980913286368413,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -2343,7 +2341,7 @@
       },
       "min_margin": 0.08271309485701014,
       "max_slip": 0.0030063540447264844,
-      "power": 47.14747066217957,
+      "power": 32.027470662179574,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -2466,7 +2464,7 @@
       },
       "min_margin": 0.06987188929377808,
       "max_slip": 0.003578190129758767,
-      "power": 52.27051341820105,
+      "power": 37.150513418201044,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -2589,7 +2587,7 @@
       },
       "min_margin": 0.08136844256420149,
       "max_slip": 0.0056106716880235386,
-      "power": 51.91988950342688,
+      "power": 36.79988950342688,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -2712,7 +2710,7 @@
       },
       "min_margin": 0.09398770161135651,
       "max_slip": 0.003112562385565221,
-      "power": 50.32412761073789,
+      "power": 35.20412761073789,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -2835,7 +2833,7 @@
       },
       "min_margin": 0.09161817878502293,
       "max_slip": 0.0022894156926323546,
-      "power": 42.38083794876699,
+      "power": 27.260837948766987,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -2958,7 +2956,7 @@
       },
       "min_margin": 0.08823438608156144,
       "max_slip": 0.0028893051455062733,
-      "power": 45.09046385174951,
+      "power": 29.97046385174951,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -3081,7 +3079,7 @@
       },
       "min_margin": 0.08198293305115,
       "max_slip": 0.0038697713004604804,
-      "power": 48.31612938221254,
+      "power": 33.19612938221254,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -3204,7 +3202,7 @@
       },
       "min_margin": 0.08695842634702441,
       "max_slip": 0.004758005331613899,
-      "power": 48.191793103865656,
+      "power": 33.07179310386565,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -3327,7 +3325,7 @@
       },
       "min_margin": 0.08309144992088444,
       "max_slip": 0.0023500101111795166,
-      "power": 47.46315750609914,
+      "power": 32.34315750609913,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -3450,7 +3448,7 @@
       },
       "min_margin": 0.09662048542663101,
       "max_slip": 0.002834257809386779,
-      "power": 40.58998321737691,
+      "power": 25.469983217376917,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -3573,7 +3571,7 @@
       },
       "min_margin": 0.09839507599752327,
       "max_slip": 0.0032707238256577203,
-      "power": 41.710089058479895,
+      "power": 26.590089058479894,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -3696,7 +3694,7 @@
       },
       "min_margin": 0.10173464639354723,
       "max_slip": 0.003767568799358333,
-      "power": 42.98863137815569,
+      "power": 27.868631378155683,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -3819,7 +3817,7 @@
       },
       "min_margin": 0.08589953825814581,
       "max_slip": 0.005254233097821139,
-      "power": 43.52549204762119,
+      "power": 28.40549204762119,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -3942,7 +3940,7 @@
       },
       "min_margin": 0.0872880435070245,
       "max_slip": 0.0032537853695086927,
-      "power": 43.62813748807532,
+      "power": 28.508137488075313,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -4065,7 +4063,7 @@
       },
       "min_margin": null,
       "max_slip": null,
-      "power": 41.547991482833886,
+      "power": 26.427991482833885,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -4188,7 +4186,7 @@
       },
       "min_margin": 0.08873805028323427,
       "max_slip": 0.0031218687065302894,
-      "power": 45.42495670148597,
+      "power": 30.30495670148596,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -4311,7 +4309,7 @@
       },
       "min_margin": 0.08280395302171693,
       "max_slip": 0.0032723920465411267,
-      "power": 49.32312819895234,
+      "power": 34.20312819895234,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -4434,7 +4432,7 @@
       },
       "min_margin": 0.06993464733784369,
       "max_slip": 0.003909075458520564,
-      "power": 54.46834409724724,
+      "power": 39.34834409724723,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -4557,7 +4555,7 @@
       },
       "min_margin": 0.08139856847412424,
       "max_slip": 0.005880632259116836,
-      "power": 54.164349617404625,
+      "power": 39.04434961740463,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -4680,7 +4678,7 @@
       },
       "min_margin": 0.09413747447458183,
       "max_slip": 0.003530164807132971,
-      "power": 52.53287807245832,
+      "power": 37.41287807245832,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -4803,7 +4801,7 @@
       },
       "min_margin": 0.09164250576370064,
       "max_slip": 0.0025145654725648643,
-      "power": 45.01673409290005,
+      "power": 29.896734092900054,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -4926,7 +4924,7 @@
       },
       "min_margin": 0.08857559704928494,
       "max_slip": 0.0031462650114924473,
-      "power": 47.61061912921357,
+      "power": 32.49061912921357,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -5049,7 +5047,7 @@
       },
       "min_margin": 0.08194534070858508,
       "max_slip": 0.004142990235923656,
-      "power": 50.89938979599029,
+      "power": 35.7793897959903,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -5172,7 +5170,7 @@
       },
       "min_margin": 0.08694683634510163,
       "max_slip": 0.004947648513901986,
-      "power": 50.802636688905466,
+      "power": 35.682636688905454,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -5295,7 +5293,7 @@
       },
       "min_margin": 0.08317691641764598,
       "max_slip": 0.0025967061102566266,
-      "power": 50.09818512939414,
+      "power": 34.97818512939414,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -5418,7 +5416,7 @@
       },
       "min_margin": 0.09666749936917285,
       "max_slip": 0.003141057744325066,
-      "power": 43.361901206058526,
+      "power": 28.241901206058518,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -5541,7 +5539,7 @@
       },
       "min_margin": 0.09848465963069607,
       "max_slip": 0.0036400844020110933,
-      "power": 44.404959384829276,
+      "power": 29.284959384829268,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -5664,7 +5662,7 @@
       },
       "min_margin": 0.1018379386354863,
       "max_slip": 0.004127247023822337,
-      "power": 45.67098127465507,
+      "power": 30.550981274655076,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -5787,7 +5785,7 @@
       },
       "min_margin": 0.08584257602044006,
       "max_slip": 0.005506730048758808,
-      "power": 46.35192061052269,
+      "power": 31.23192061052269,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
@@ -5910,7 +5908,7 @@
       },
       "min_margin": 0.08711723598476719,
       "max_slip": 0.003662624198226687,
-      "power": 46.508106344843455,
+      "power": 31.388106344843454,
       "verdict": {
         "peak_ok": true,
         "rms_ok": true,
